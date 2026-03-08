@@ -2,11 +2,11 @@ import { cn } from '@/lib/utils'
 import { HTMLAttributes } from 'react'
 
 export function Table({ className, ...props }: HTMLAttributes<HTMLTableElement>) {
-  return <table className={cn('w-full border-collapse', className)} {...props} />
+  return <table className={cn('w-full border-collapse text-sm', className)} {...props} />
 }
 
 export function THead({ className, ...props }: HTMLAttributes<HTMLTableSectionElement>) {
-  return <thead className={cn('bg-gray-100', className)} {...props} />
+  return <thead className={cn('bg-bg-elevated text-text-secondary', className)} {...props} />
 }
 
 export function TBody({ className, ...props }: HTMLAttributes<HTMLTableSectionElement>) {
@@ -14,13 +14,18 @@ export function TBody({ className, ...props }: HTMLAttributes<HTMLTableSectionEl
 }
 
 export function Tr({ className, ...props }: HTMLAttributes<HTMLTableRowElement>) {
-  return <tr className={className} {...props} />
+  return <tr className={cn('border-b border-border-subtle', className)} {...props} />
 }
 
 export function Th({ className, ...props }: HTMLAttributes<HTMLTableCellElement>) {
-  return <th className={cn('px-2 py-1 border', className)} {...props} />
+  return (
+    <th
+      className={cn('px-3 py-2 text-left text-xs font-medium uppercase tracking-wider', className)}
+      {...props}
+    />
+  )
 }
 
 export function Td({ className, ...props }: HTMLAttributes<HTMLTableCellElement>) {
-  return <td className={cn('px-2 py-1 border', className)} {...props} />
+  return <td className={cn('px-3 py-2', className)} {...props} />
 }
