@@ -3,12 +3,15 @@ import { type NextRequest, NextResponse } from 'next/server'
 import { createSessionToken, getSessionFromRequest, setSessionCookie } from '@/lib/auth/session'
 import { getOAuthAuthorizationUrl } from '@/lib/auth/oauth'
 import { createUser } from '@/lib/db/queries'
+import { baseUrl } from '@/lib/url'
 
 export async function GET(request: NextRequest) {
+  const origin = baseUrl(request)
+
   // Already authenticated — send back to setup
   const existing = await getSessionFromRequest(request)
   if (existing) {
-    return NextResponse.redirect(new URL('/setup', request.url))
+    return NextResponse.redirect(new URL('/setup', origin))
   }
 
   // OAuth if configured
@@ -24,7 +27,7 @@ export async function GET(request: NextRequest) {
   const userId = randomUUID()
   await createUser(userId)
   const token = await createSessionToken({ userId })
-  const response = NextResponse.redirect(new URL('/setup', request.url))
+  const response = NextResponse.redirect(new URL('/setup', origin))
   setSessionCookie(response, token)
   return response
 }

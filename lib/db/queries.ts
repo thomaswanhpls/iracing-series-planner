@@ -1,11 +1,11 @@
 import { eq, and } from 'drizzle-orm'
-import { db } from './index'
+import { getDb } from './index'
 import { users, userOwnedTracks, userSelectedSeries } from './schema'
 
 // --- Users ---
 
 export async function createUser(id: string, iracingCustomerId?: number) {
-  await db.insert(users).values({
+  await getDb().insert(users).values({
     id,
     createdAt: new Date(),
     iracingCustomerId: iracingCustomerId ?? null,
@@ -13,11 +13,11 @@ export async function createUser(id: string, iracingCustomerId?: number) {
 }
 
 export async function getUserById(id: string) {
-  return db.query.users.findFirst({ where: eq(users.id, id) })
+  return getDb().query.users.findFirst({ where: eq(users.id, id) })
 }
 
 export async function linkIracingAccount(userId: string, iracingCustomerId: number) {
-  await db
+  await getDb()
     .update(users)
     .set({ iracingCustomerId })
     .where(eq(users.id, userId))
@@ -26,7 +26,7 @@ export async function linkIracingAccount(userId: string, iracingCustomerId: numb
 // --- Owned tracks ---
 
 export async function getOwnedTrackIds(userId: string): Promise<number[]> {
-  const rows = await db
+  const rows = await getDb()
     .select({ trackId: userOwnedTracks.trackId })
     .from(userOwnedTracks)
     .where(eq(userOwnedTracks.userId, userId))
@@ -35,12 +35,12 @@ export async function getOwnedTrackIds(userId: string): Promise<number[]> {
 
 export async function setTrackOwned(userId: string, trackId: number, owned: boolean) {
   if (owned) {
-    await db
+    await getDb()
       .insert(userOwnedTracks)
       .values({ userId, trackId })
       .onConflictDoNothing()
   } else {
-    await db
+    await getDb()
       .delete(userOwnedTracks)
       .where(and(eq(userOwnedTracks.userId, userId), eq(userOwnedTracks.trackId, trackId)))
   }
@@ -48,20 +48,20 @@ export async function setTrackOwned(userId: string, trackId: number, owned: bool
 
 export async function bulkSetTracksOwned(userId: string, trackIds: number[]) {
   if (trackIds.length === 0) return
-  await db
+  await getDb()
     .insert(userOwnedTracks)
     .values(trackIds.map((trackId) => ({ userId, trackId })))
     .onConflictDoNothing()
 }
 
 export async function clearOwnedTracks(userId: string) {
-  await db.delete(userOwnedTracks).where(eq(userOwnedTracks.userId, userId))
+  await getDb().delete(userOwnedTracks).where(eq(userOwnedTracks.userId, userId))
 }
 
 // --- Selected series ---
 
 export async function getSelectedSeriesIds(userId: string, season: string): Promise<number[]> {
-  const rows = await db
+  const rows = await getDb()
     .select({ seriesId: userSelectedSeries.seriesId })
     .from(userSelectedSeries)
     .where(
@@ -71,13 +71,13 @@ export async function getSelectedSeriesIds(userId: string, season: string): Prom
 }
 
 export async function setSelectedSeries(userId: string, season: string, seriesIds: number[]) {
-  await db
+  await getDb()
     .delete(userSelectedSeries)
     .where(
       and(eq(userSelectedSeries.userId, userId), eq(userSelectedSeries.season, season))
     )
   if (seriesIds.length > 0) {
-    await db
+    await getDb()
       .insert(userSelectedSeries)
       .values(seriesIds.map((seriesId) => ({ userId, seriesId, season })))
   }

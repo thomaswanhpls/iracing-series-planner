@@ -5,7 +5,8 @@ import * as schema from './schema'
 function createDb() {
   const url = process.env.TURSO_DATABASE_URL
   if (!url) {
-    throw new Error('TURSO_DATABASE_URL is not set')
+    // Return null during build when env vars are not available
+    return null
   }
   const client = createClient({
     url,
@@ -17,8 +18,18 @@ function createDb() {
 // Singleton to avoid multiple connections in dev (hot reload)
 const globalForDb = globalThis as unknown as { db: ReturnType<typeof createDb> | undefined }
 
-export const db = globalForDb.db ?? createDb()
+const _db = globalForDb.db ?? createDb()
 
-if (process.env.NODE_ENV !== 'production') {
-  globalForDb.db = db
+if (process.env.NODE_ENV !== 'production' && _db) {
+  globalForDb.db = _db
 }
+
+export function getDb() {
+  if (!_db) {
+    throw new Error('TURSO_DATABASE_URL is not set')
+  }
+  return _db
+}
+
+/** @deprecated Use getDb() for lazy access */
+export const db = _db!

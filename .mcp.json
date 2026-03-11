@@ -1,8 +1,8 @@
 {
   "mcpServers": {
     "nextjs": {
-      "type": "http",
-      "url": "https://mcp.nextjs.com/mcp"
+      "command": "npx",
+      "args": ["next-devtools-mcp@latest"]
     }
   }
 }

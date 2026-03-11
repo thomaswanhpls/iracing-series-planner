@@ -14,9 +14,25 @@ const dmSans = DM_Sans({
   display: 'swap',
 })
 
-export const metadata = {
-  title: 'iRacing Season Planner',
-  description: 'Plan your season. Save money. Race more.',
+import type { Metadata } from 'next'
+
+export const metadata: Metadata = {
+  title: {
+    default: 'iRacing Season Planner',
+    template: '%s | iRacing Season Planner',
+  },
+  description: 'Planera din iRacing-säsong. Optimera inköp av banor och maximera ditt deltagande.',
+  openGraph: {
+    title: 'iRacing Season Planner',
+    description: 'Planera din iRacing-säsong. Optimera inköp av banor och maximera ditt deltagande.',
+    type: 'website',
+    locale: 'sv_SE',
+    siteName: 'iRacing Season Planner',
+  },
+  robots: {
+    index: true,
+    follow: true,
+  },
 }
 
 export default function RootLayout({ children }: { children: ReactNode }) {
