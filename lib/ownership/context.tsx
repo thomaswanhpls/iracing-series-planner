@@ -1,6 +1,6 @@
 'use client'
 
-import { createContext, useContext, useSyncExternalStore, useCallback, ReactNode } from 'react'
+import { createContext, useContext, useSyncExternalStore, useCallback, useEffect, ReactNode } from 'react'
 import {
   subscribe,
   getSnapshot,
@@ -9,6 +9,7 @@ import {
   setTrackOwned as localSet,
   bulkSetOwned as localBulk,
   clearAllOwned as localClear,
+  seedFromDb,
 } from './store'
 import {
   toggleTrackOwnedInDb,
@@ -29,12 +30,22 @@ const OwnershipContext = createContext<OwnershipContextValue | null>(null)
 
 interface OwnershipProviderProps {
   children: ReactNode
-  /** Pass userId from session to persist to DB instead of only localStorage */
+  /** userId from session — routes mutations through DB when set */
   userId?: string
+  /** Server-fetched owned track ids to seed localStorage on first load */
+  initialOwnedTrackIds?: number[]
 }
 
-export function OwnershipProvider({ children, userId }: OwnershipProviderProps) {
+export function OwnershipProvider({ children, userId, initialOwnedTrackIds }: OwnershipProviderProps) {
   const ownedTrackIds = useSyncExternalStore(subscribe, getSnapshot, getServerSnapshot)
+
+  // Seed localStorage from DB data on first mount (only if localStorage is empty)
+  useEffect(() => {
+    if (initialOwnedTrackIds && initialOwnedTrackIds.length > 0) {
+      seedFromDb(initialOwnedTrackIds)
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   const isOwned = useCallback(
     (trackId: number) => ownedTrackIds.includes(trackId),

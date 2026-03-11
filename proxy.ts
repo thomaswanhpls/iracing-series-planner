@@ -1,8 +1,10 @@
-import type { NextRequest } from 'next/server'
+import { type NextRequest, NextResponse } from 'next/server'
+import { getSessionFromRequest } from '@/lib/auth/session'
 
-// Auth guard skeleton — allows all requests for now.
-// Will be wired up in Step 11 to check session cookies
-// and redirect unauthenticated users to /.
-export function proxy(request: NextRequest) {
-  return undefined // pass through — no auth check yet
+export async function proxy(request: NextRequest) {
+  const session = await getSessionFromRequest(request)
+  if (!session) {
+    return NextResponse.redirect(new URL('/', request.url))
+  }
+  return undefined // pass through
 }

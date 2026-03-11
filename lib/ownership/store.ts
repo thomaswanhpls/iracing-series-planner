@@ -72,3 +72,15 @@ export function bulkSetOwned(trackIds: number[]) {
 export function clearAllOwned() {
   save([])
 }
+
+/**
+ * Seed localStorage from DB data on first app load.
+ * Only writes if localStorage is empty to avoid overwriting local changes.
+ */
+export function seedFromDb(dbIds: number[]) {
+  if (dbIds.length === 0) return
+  const current = getSnapshot()
+  if (current.length === 0) {
+    save(dbIds)
+  }
+}

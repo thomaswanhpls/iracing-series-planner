@@ -71,7 +71,7 @@ export default function Home() {
         {/* CTA */}
         <div className="mt-10 flex items-center gap-4 animate-slide-up [animation-delay:200ms]">
           <Link
-            href="/setup"
+            href="/api/auth/login"
             className="group relative inline-flex items-center gap-2 overflow-hidden rounded-lg bg-accent-primary px-8 py-3.5 font-display text-sm font-semibold text-white transition-all hover:shadow-[0_0_30px_rgba(233,69,96,0.3)] hover:scale-[1.02] active:scale-[0.98]"
           >
             <span className="relative z-10">Kom igång</span>
@@ -80,7 +80,7 @@ export default function Home() {
             <div className="absolute inset-0 -translate-x-full animate-shimmer bg-gradient-to-r from-transparent via-white/10 to-transparent" />
           </Link>
           <Link
-            href="/dashboard"
+            href="/api/auth/login"
             className="inline-flex items-center gap-2 rounded-lg border border-border bg-bg-surface/50 px-6 py-3.5 font-display text-sm font-medium text-text-secondary backdrop-blur-sm transition-all hover:border-accent-primary/30 hover:text-text-primary hover:bg-bg-surface"
           >
             Dashboard
