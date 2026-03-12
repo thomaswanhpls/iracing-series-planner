@@ -1,8 +1,8 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import Link from 'next/link'
-import { usePathname } from 'next/navigation'
+import { usePathname, useSearchParams } from 'next/navigation'
 import {
   LayoutDashboard,
   Compass,
@@ -12,18 +12,17 @@ import {
   ChevronLeft,
   ChevronRight,
   Trophy,
+  CalendarDays,
   LogOut,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { OwnershipProvider } from '@/lib/ownership/context'
 
-const navItems = [
-  { href: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
-  { href: '/setup', label: 'Setup', icon: Compass },
-  { href: '/tracks', label: 'Banor', icon: MapPin },
-  { href: '/dashboard/costs', label: 'Kostnader', icon: DollarSign },
-  { href: '/settings', label: 'Inställningar', icon: Settings },
-]
+const planningSteps = [
+  { key: 'setup', label: 'Setup', href: '/setup' },
+  { key: 'tracks', label: 'Banor', href: '/tracks' },
+  { key: 'costs', label: 'Kostnad', href: '/dashboard/costs' },
+] as const
 
 interface AppShellProps {
   children: React.ReactNode
@@ -31,9 +30,58 @@ interface AppShellProps {
   initialOwnedTrackIds: number[]
 }
 
+interface NavItem {
+  href: string
+  label: string
+  icon: React.ComponentType<{ className?: string }>
+  group: 'primary' | 'secondary'
+}
+
+const navItems: NavItem[] = [
+  { href: '/setup', label: 'Setup', icon: Compass, group: 'primary' },
+  { href: '/tracks', label: 'Banor', icon: MapPin, group: 'primary' },
+  { href: '/dashboard/costs', label: 'Kostnader', icon: DollarSign, group: 'primary' },
+  { href: '/series', label: 'Seriescheman (valfri)', icon: CalendarDays, group: 'secondary' },
+  { href: '/dashboard', label: 'Matris', icon: LayoutDashboard, group: 'secondary' },
+  { href: '/settings', label: 'Inställningar', icon: Settings, group: 'secondary' },
+]
+
 export function AppShell({ children, userId, initialOwnedTrackIds }: AppShellProps) {
   const [collapsed, setCollapsed] = useState(false)
+  const [emphasizeFocusFlow, setEmphasizeFocusFlow] = useState(true)
+  const [seasonBadge, setSeasonBadge] = useState('2026 S2')
   const pathname = usePathname()
+  const searchParams = useSearchParams()
+  const seriesParam = searchParams.get('series')
+  const navShouldCarrySeries = new Set(['/tracks', '/series', '/dashboard', '/dashboard/costs'])
+
+  const flowStep = (() => {
+    if (pathname.startsWith('/setup')) return 'setup'
+    if (pathname.startsWith('/tracks')) return 'tracks'
+    if (pathname.startsWith('/dashboard/costs')) return 'costs'
+    return null
+  })()
+  const isPrimaryFlowRoute =
+    pathname.startsWith('/setup') ||
+    pathname.startsWith('/tracks') ||
+    pathname.startsWith('/dashboard/costs')
+  const hasReachedCostStep = pathname.startsWith('/dashboard/costs')
+  const focusModeActive = isPrimaryFlowRoute && !hasReachedCostStep && emphasizeFocusFlow
+
+  useEffect(() => {
+    const querySeason = searchParams.get('season')
+    if (querySeason) {
+      const normalized = querySeason.replace('-', ' S').toUpperCase()
+      setSeasonBadge(normalized)
+      localStorage.setItem('planner-season', normalized)
+      return
+    }
+
+    const storedSeason = localStorage.getItem('planner-season')
+    if (storedSeason) {
+      setSeasonBadge(storedSeason)
+    }
+  }, [searchParams])
 
   return (
     <OwnershipProvider userId={userId} initialOwnedTrackIds={initialOwnedTrackIds}>
@@ -61,15 +109,20 @@ export function AppShell({ children, userId, initialOwnedTrackIds }: AppShellPro
 
           {/* Nav */}
           <nav className="relative flex-1 space-y-1 p-2">
-            {navItems.map(({ href, label, icon: Icon }) => {
+            {navItems.map(({ href, label, icon: Icon, group }) => {
               const active = pathname === href || pathname.startsWith(href + '/')
+              const navHref =
+                seriesParam && navShouldCarrySeries.has(href)
+                  ? `${href}?series=${seriesParam}`
+                  : href
               return (
                 <Link
                   key={href}
-                  href={href}
+                  href={navHref}
                   className={cn(
                     'group relative flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm transition-all duration-200',
-                    active ? 'text-text-primary' : 'text-text-muted hover:text-text-primary'
+                    active ? 'text-text-primary' : 'text-text-muted hover:text-text-primary',
+                    focusModeActive && group === 'secondary' && 'opacity-60'
                   )}
                 >
                   {active && (
@@ -90,6 +143,11 @@ export function AppShell({ children, userId, initialOwnedTrackIds }: AppShellPro
                 </Link>
               )
             })}
+            {focusModeActive && !collapsed && (
+              <div className="rounded-md border border-border/60 bg-bg-elevated/30 px-3 py-2 text-[11px] text-text-muted">
+                Fokusläge: valfria vyer är tillfälligt dolda.
+              </div>
+            )}
           </nav>
 
           {/* Logout */}
@@ -118,15 +176,50 @@ export function AppShell({ children, userId, initialOwnedTrackIds }: AppShellPro
         <div className="flex flex-1 flex-col overflow-hidden">
           {/* Top bar */}
           <header className="relative flex h-14 items-center justify-between border-b border-border/50 bg-bg-surface/40 px-6 backdrop-blur-xl">
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-4">
               <div className="flex items-center gap-2 rounded-full border border-border bg-bg-elevated/50 px-3 py-1">
                 <div className="h-1.5 w-1.5 rounded-full bg-status-owned animate-glow-pulse" />
                 <span className="font-display text-xs font-medium text-text-secondary">
-                  2026 S1
+                  {seasonBadge}
                 </span>
               </div>
+              {flowStep && (
+                <div className="hidden items-center gap-1 rounded-full border border-border bg-bg-elevated/40 px-2 py-1 md:flex">
+                  {planningSteps.map((step, index) => {
+                    const active = flowStep === step.key
+                    const href = seriesParam ? `${step.href}?series=${seriesParam}` : step.href
+                    return (
+                      <div key={step.key} className="flex items-center gap-1">
+                        <Link
+                          href={href}
+                          className={cn(
+                            'rounded-full px-2.5 py-1 text-[11px] font-medium transition-colors',
+                            active
+                              ? 'bg-accent-primary/15 text-text-primary'
+                              : 'text-text-muted hover:text-text-primary'
+                          )}
+                        >
+                          {step.label}
+                        </Link>
+                        {index < planningSteps.length - 1 && (
+                          <span className="px-0.5 text-[10px] text-text-muted">→</span>
+                        )}
+                      </div>
+                    )
+                  })}
+                </div>
+              )}
             </div>
             <div className="flex items-center gap-3">
+              {isPrimaryFlowRoute && !hasReachedCostStep && (
+                <button
+                  type="button"
+                  onClick={() => setEmphasizeFocusFlow((value) => !value)}
+                  className="rounded-full border border-border bg-bg-elevated/40 px-3 py-1 text-xs text-text-secondary transition-colors hover:text-text-primary"
+                >
+                  {emphasizeFocusFlow ? 'Visa alla vyer lika tydligt' : 'Betona fokussteg'}
+                </button>
+              )}
               <div className="h-8 w-8 rounded-full bg-gradient-to-br from-accent-primary/20 to-accent-secondary/20 border border-border" />
             </div>
           </header>
@@ -138,3 +231,5 @@ export function AppShell({ children, userId, initialOwnedTrackIds }: AppShellPro
     </OwnershipProvider>
   )
 }
+
+

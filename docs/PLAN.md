@@ -10,6 +10,18 @@ Projektet har en minimal skeleton (Next.js 16 + React 19 + Tailwind 4) med en en
 - **Ingen Redis/Turso tidigt** — localStorage + URL-state först, databas i steg 10
 - **Statisk data som databackend** — realistisk hårdkodad serie/ban-data tills API finns
 
+## Aktivt Appflöde (MVP)
+
+För tydlighet i produktbeteendet ska navigation och copy följa detta:
+
+1. `/setup` — välj säsong, kategorier, klasser och serier
+2. `/series` — planeringsöversikt av valda serier och veckobanor
+3. `/tracks` — markera vad du äger
+4. `/dashboard/costs` — beslut: vad som saknas och vad det kostar
+5. `/dashboard` — kompletterande matrisanalys av veckotäckning (sekundär vy)
+
+`/dashboard` är alltså inte startpunkten i flödet, utan en analysvy efter att serier och ownership är satta.
+
 ---
 
 ## Steg 1: Design System Foundation

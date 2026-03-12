@@ -1,7 +1,6 @@
 'use client'
 
 import type { PurchaseRecommendation, CostSummary } from '@/lib/analysis/types'
-import { getSeriesById } from '@/lib/iracing/data-provider'
 import { Card } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 
@@ -31,7 +30,7 @@ export function CostTable({ recommendations, costSummary }: CostTableProps) {
               <span className="font-display text-sm font-bold text-accent-primary">{costSummary.trackCount}</span>
             </div>
             <div>
-              <div className="text-[10px] uppercase tracking-wider text-text-muted">Antal banor</div>
+              <div className="text-xs uppercase tracking-wide text-text-muted">Antal banor</div>
               <div className="font-display text-lg font-bold">{costSummary.trackCount} st</div>
             </div>
           </div>
@@ -42,7 +41,7 @@ export function CostTable({ recommendations, costSummary }: CostTableProps) {
               <span className="font-display text-sm font-bold text-status-owned">%</span>
             </div>
             <div>
-              <div className="text-[10px] uppercase tracking-wider text-text-muted">
+              <div className="text-xs uppercase tracking-wide text-text-muted">
                 Rabatt ({costSummary.discountTier}: {costSummary.discountPercent}%)
               </div>
               <div className="font-display text-lg font-bold text-status-owned">
@@ -57,14 +56,14 @@ export function CostTable({ recommendations, costSummary }: CostTableProps) {
               <span className="font-display text-sm font-bold text-status-missing">$</span>
             </div>
             <div>
-              <div className="text-[10px] uppercase tracking-wider text-text-muted">Total kostnad</div>
+              <div className="text-xs uppercase tracking-wide text-text-muted">Total kostnad</div>
               <div className="font-display text-lg font-bold">
                 ${costSummary.totalAfterDiscount.toFixed(2)}
               </div>
             </div>
           </div>
           {costSummary.discountPercent > 0 && (
-            <div className="mt-2 text-[10px] text-text-muted line-through">
+            <div className="mt-2 text-xs text-text-muted line-through">
               ${costSummary.totalBeforeDiscount.toFixed(2)} före rabatt
             </div>
           )}
@@ -76,11 +75,11 @@ export function CostTable({ recommendations, costSummary }: CostTableProps) {
         <table className="w-full text-sm">
           <thead>
             <tr className="bg-bg-elevated/60">
-              <th className="px-4 py-3 text-left text-[10px] font-display font-medium uppercase tracking-widest text-text-muted">#</th>
-              <th className="px-4 py-3 text-left text-[10px] font-display font-medium uppercase tracking-widest text-text-muted">Bana</th>
-              <th className="px-4 py-3 text-left text-[10px] font-display font-medium uppercase tracking-widest text-text-muted">Serier</th>
-              <th className="px-4 py-3 text-right text-[10px] font-display font-medium uppercase tracking-widest text-text-muted">Pris</th>
-              <th className="px-4 py-3 text-right text-[10px] font-display font-medium uppercase tracking-widest text-text-muted">Löpande</th>
+              <th className="px-4 py-3 text-left text-xs font-display font-medium uppercase tracking-wide text-text-muted">#</th>
+              <th className="px-4 py-3 text-left text-xs font-display font-medium uppercase tracking-wide text-text-muted">Bana</th>
+              <th className="px-4 py-3 text-left text-xs font-display font-medium uppercase tracking-wide text-text-muted">Serier</th>
+              <th className="px-4 py-3 text-right text-xs font-display font-medium uppercase tracking-wide text-text-muted">Pris</th>
+              <th className="px-4 py-3 text-right text-xs font-display font-medium uppercase tracking-wide text-text-muted">Löpande</th>
             </tr>
           </thead>
           <tbody>
@@ -90,23 +89,24 @@ export function CostTable({ recommendations, costSummary }: CostTableProps) {
                 className="border-t border-border/20 transition-colors hover:bg-bg-hover/20"
               >
                 <td className="px-4 py-3">
-                  <span className="inline-flex h-6 w-6 items-center justify-center rounded-full bg-bg-elevated/80 font-display text-[10px] font-bold text-text-muted">
+                  <span className="inline-flex h-6 w-6 items-center justify-center rounded-full bg-bg-elevated/80 font-display text-xs font-bold text-text-muted">
                     {idx + 1}
                   </span>
                 </td>
                 <td className="px-4 py-3">
                   <div className="font-display text-xs font-semibold">{rec.track.track_name}</div>
                   {rec.track.config_name && (
-                    <div className="text-[10px] text-text-muted mt-0.5">{rec.track.config_name}</div>
+                    <div className="text-xs text-text-muted mt-0.5">{rec.track.config_name}</div>
                   )}
                 </td>
                 <td className="px-4 py-3">
                   <div className="flex flex-wrap gap-1">
                     {rec.seriesCovered.map((seriesId) => {
-                      const series = getSeriesById(seriesId)
+                      const key = String(seriesId)
+                      const label = rec.seriesLabelsById?.[key]
                       return (
-                        <Badge key={seriesId} variant="default">
-                          {series?.series_name?.split(' ').slice(0, 2).join(' ') ?? seriesId}
+                        <Badge key={key} variant="default">
+                          {label?.split(' ').slice(0, 3).join(' ') ?? key}
                         </Badge>
                       )
                     })}

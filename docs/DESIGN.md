@@ -74,6 +74,17 @@ Load via `next/font/google` or `next/font/local`. Never use system fonts or Inte
 - Main content: `flex-1` with horizontal scroll for matrix
 - Summary cards: sticky top, blur backdrop
 
+## Information Architecture
+
+Primär användarresa i navigation och CTA-copy:
+
+1. `Setup` -> välj serier
+2. `Seriescheman` -> planera vilka serier som är relevanta
+3. `Banor` -> markera ägda banor
+4. `Kostnader` -> se inköpslista och budget
+
+`Dashboard/Matris` är en sekundär analysvy för veckotäckning, inte primär startpunkt.
+
 ## Dashboard Matrix
 
 The core view. High information density with clear hierarchy.

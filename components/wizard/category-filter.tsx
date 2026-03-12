@@ -1,24 +1,17 @@
 import { cn } from '@/lib/utils'
-import type { Category } from '@/lib/iracing/types'
 
 interface CategoryFilterProps {
-  selected: Category[]
-  onToggle: (category: Category) => void
+  selected: string[]
+  onToggle: (categoryId: string) => void
+  options: { value: string; label: string }[]
 }
 
-const categories: { value: Category; label: string }[] = [
-  { value: 'road', label: 'Road' },
-  { value: 'oval', label: 'Oval' },
-  { value: 'dirt_road', label: 'Dirt Road' },
-  { value: 'dirt_oval', label: 'Dirt Oval' },
-]
-
-export function CategoryFilter({ selected, onToggle }: CategoryFilterProps) {
+export function CategoryFilter({ selected, onToggle, options }: CategoryFilterProps) {
   return (
     <div className="space-y-3">
       <h3 className="font-display text-lg font-semibold">Välj kategorier</h3>
       <div className="flex flex-wrap gap-2">
-        {categories.map((cat) => {
+        {options.map((cat) => {
           const active = selected.includes(cat.value)
           return (
             <button

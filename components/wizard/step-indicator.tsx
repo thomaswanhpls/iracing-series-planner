@@ -1,13 +1,12 @@
 import { cn } from '@/lib/utils'
 import { Check } from 'lucide-react'
 
-const steps = ['Säsong', 'Kategorier', 'Serier']
-
 interface StepIndicatorProps {
   currentStep: number
+  steps: string[]
 }
 
-export function StepIndicator({ currentStep }: StepIndicatorProps) {
+export function StepIndicator({ currentStep, steps }: StepIndicatorProps) {
   return (
     <div className="flex items-center gap-3">
       {steps.map((label, idx) => {

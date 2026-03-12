@@ -1,119 +1,250 @@
 'use client'
 
-import { useState } from 'react'
-import type { Category, Series } from '@/lib/iracing/types'
-import { getSeasonSchedule } from '@/lib/iracing/data-provider'
-import { analyzeSchedule } from '@/lib/ownership/utils'
-import { useOwnership } from '@/lib/ownership/context'
-import { getAllTracks } from '@/lib/iracing/data-provider'
+import { useEffect, useMemo, useState } from 'react'
+import { usePathname, useRouter, useSearchParams } from 'next/navigation'
+import type { SeasonSeries } from '@/lib/season-schedules/types'
 import { Badge } from '@/components/ui/badge'
 import { Checkbox } from '@/components/ui/checkbox'
 import { Input } from '@/components/ui/input'
+import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
 
 interface SeriesSelectorProps {
-  series: Series[]
-  selectedCategories: Category[]
-  selectedSeriesIds: number[]
-  onToggleSeries: (seriesId: number) => void
+  series: SeasonSeries[]
+  selectedSeriesIds: string[]
+  onToggleSeries: (seriesId: string) => void
+  onSelectMany: (seriesIds: string[]) => void
+  onClearMany: (seriesIds: string[]) => void
+  onClearAll: () => void
+  categoryLabelMap: Record<string, string>
+}
+
+type SortKey = 'name' | 'category' | 'class' | 'weeks'
+
+const ROW_HEIGHT = 86
+const VIEWPORT_HEIGHT = 540
+const OVERSCAN_ROWS = 6
+
+function normalize(value: string) {
+  return value
+    .trim()
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+}
+
+function getLicenseLabel(raw: string) {
+  if (!raw) return 'N/A'
+  return raw.split(',')[0]?.trim() ?? raw
 }
 
 export function SeriesSelector({
   series,
-  selectedCategories,
   selectedSeriesIds,
   onToggleSeries,
+  onSelectMany,
+  onClearMany,
+  onClearAll,
+  categoryLabelMap,
 }: SeriesSelectorProps) {
-  const [search, setSearch] = useState('')
-  const { ownedTrackIds } = useOwnership()
-  const tracks = getAllTracks()
+  const router = useRouter()
+  const pathname = usePathname()
+  const searchParams = useSearchParams()
+  const [search, setSearch] = useState(searchParams.get('setup_q') ?? '')
+  const [sortKey, setSortKey] = useState<SortKey>(
+    (searchParams.get('setup_sort') as SortKey) ?? 'name'
+  )
+  const [sortAscending, setSortAscending] = useState(
+    (searchParams.get('setup_dir') ?? 'asc') === 'asc'
+  )
+  const [scrollTop, setScrollTop] = useState(0)
 
-  const filtered = series.filter((s) => {
-    if (selectedCategories.length > 0 && !selectedCategories.includes(s.category)) return false
-    if (search && !s.series_name.toLowerCase().includes(search.toLowerCase())) return false
-    return true
-  })
+  const filteredSeries = useMemo(() => {
+    const query = normalize(search)
+    if (!query) return series
+
+    return series.filter((entry) => {
+      if (normalize(entry.title).includes(query)) return true
+      if (normalize(entry.className).includes(query)) return true
+      if (normalize(entry.cars).includes(query)) return true
+      return entry.weeks.some((week) => normalize(week.track).includes(query))
+    })
+  }, [search, series])
+
+  const sortedSeries = useMemo(() => {
+    const entries = [...filteredSeries]
+    entries.sort((a, b) => {
+      let comparison = 0
+
+      if (sortKey === 'name') comparison = a.title.localeCompare(b.title)
+      if (sortKey === 'category') comparison = a.categoryLabel.localeCompare(b.categoryLabel)
+      if (sortKey === 'class') comparison = a.className.localeCompare(b.className)
+      if (sortKey === 'weeks') comparison = a.weeks.length - b.weeks.length
+
+      return sortAscending ? comparison : -comparison
+    })
+    return entries
+  }, [filteredSeries, sortAscending, sortKey])
+
+  const allFilteredIds = sortedSeries.map((entry) => entry.id)
+  const selectedFilteredCount = sortedSeries.filter((entry) => selectedSeriesIds.includes(entry.id)).length
+
+  const totalHeight = sortedSeries.length * ROW_HEIGHT
+  const visibleStartIndex = Math.max(0, Math.floor(scrollTop / ROW_HEIGHT) - OVERSCAN_ROWS)
+  const visibleEndIndex = Math.min(
+    sortedSeries.length,
+    Math.ceil((scrollTop + VIEWPORT_HEIGHT) / ROW_HEIGHT) + OVERSCAN_ROWS
+  )
+  const visibleSeries = sortedSeries.slice(visibleStartIndex, visibleEndIndex)
+
+  useEffect(() => {
+    const params = new URLSearchParams(searchParams.toString())
+    if (search) params.set('setup_q', search)
+    else params.delete('setup_q')
+    params.set('setup_sort', sortKey)
+    params.set('setup_dir', sortAscending ? 'asc' : 'desc')
+    router.replace(`${pathname}?${params.toString()}`, { scroll: false })
+  }, [pathname, router, search, searchParams, sortAscending, sortKey])
+
+  const handleSelectTop = (count: number) => {
+    onSelectMany(sortedSeries.slice(0, count).map((entry) => entry.id))
+  }
 
   return (
     <div className="space-y-3">
-      <h3 className="font-display text-lg font-semibold">Välj serier</h3>
-      <Input
-        placeholder="Sök serier..."
-        value={search}
-        onChange={(e) => setSearch(e.target.value)}
-      />
-      <div className="grid grid-cols-1 gap-3 md:grid-cols-2 lg:grid-cols-3">
-        {filtered.map((s) => {
-          const schedule = getSeasonSchedule(s.series_id)
-          const analysis = schedule
-            ? analyzeSchedule(schedule, ownedTrackIds, tracks)
-            : null
-          const selected = selectedSeriesIds.includes(s.series_id)
-          const accessibleCount = analysis
-            ? analysis.ownedCount + analysis.freeCount
-            : 0
+      <div className="flex flex-wrap items-end justify-between gap-3">
+        <div>
+          <h3 className="font-display text-lg font-semibold">Välj serier</h3>
+          <p className="text-xs text-text-muted">
+            {selectedSeriesIds.length} valda • {filteredSeries.length} matchar filter
+          </p>
+        </div>
+        <div className="flex flex-wrap items-center gap-2">
+          <Button
+            variant="secondary"
+            className="h-8 px-3 text-xs"
+            onClick={() => onSelectMany(allFilteredIds)}
+            disabled={allFilteredIds.length === 0}
+          >
+            Välj alla matchande
+          </Button>
+          <Button
+            variant="ghost"
+            className="h-8 px-3 text-xs"
+            onClick={() => onClearMany(allFilteredIds)}
+            disabled={selectedFilteredCount === 0}
+          >
+            Rensa matchande
+          </Button>
+          <Button
+            variant="ghost"
+            className="h-8 px-3 text-xs"
+            onClick={onClearAll}
+            disabled={selectedSeriesIds.length === 0}
+          >
+            Rensa alla val
+          </Button>
+          <Button
+            variant="secondary"
+            className="h-8 px-3 text-xs"
+            onClick={() => handleSelectTop(10)}
+            disabled={sortedSeries.length === 0}
+          >
+            Välj top 10
+          </Button>
+          <Button
+            variant="secondary"
+            className="h-8 px-3 text-xs"
+            onClick={() => handleSelectTop(25)}
+            disabled={sortedSeries.length === 0}
+          >
+            Välj top 25
+          </Button>
+        </div>
+      </div>
 
-          return (
-            <button
-              key={s.series_id}
-              onClick={() => onToggleSeries(s.series_id)}
-              className={cn(
-                'group relative flex flex-col gap-3 rounded-xl border p-4 text-left transition-all duration-200',
-                selected
-                  ? 'border-accent-primary/40 bg-accent-primary/5 shadow-[0_0_20px_rgba(233,69,96,0.08)]'
-                  : 'border-border/40 bg-bg-surface/60 hover:border-accent-primary/20 hover:bg-bg-surface/80'
-              )}
-            >
-              {/* Selected glow indicator */}
-              {selected && (
-                <div className="absolute -top-px left-4 right-4 h-px bg-gradient-to-r from-transparent via-accent-primary/50 to-transparent" />
-              )}
-              <div className="flex items-start justify-between">
-                <div className="flex-1">
-                  <div className="font-display text-sm font-semibold">{s.series_name}</div>
-                  <div className="mt-2 flex flex-wrap gap-1.5">
-                    <Badge variant={s.category === 'road' ? 'road' : s.category === 'oval' ? 'oval' : 'default'}>
-                      {s.category.replace('_', ' ')}
-                    </Badge>
-                    <Badge variant={s.license_group as 'rookie' | 'd' | 'c' | 'b' | 'a' | 'pro'}>
-                      {s.license_group.toUpperCase()}
-                    </Badge>
-                    {s.fixed_setup && <Badge>Fixed</Badge>}
-                  </div>
-                </div>
+      <div className="grid gap-3 md:grid-cols-[1fr_180px_90px]">
+        <Input
+          placeholder="Sök serie, klass, bil eller bana..."
+          value={search}
+          onChange={(event) => setSearch(event.target.value)}
+        />
+        <select
+          value={sortKey}
+          onChange={(event) => setSortKey(event.target.value as SortKey)}
+          className="w-full rounded-md border border-border bg-bg-elevated px-3 py-2 text-sm text-text-primary focus:border-accent-primary focus:outline-none"
+        >
+          <option value="name">Sortera: Namn</option>
+          <option value="category">Sortera: Kategori</option>
+          <option value="class">Sortera: Klass</option>
+          <option value="weeks">Sortera: Veckor</option>
+        </select>
+        <Button
+          variant="secondary"
+          className="h-10 text-xs"
+          onClick={() => setSortAscending((value) => !value)}
+        >
+          {sortAscending ? 'A-Ö' : 'Ö-A'}
+        </Button>
+      </div>
+
+      <div className="grid grid-cols-[36px_1fr_270px] items-center rounded-md border border-border/60 bg-bg-elevated/40 px-3 py-2 text-xs uppercase tracking-wider text-text-muted">
+        <div>Val</div>
+        <div>Serie</div>
+        <div className="text-right">Kategori / Klass / Licens / Veckor</div>
+      </div>
+
+      <div
+        className="h-[540px] overflow-y-auto rounded-xl border border-border/60 bg-bg-surface/30 p-2"
+        onScroll={(event) => setScrollTop(event.currentTarget.scrollTop)}
+      >
+        <div className="relative" style={{ height: `${totalHeight}px` }}>
+          {visibleSeries.map((entry, index) => {
+            const absoluteIndex = visibleStartIndex + index
+            const top = absoluteIndex * ROW_HEIGHT
+            const selected = selectedSeriesIds.includes(entry.id)
+            const license = getLicenseLabel(entry.license)
+
+            return (
+              <button
+                key={entry.id}
+                type="button"
+                onClick={() => onToggleSeries(entry.id)}
+                className={cn(
+                  'absolute left-0 right-0 flex h-[78px] items-start gap-3 rounded-lg border px-3 py-2 text-left transition-all duration-150',
+                  selected
+                    ? 'border-accent-primary/40 bg-accent-primary/8'
+                    : 'border-border/40 bg-bg-surface/40 hover:border-accent-primary/20 hover:bg-bg-surface/80'
+                )}
+                style={{ top: `${top}px` }}
+              >
                 <Checkbox
                   checked={selected}
-                  onChange={() => onToggleSeries(s.series_id)}
-                  onClick={(e) => e.stopPropagation()}
+                  onChange={() => onToggleSeries(entry.id)}
+                  onClick={(event) => event.stopPropagation()}
                 />
-              </div>
-              {analysis && (
-                <div className="space-y-1.5">
-                  <div className="flex justify-between text-xs">
-                    <span className="text-text-secondary">{accessibleCount}/{analysis.totalWeeks} banor</span>
-                    {analysis.meetsThreshold && (
-                      <span className="font-display text-[10px] font-bold text-status-owned">8/12</span>
-                    )}
+                <div className="min-w-0 flex-1">
+                  <div className="line-clamp-1 font-display text-sm font-semibold text-text-primary">
+                    {entry.title}
                   </div>
-                  <div className="h-1 w-full rounded-full bg-bg-elevated/80">
-                    <div
-                      className={cn(
-                        'h-full rounded-full transition-all duration-500',
-                        analysis.meetsThreshold
-                          ? 'bg-gradient-to-r from-status-owned to-status-owned/60'
-                          : 'bg-gradient-to-r from-accent-primary to-accent-primary/60'
-                      )}
-                      style={{
-                        width: `${(accessibleCount / analysis.totalWeeks) * 100}%`,
-                      }}
-                    />
+                  <div className="mt-1 flex flex-wrap justify-end gap-1.5">
+                    <Badge variant="default">{categoryLabelMap[entry.categoryId] ?? entry.categoryLabel}</Badge>
+                    <Badge variant="default">{entry.className}</Badge>
+                    <Badge variant="default">{license}</Badge>
+                    <Badge variant="default">{entry.weeks.length} v</Badge>
                   </div>
                 </div>
-              )}
-            </button>
-          )
-        })}
+              </button>
+            )
+          })}
+        </div>
       </div>
+
+      {filteredSeries.length === 0 && (
+        <div className="rounded-lg border border-border p-4 text-sm text-text-secondary">
+          Ingen serie matchade filtret.
+        </div>
+      )}
     </div>
   )
 }

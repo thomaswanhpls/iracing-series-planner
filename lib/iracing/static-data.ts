@@ -1,10 +1,11 @@
-import type { Track, Series, SeasonSchedule } from './types'
+import type { Category, Track, Series, SeasonSchedule } from './types'
+import { season2VenueNames } from './season2-venues'
 
 // ─── Tracks ──────────────────────────────────────────────────────────
 // Representative selection of popular road tracks.
 // track_id values are realistic but not guaranteed to match iRacing exactly.
 
-export const tracks: Track[] = [
+const baseTracks: Track[] = [
   // Free tracks
   { track_id: 1, track_name: 'Centripetal Circuit', config_name: '', category: 'road', free_with_subscription: true, price: 0, sku: 0 },
   { track_id: 2, track_name: 'Summit Point Raceway', config_name: 'Full Course', category: 'road', free_with_subscription: true, price: 0, sku: 0 },
@@ -41,6 +42,91 @@ export const tracks: Track[] = [
   { track_id: 122, track_name: 'Zolder', config_name: 'Grand Prix', category: 'road', free_with_subscription: false, price: 14.95, sku: 122 },
   { track_id: 123, track_name: 'Nogaro', config_name: 'Grand Prix', category: 'road', free_with_subscription: false, price: 14.95, sku: 123 },
 ]
+
+function normalizeTrackName(value: string): string {
+  return value
+    .trim()
+    .toLowerCase()
+    .replace('[legacy]', '')
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/[^a-z0-9\s-]/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim()
+}
+
+function inferCategoryFromVenue(venueName: string): Category {
+  const normalized = normalizeTrackName(venueName)
+
+  if (
+    normalized.includes('rallycross') ||
+    normalized.includes('hell rx') ||
+    normalized.includes('dirt road')
+  ) {
+    return 'dirt_road'
+  }
+
+  const dirtOvalKeywords = [
+    'eldora',
+    'knoxville',
+    'lernerville',
+    'fairbury',
+    'cedar lake',
+    'huset',
+    'kokomo',
+    'limaland',
+    'lincoln speedway',
+    'port royal',
+    'volusia',
+    'weedsport',
+    'williams grove',
+    'chili bowl',
+    'the dirt track at charlotte',
+    'lucas oil speedway - dirt oval',
+  ]
+  if (dirtOvalKeywords.some((keyword) => normalized.includes(keyword))) {
+    return 'dirt_oval'
+  }
+
+  if (
+    normalized.includes('speedway') ||
+    normalized.includes('superspeedway') ||
+    normalized.includes('coliseum') ||
+    normalized.includes('oval')
+  ) {
+    return 'oval'
+  }
+
+  return 'road'
+}
+
+const generatedSeason2VenueTracks: Track[] = (() => {
+  const existingNames = new Set(baseTracks.map((track) => normalizeTrackName(track.track_name)))
+  const generated: Track[] = []
+  let nextId = 2000
+
+  for (const venueName of season2VenueNames) {
+    const cleanedName = venueName.replace('[Legacy] ', '').trim()
+    const normalized = normalizeTrackName(cleanedName)
+    if (!normalized || existingNames.has(normalized)) continue
+
+    existingNames.add(normalized)
+    generated.push({
+      track_id: nextId,
+      track_name: cleanedName,
+      config_name: '',
+      category: inferCategoryFromVenue(cleanedName),
+      free_with_subscription: false,
+      price: 14.95,
+      sku: nextId,
+    })
+    nextId += 1
+  }
+
+  return generated
+})()
+
+export const tracks: Track[] = [...baseTracks, ...generatedSeason2VenueTracks]
 
 // ─── Series ──────────────────────────────────────────────────────────
 

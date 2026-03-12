@@ -1,8 +1,11 @@
 import { Suspense } from 'react'
 import { CostsContent } from '@/components/dashboard/costs-content'
 import { Skeleton } from '@/components/ui/skeleton'
+import { getSeason2Schedules } from '@/lib/season-schedules/markdown'
 
-export default function Costs() {
+export default async function Costs() {
+  const seasonData = await getSeason2Schedules()
+
   return (
     <Suspense
       fallback={
@@ -12,7 +15,7 @@ export default function Costs() {
         </div>
       }
     >
-      <CostsContent />
+      <CostsContent seasonData={seasonData} />
     </Suspense>
   )
 }
