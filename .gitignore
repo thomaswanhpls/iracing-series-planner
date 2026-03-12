@@ -1,7 +1,11 @@
 node_modules
 .next
+.next.broken.*
 out
 dist
 .env*
 !.env.example
 *.tsbuildinfo
+.agents/
+.playwright-cli/
+AGENTS.md
