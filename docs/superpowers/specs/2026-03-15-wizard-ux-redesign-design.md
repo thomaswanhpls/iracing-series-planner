@@ -116,13 +116,83 @@ Licens-badge visas som compact pill: `padding: 3px 8px`, `border-radius: 4px`, `
 - Bulk-actions (välj alla matchande, rensa matchande, rensa alla)
 - Navigation till `/tracks` med query params vid CTA-klick
 
+## Komponentstruktur
+
+### Ny komponent: `SeriesSetup`
+
+Fil: `components/wizard/series-setup.tsx`
+
+```tsx
+interface SeriesSetupProps {
+  data: SeasonScheduleData
+}
+
+export function SeriesSetup({ data }: SeriesSetupProps) { ... }
+```
+
+`app/(app)/setup/page.tsx` uppdateras att importera `SeriesSetup` istället för `SetupWizard`.
+
+### State-ägande
+
+`SeriesSetup` äger all state (samma mönster som nuvarande `SetupWizard`):
+- `selectedCategoryIds: string[]` — aktiva kategorier
+- `selectedClassNames: string[]` — aktiva klasser
+- `selectedSeriesIds: string[]` — valda serier
+- `search: string` — sökterm
+- `sortKey: SortKey` — sorteringsnykel
+- `sortAscending: boolean` — sorteringsriktning
+
+Filtrerar `data.series` baserat på kategorier + klasser och skickar filtrerade serier till den interna serielistan. Serielistan renderas direkt i `SeriesSetup` — ingen separat `SeriesSelector`-komponent behövs längre. All logik samlas i en fil.
+
+### Sorteringskontroller
+
+Sorterings-dropdown och riktningsknapp flyttas in i filterbar-sektionen, efter sökfältet. Behåller nuvarande funktionalitet (sortera på namn, kategori, klass, veckor).
+
+### Bulk-actions
+
+"Välj alla" och "Rensa" renderas som `Button variant="ghost"` med `text-xs` — samma mönster som befintliga ghost-knappar i appen.
+
+### Serieradens innehåll
+
+Varje rad visar:
+- Serienamn (JetBrains Mono, 13px, bold)
+- Under serienamn: klass + antal veckor som inline-text (11px, text-muted)
+- Licens-badge med iRacing-färg (höger)
+- Kategori-badge neutral (höger)
+
+### Tom-state
+
+När inga serier matchar filtren visas: "Ingen serie matchade filtret." i en `rounded-lg border border-border p-4 text-sm text-text-secondary` container (samma som idag).
+
+## localStorage-migrering
+
+Ny storage key: `series-setup-state-v1`. Den gamla nyckeln `setup-wizard-state-v1` ignoreras — befintlig data degraderar gracefully (nya komponenten läser bara sin egen nyckel). Gammal nyckel rensas inte aktivt.
+
+Ny shape:
+```tsx
+interface PersistedSetupState {
+  season: string
+  selectedCategoryIds: string[]
+  selectedClassNames: string[]
+  selectedSeriesIds: string[]
+}
+```
+
+Fältet `step` tas bort.
+
 ## Vad som ändras
 
 - `setup-wizard.tsx` → ny `series-setup.tsx` komponent utan steg-logik
+- `series-selector.tsx` — absorberas in i `series-setup.tsx`, filen kan tas bort
+- `app/(app)/setup/page.tsx` — uppdaterad import
 - Kategori + klass-filter blir inline i serievyn istället för separata steg
 - Säsong auto-väljs och visas som text
 - Summary-panel ersätts av compact header med "X valda" + CTA
 - Licensbadge läggs till på varje serierad med iRacing-färger
+
+## Filterbar-layout
+
+Horisontell flex-row med `flex-wrap`. Kategori-chips på första raden, klass-pills + sök + sort på andra raden. Minimum viewport 1024px (desktop-first per DESIGN.md).
 
 ## Scope
 
