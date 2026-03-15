@@ -123,7 +123,7 @@ export function SeriesSetup({ data }: SeriesSetupProps) {
   }, [searchFilteredSeries, sortAscending, sortKey])
 
   // Virtualization
-  const allFilteredIds = sortedSeries.map((s) => s.id)
+  const allFilteredIds = useMemo(() => sortedSeries.map((s) => s.id), [sortedSeries])
   const totalHeight = sortedSeries.length * ROW_HEIGHT
   const visibleStartIndex = Math.max(0, Math.floor(scrollTop / ROW_HEIGHT) - OVERSCAN_ROWS)
   const visibleEndIndex = Math.min(
@@ -374,7 +374,7 @@ export function SeriesSetup({ data }: SeriesSetupProps) {
               >
                 <Checkbox
                   checked={selected}
-                  onChange={() => toggleSeries(entry.id)}
+                  readOnly
                   onClick={(e) => e.stopPropagation()}
                 />
                 <div className="flex-1 min-w-0">
