@@ -378,16 +378,19 @@ export function SeriesSetup({ data }: SeriesSetupProps) {
                   onClick={(e) => e.stopPropagation()}
                 />
                 <div className="flex-1 min-w-0">
-                  <div className="font-display text-sm font-semibold text-text-primary line-clamp-1">{entry.title}</div>
+                  <div className="font-display text-[13px] font-bold text-text-primary line-clamp-1">{entry.title}</div>
                   <div className="text-[11px] text-text-muted mt-0.5">{entry.className} · {entry.weeks.length} veckor</div>
                 </div>
                 <span
-                  className="px-2 py-0.5 rounded text-[10px] font-semibold shrink-0"
-                  style={{ color: licColor.text, background: licColor.bg, border: `1px solid ${licColor.border}` }}
+                  className="rounded text-[10px] font-semibold shrink-0"
+                  style={{ padding: '3px 8px', color: licColor.text, background: licColor.bg, border: `1px solid ${licColor.border}` }}
                 >
                   {licLabel}
                 </span>
-                <span className="px-2 py-0.5 rounded text-[10px] bg-accent-muted/50 border border-border/60 text-text-secondary shrink-0">
+                <span
+                  className="rounded text-[10px] shrink-0"
+                  style={{ padding: '3px 8px', background: 'rgba(27,51,84,0.5)', border: '1px solid rgba(38,53,83,0.6)', color: selected ? '#b5c1d7' : '#7d8aa6' }}
+                >
                   {categoryLabelMap[entry.categoryId] ?? entry.categoryLabel}
                 </span>
               </button>
