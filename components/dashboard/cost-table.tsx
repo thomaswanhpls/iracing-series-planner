@@ -1,15 +1,106 @@
 'use client'
 
-import type { PurchaseRecommendation, CostSummary } from '@/lib/analysis/types'
+import type { PurchaseRecommendation, CostSummary, ContentPurchaseRecommendation, ContentCostSummary } from '@/lib/analysis/types'
 import { Card } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 
-interface CostTableProps {
-  recommendations: PurchaseRecommendation[]
-  costSummary: CostSummary
-}
+type CostTableProps =
+  | {
+      recommendations: PurchaseRecommendation[]
+      costSummary: CostSummary
+      variant?: 'legacy'
+    }
+  | {
+      recommendations: ContentPurchaseRecommendation[]
+      costSummary: ContentCostSummary
+      variant: 'content'
+    }
 
-export function CostTable({ recommendations, costSummary }: CostTableProps) {
+export function CostTable(props: CostTableProps) {
+  if (props.variant === 'content') {
+    const { recommendations, costSummary } = props
+    if (recommendations.length === 0) {
+      return (
+        <Card>
+          <p className="text-text-secondary text-center py-8">
+            Inget att köpa — du har allt du behöver!
+          </p>
+        </Card>
+      )
+    }
+    return (
+      <div className="space-y-5">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-3 stagger-children">
+          <Card>
+            <div className="flex items-center gap-3">
+              <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-accent-cyan/10">
+                <span className="font-display text-sm font-bold text-accent-cyan">
+                  {costSummary.trackCount + costSummary.carCount}
+                </span>
+              </div>
+              <div>
+                <div className="text-xs uppercase tracking-wide text-text-muted">Banor + bilar</div>
+                <div className="font-display text-lg font-bold">
+                  {costSummary.trackCount}b + {costSummary.carCount}bil
+                </div>
+              </div>
+            </div>
+          </Card>
+          <Card>
+            <div className="flex items-center gap-3">
+              <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-status-owned/10">
+                <span className="font-display text-sm font-bold text-status-owned">%</span>
+              </div>
+              <div>
+                <div className="text-xs uppercase tracking-wide text-text-muted">
+                  Rabatt ({costSummary.discountTier}: {costSummary.discountPercent}%)
+                </div>
+                <div className="font-display text-lg font-bold text-status-owned">
+                  -${costSummary.discountAmount.toFixed(2)}
+                </div>
+              </div>
+            </div>
+          </Card>
+          <Card>
+            <div className="flex items-center gap-3">
+              <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-accent-cyan/10">
+                <span className="font-display text-sm font-bold text-accent-cyan">$</span>
+              </div>
+              <div>
+                <div className="text-xs uppercase tracking-wide text-text-muted">Total</div>
+                <div className="font-display text-lg font-bold">
+                  ${costSummary.totalAfterDiscount.toFixed(2)}
+                </div>
+              </div>
+            </div>
+          </Card>
+        </div>
+        <div className="space-y-2">
+          {recommendations.map((rec) => (
+            <div
+              key={rec.item.name}
+              className="flex items-center justify-between rounded-md border border-border-subtle bg-bg-glass px-4 py-2.5 text-sm"
+            >
+              <div className="flex items-center gap-2">
+                <span className="text-xs uppercase tracking-wide text-text-muted w-8">
+                  {rec.item.type === 'track' ? 'Bana' : 'Bil'}
+                </span>
+                <span className="text-text-primary">{rec.item.name}</span>
+              </div>
+              <div className="flex items-center gap-4">
+                <span className="text-xs text-text-muted">{rec.item.seriesCount} serier</span>
+                <span className="font-mono text-sm text-text-primary">
+                  ${rec.item.price.toFixed(2)}
+                </span>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    )
+  }
+
+  const { recommendations, costSummary } = props
   if (recommendations.length === 0) {
     return (
       <Card>
