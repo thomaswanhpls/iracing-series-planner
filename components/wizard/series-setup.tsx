@@ -1,13 +1,18 @@
 'use client'
 
 import { useEffect, useMemo, useRef, useState } from 'react'
+import { createPortal } from 'react-dom'
 import { usePathname, useRouter, useSearchParams } from 'next/navigation'
+import { ChevronDown, ChevronUp, Filter } from 'lucide-react'
 import type { SeasonScheduleData } from '@/lib/season-schedules/types'
+import { splitCars, inferCarBrand } from '@/lib/iracing/cars'
+import { BrandEmblem, CarBadge } from '@/components/car-badges'
 import { Button } from '@/components/ui/button'
+import { Card } from '@/components/ui/card'
+import { Badge } from '@/components/ui/badge'
 import { Checkbox } from '@/components/ui/checkbox'
 import { Input } from '@/components/ui/input'
 import { cn } from '@/lib/utils'
-import { getLicenseColor, getLicenseLabel } from '@/lib/iracing/license-colors'
 
 interface SeriesSetupProps {
   data: SeasonScheduleData
@@ -22,10 +27,37 @@ interface PersistedSetupState {
 
 type SortKey = 'name' | 'category' | 'class' | 'weeks'
 
-const ROW_HEIGHT = 86
+const ROW_HEIGHT = 100
 const OVERSCAN_ROWS = 6
 const defaultSeason = '2026-2'
 const storageKey = 'series-setup-state-v1'
+
+const categoryBadgeVariants: Record<string, 'default' | 'road' | 'oval' | 'dirt-road' | 'dirt-oval'> = {
+  'sports-car': 'road',
+  'formula-car': 'road',
+  oval: 'oval',
+  'dirt-road': 'dirt-road',
+  'dirt-oval': 'dirt-oval',
+  unranked: 'default',
+}
+
+function inferLicenseBadgeVariant(
+  value: string
+): 'default' | 'rookie' | 'd' | 'c' | 'b' | 'a' | 'pro' {
+  const normalized = value.trim().toLowerCase()
+  if (normalized.includes('pro')) return 'pro'
+  if (normalized.includes('rookie')) return 'rookie'
+  if (/\ba class\b|\ba\(/.test(normalized)) return 'a'
+  if (/\bb class\b|\bb\(/.test(normalized)) return 'b'
+  if (/\bc class\b|\bc\(/.test(normalized)) return 'c'
+  if (/\bd class\b|\bd\(/.test(normalized)) return 'd'
+  return 'default'
+}
+
+function getLicenseLabel(raw: string): string {
+  if (!raw) return 'N/A'
+  return raw.split(',')[0]?.trim() ?? raw
+}
 
 function normalize(value: string) {
   return value
@@ -33,6 +65,74 @@ function normalize(value: string) {
     .toLowerCase()
     .normalize('NFD')
     .replace(/[\u0300-\u036f]/g, '')
+}
+
+function CarIndicator({ cars }: { cars: string }) {
+  const carList = splitCars(cars)
+  const [open, setOpen] = useState(false)
+  const anchorRef = useRef<HTMLSpanElement>(null)
+  const [pos, setPos] = useState<{ top: number; left: number } | null>(null)
+
+  if (carList.length === 0) return null
+
+  const brands = carList.map((c) => inferCarBrand(c))
+  const uniqueBrands = Array.from(new Set(brands))
+  const showCount = Math.min(uniqueBrands.length, 4)
+  const extraCount = uniqueBrands.length - showCount
+
+  const handleEnter = () => {
+    if (anchorRef.current) {
+      const rect = anchorRef.current.getBoundingClientRect()
+      setPos({ top: rect.bottom + 6, left: rect.left })
+    }
+    setOpen(true)
+  }
+
+  const handleLeave = () => {
+    setOpen(false)
+  }
+
+  return (
+    <span
+      ref={anchorRef}
+      className="relative inline-flex shrink-0 items-center gap-0.5"
+      onMouseEnter={handleEnter}
+      onMouseLeave={handleLeave}
+    >
+      <span className="flex -space-x-1.5">
+        {uniqueBrands.slice(0, showCount).map((brand) => (
+          <span
+            key={brand}
+            className="inline-flex h-[26px] w-[26px] items-center justify-center rounded-full border border-white/15 bg-black/35"
+          >
+            <BrandEmblem brand={brand} />
+          </span>
+        ))}
+      </span>
+      {extraCount > 0 && (
+        <span className="ml-1 text-[11px] text-text-muted">+{extraCount}</span>
+      )}
+
+      {open && pos && typeof document !== 'undefined' && createPortal(
+        <div
+          className="fixed z-[100] rounded-xl border border-border-subtle bg-bg-elevated backdrop-blur-md p-3 shadow-[0_16px_40px_rgba(0,0,0,0.4)] animate-in fade-in duration-100"
+          style={{ top: pos.top, left: pos.left, maxWidth: 360 }}
+          onMouseEnter={handleEnter}
+          onMouseLeave={handleLeave}
+        >
+          <div className="mb-2 text-[10px] font-semibold uppercase tracking-wider text-text-muted">
+            Bil{carList.length > 1 ? 'ar' : ''} ({carList.length})
+          </div>
+          <div className="flex flex-wrap gap-2">
+            {carList.map((car, i) => (
+              <CarBadge key={`${car}-${i}`} carModel={car} compact />
+            ))}
+          </div>
+        </div>,
+        document.body
+      )}
+    </span>
+  )
 }
 
 export function SeriesSetup({ data }: SeriesSetupProps) {
@@ -56,13 +156,9 @@ export function SeriesSetup({ data }: SeriesSetupProps) {
     (searchParams.get('setup_dir') ?? 'asc') === 'asc'
   )
   const [scrollTop, setScrollTop] = useState(0)
+  const [filtersOpen, setFiltersOpen] = useState(true)
 
   // --- Derived data ---
-  const categoryLabelMap = useMemo(
-    () => Object.fromEntries(data.categories.map((c) => [c.id, c.label])),
-    [data]
-  )
-
   const availableCategoryIds = useMemo(
     () => new Set(data.categories.map((c) => c.id)),
     [data.categories]
@@ -71,6 +167,8 @@ export function SeriesSetup({ data }: SeriesSetupProps) {
     () => new Set(data.series.map((s) => s.id)),
     [data.series]
   )
+
+  const allCategoriesSelected = selectedCategoryIds.length === data.categories.length
 
   // Filter series by selected categories + classes
   const categoryFilteredSeries = useMemo(() => {
@@ -216,6 +314,10 @@ export function SeriesSetup({ data }: SeriesSetupProps) {
     )
   }
 
+  const selectAllCategories = () => {
+    setSelectedCategoryIds(data.categories.map((c) => c.id))
+  }
+
   const toggleClass = (className: string) => {
     setSelectedClassNames((prev) =>
       prev.includes(className) ? prev.filter((n) => n !== className) : [...prev, className]
@@ -237,7 +339,15 @@ export function SeriesSetup({ data }: SeriesSetupProps) {
     setSelectedSeriesIds((prev) => prev.filter((id) => !toClear.has(id)))
   }
 
-  // Navigate to tracks — no step logic, just navigate directly
+  const resetFilters = () => {
+    setSearch('')
+    setSelectedCategoryIds(data.categories.map((c) => c.id))
+    setSelectedClassNames([])
+  }
+
+  const hasActiveFilters = !allCategoriesSelected || selectedClassNames.length > 0 || search.length > 0
+
+  // Navigate to tracks
   const handleNext = () => {
     const params = new URLSearchParams()
     params.set('season', defaultSeason)
@@ -248,17 +358,17 @@ export function SeriesSetup({ data }: SeriesSetupProps) {
   }
 
   return (
-    <div className="mx-auto max-w-6xl space-y-6">
+    <div className="mx-auto max-w-6xl space-y-5">
       {/* Header */}
       <div className="flex justify-between items-start">
         <div>
-          <h2 className="font-display text-lg font-bold text-text-primary">Välj dina serier</h2>
-          <p className="text-sm text-text-muted mt-1">
+          <h2 className="font-display text-2xl font-bold text-text-primary">Välj dina serier</h2>
+          <p className="text-sm text-text-secondary mt-1">
             2026 Season 2 · Markera serier du vill köra, sen fortsätt till banval.
           </p>
         </div>
         <div className="flex items-center gap-3">
-          <span className="px-3 py-1 rounded-md bg-accent-primary/10 text-accent-primary text-xs font-display font-semibold">
+          <span className="px-3 py-1.5 rounded-full border border-accent-cyan/30 bg-accent-cyan/10 text-accent-cyan text-xs font-display font-semibold">
             {selectedSeriesIds.length} valda
           </span>
           <Button onClick={handleNext} disabled={selectedSeriesIds.length === 0}>
@@ -267,74 +377,130 @@ export function SeriesSetup({ data }: SeriesSetupProps) {
         </div>
       </div>
 
-      {/* Filterbar */}
-      <div className="space-y-3 border-b border-border-subtle pb-4">
-        {/* Row 1 — Category chips */}
-        <div className="flex flex-wrap gap-2">
-          {data.categories.map((cat) => {
-            const active = selectedCategoryIds.includes(cat.id)
-            return (
+      {/* Collapsible filter Card */}
+      <Card className="p-0 overflow-hidden">
+        <button
+          type="button"
+          onClick={() => setFiltersOpen((v) => !v)}
+          className="flex w-full items-center justify-between px-4 py-3 text-left cursor-pointer hover:bg-bg-elevated/30 transition-colors"
+        >
+          <div className="flex items-center gap-2">
+            <Filter className="h-4 w-4 text-text-muted" />
+            <span className="text-sm font-medium text-text-primary">Filter</span>
+            {hasActiveFilters && (
+              <span className="rounded-full bg-accent-cyan/15 border border-accent-cyan/30 px-2 py-0.5 text-[10px] font-semibold text-accent-cyan">
+                Aktiva
+              </span>
+            )}
+          </div>
+          {filtersOpen ? (
+            <ChevronUp className="h-4 w-4 text-text-muted" />
+          ) : (
+            <ChevronDown className="h-4 w-4 text-text-muted" />
+          )}
+        </button>
+
+        {filtersOpen && (
+          <div className="space-y-3 border-t border-border/50 px-4 pb-4 pt-3">
+            {/* Search + sort row */}
+            <div className="grid gap-3 md:grid-cols-[1fr_160px_auto]">
+              <Input
+                placeholder="Sök serie, bil eller bana..."
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+              />
+              <select
+                value={sortKey}
+                onChange={(e) => setSortKey(e.target.value as SortKey)}
+                className="w-full rounded-md border border-border bg-bg-elevated px-3 py-2 text-sm text-text-primary focus:border-border-focus focus:outline-none"
+              >
+                <option value="name">Namn</option>
+                <option value="category">Kategori</option>
+                <option value="class">Klass</option>
+                <option value="weeks">Veckor</option>
+              </select>
+              <Button variant="secondary" className="h-10 text-xs" onClick={() => setSortAscending((v) => !v)}>
+                {sortAscending ? 'A-Ö' : 'Ö-A'}
+              </Button>
+            </div>
+
+            {/* Category pills */}
+            <div className="flex flex-wrap gap-2">
               <button
-                key={cat.id}
                 type="button"
-                onClick={() => toggleCategory(cat.id)}
+                onClick={selectAllCategories}
                 className={cn(
-                  'cursor-pointer rounded-lg border px-3.5 py-1.5 text-xs font-medium transition-all',
-                  active
-                    ? 'bg-accent-primary/15 border-accent-primary/40 text-accent-primary shadow-[0_0_8px_rgba(255,106,61,0.1)]'
-                    : 'bg-bg-elevated/40 border-border/60 text-text-muted hover:border-border hover:text-text-secondary'
+                  'cursor-pointer rounded-full border px-3 py-1.5 text-xs font-medium transition-all',
+                  allCategoriesSelected
+                    ? 'border-accent-cyan bg-accent-cyan/10 text-text-primary'
+                    : 'border-border text-text-secondary hover:text-text-primary'
                 )}
               >
-                {cat.label}
+                Alla
               </button>
-            )
-          })}
-        </div>
+              {data.categories.map((cat) => {
+                const active = selectedCategoryIds.includes(cat.id) && !allCategoriesSelected
+                return (
+                  <button
+                    key={cat.id}
+                    type="button"
+                    onClick={() => {
+                      if (allCategoriesSelected) {
+                        setSelectedCategoryIds([cat.id])
+                      } else {
+                        toggleCategory(cat.id)
+                      }
+                    }}
+                    className={cn(
+                      'cursor-pointer rounded-full border px-3 py-1.5 text-xs font-medium transition-all',
+                      active
+                        ? 'border-accent-cyan bg-accent-cyan/10 text-text-primary'
+                        : 'border-border text-text-secondary hover:text-text-primary'
+                    )}
+                  >
+                    {cat.label}
+                  </button>
+                )
+              })}
+              {hasActiveFilters && (
+                <button
+                  type="button"
+                  onClick={resetFilters}
+                  className="cursor-pointer rounded-full border border-border px-3 py-1.5 text-xs text-text-secondary transition hover:text-text-primary"
+                >
+                  Rensa filter
+                </button>
+              )}
+            </div>
 
-        {/* Row 2 — Class pills + search + sort */}
-        <div className="flex flex-wrap items-center gap-2">
-          {availableClasses.map((cls) => {
-            const active = selectedClassNames.includes(cls)
-            return (
-              <button
-                key={cls}
-                type="button"
-                onClick={() => toggleClass(cls)}
-                className={cn(
-                  'cursor-pointer rounded-full border px-2.5 py-1 text-[11px] font-medium transition-all',
-                  active
-                    ? 'bg-accent-secondary/10 border-accent-secondary/30 text-accent-secondary'
-                    : 'bg-bg-elevated/30 border-border/40 text-text-muted hover:border-border/70 hover:text-text-secondary'
-                )}
-              >
-                {cls}
-              </button>
-            )
-          })}
-          <div className="w-px h-5 bg-border/60 mx-1" />
-          <Input
-            placeholder="Sök serie, bil eller bana..."
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            className="flex-1 min-w-[200px]"
-          />
-          <select
-            value={sortKey}
-            onChange={(e) => setSortKey(e.target.value as SortKey)}
-            className="rounded-md border border-border bg-bg-elevated px-3 py-2 text-sm text-text-primary focus:border-accent-primary focus:outline-none"
-          >
-            <option value="name">Namn</option>
-            <option value="category">Kategori</option>
-            <option value="class">Klass</option>
-            <option value="weeks">Veckor</option>
-          </select>
-          <Button variant="secondary" className="h-10 text-xs" onClick={() => setSortAscending((v) => !v)}>
-            {sortAscending ? 'A-Ö' : 'Ö-A'}
-          </Button>
-        </div>
-      </div>
+            {/* Class pills */}
+            {availableClasses.length > 0 && (
+              <div className="flex flex-wrap gap-2">
+                {availableClasses.map((cls) => {
+                  const active = selectedClassNames.includes(cls)
+                  return (
+                    <button
+                      key={cls}
+                      type="button"
+                      onClick={() => toggleClass(cls)}
+                      className={cn(
+                        'cursor-pointer rounded-full border px-2.5 py-1 text-[11px] font-medium transition-all',
+                        active
+                          ? 'border-accent-cyan/40 bg-accent-cyan/10 text-accent-cyan'
+                          : 'border-border/50 bg-bg-elevated/30 text-text-muted hover:border-border hover:text-text-secondary'
+                      )}
+                    >
+                      {cls}
+                    </button>
+                  )
+                })}
+              </div>
+            )}
+          </div>
+        )}
+      </Card>
 
-      {/* Series list */}
+      {/* Series count + bulk actions */}
       <div className="flex justify-between items-center">
         <span className="text-xs text-text-muted">{sortedSeries.length} serier matchar</span>
         <div className="flex gap-3">
@@ -348,64 +514,64 @@ export function SeriesSetup({ data }: SeriesSetupProps) {
       </div>
 
       {/* Virtualized list */}
-      <div
-        ref={scrollContainerRef}
-        className="max-h-[calc(100vh-320px)] min-h-[400px] overflow-y-auto rounded-xl border border-border/60 bg-bg-surface/30 p-2"
-        onScroll={(e) => setScrollTop(e.currentTarget.scrollTop)}
-      >
-        <div className="relative" style={{ height: `${totalHeight}px` }}>
-          {visibleSeries.map((entry, index) => {
-            const absoluteIndex = visibleStartIndex + index
-            const top = absoluteIndex * ROW_HEIGHT
-            const selected = selectedSeriesIds.includes(entry.id)
-            const licColor = getLicenseColor(entry.license)
-            const licLabel = getLicenseLabel(entry.license)
+      <Card className="overflow-hidden p-2">
+        <div
+          ref={scrollContainerRef}
+          className="max-h-[calc(100vh-340px)] min-h-[400px] overflow-y-auto"
+          onScroll={(e) => setScrollTop(e.currentTarget.scrollTop)}
+        >
+          <div className="relative" style={{ height: `${totalHeight}px` }}>
+            {visibleSeries.map((entry, index) => {
+              const absoluteIndex = visibleStartIndex + index
+              const top = absoluteIndex * ROW_HEIGHT
+              const selected = selectedSeriesIds.includes(entry.id)
+              const licVariant = inferLicenseBadgeVariant(entry.license)
+              const licLabel = getLicenseLabel(entry.license)
+              const catVariant = categoryBadgeVariants[entry.categoryId] ?? 'default'
 
-            return (
-              <button
-                key={entry.id}
-                type="button"
-                onClick={() => toggleSeries(entry.id)}
-                className={cn(
-                  'absolute left-0 right-0 flex h-[78px] cursor-pointer items-center gap-3 rounded-lg border px-3 text-left transition-all duration-150',
-                  selected
-                    ? 'border-accent-primary/20 bg-accent-primary/6 shadow-[inset_0_0_0_1px_rgba(255,106,61,0.08)]'
-                    : 'border-border/30 bg-bg-surface/30 hover:border-border/60 hover:bg-bg-surface/60'
-                )}
-                style={{ top: `${top}px` }}
-              >
-                <Checkbox
-                  checked={selected}
-                  readOnly
-                  onClick={(e) => e.stopPropagation()}
-                />
-                <div className="flex-1 min-w-0">
-                  <div className="font-display text-[13px] font-bold text-text-primary line-clamp-1">{entry.title}</div>
-                  <div className="text-[11px] text-text-muted mt-0.5">{entry.className} · {entry.weeks.length} veckor</div>
-                </div>
-                <span
-                  className="rounded text-[10px] font-semibold shrink-0"
-                  style={{ padding: '3px 8px', color: licColor.text, background: licColor.bg, border: `1px solid ${licColor.border}` }}
+              return (
+                <button
+                  key={entry.id}
+                  type="button"
+                  onClick={() => toggleSeries(entry.id)}
+                  className={cn(
+                    'absolute left-0 right-0 flex h-[100px] cursor-pointer items-start gap-[14px] rounded-lg border p-[14px_16px] text-left transition-all duration-150',
+                    selected
+                      ? 'border-accent-cyan/30 bg-accent-cyan/[0.07]'
+                      : 'border-transparent hover:border-border hover:bg-white/[0.03]'
+                  )}
+                  style={{ top: `${top}px` }}
                 >
-                  {licLabel}
-                </span>
-                <span
-                  className="rounded text-[10px] shrink-0"
-                  style={{ padding: '3px 8px', background: 'rgba(27,51,84,0.5)', border: '1px solid rgba(38,53,83,0.6)', color: selected ? '#b5c1d7' : '#7d8aa6' }}
-                >
-                  {categoryLabelMap[entry.categoryId] ?? entry.categoryLabel}
-                </span>
-              </button>
-            )
-          })}
+                  <Checkbox
+                    checked={selected}
+                    readOnly
+                    className="mt-1 shrink-0"
+                    onClick={(e) => e.stopPropagation()}
+                  />
+                  <div className="flex-1 min-w-0">
+                    <div className="mb-1.5 flex flex-wrap items-center gap-1.5">
+                      <Badge variant={catVariant}>
+                        {entry.categoryLabel}
+                      </Badge>
+                      <Badge variant="default">{entry.className}</Badge>
+                      <Badge variant={licVariant}>{licLabel}</Badge>
+                      <Badge variant="default">{entry.weeks.length} v</Badge>
+                    </div>
+                    <div className="font-display text-[15px] font-semibold text-text-primary tracking-[-0.01em] line-clamp-1">{entry.title}</div>
+                  </div>
+                  <CarIndicator cars={entry.cars} />
+                </button>
+              )
+            })}
+          </div>
         </div>
-      </div>
+      </Card>
 
       {/* Empty state */}
       {sortedSeries.length === 0 && (
-        <div className="rounded-lg border border-border p-4 text-sm text-text-secondary">
+        <Card className="p-4 text-sm text-text-secondary">
           Ingen serie matchade filtret.
-        </div>
+        </Card>
       )}
     </div>
   )
