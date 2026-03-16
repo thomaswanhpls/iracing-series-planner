@@ -20,6 +20,7 @@ export function Checkbox({ checked, onChange, onClick, readOnly, disabled, class
       role="checkbox"
       aria-checked={checked}
       aria-hidden={ariaHidden}
+      tabIndex={ariaHidden ? -1 : undefined}
       disabled={disabled}
       onClick={(e) => {
         onClick?.(e)
