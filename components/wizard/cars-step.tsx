@@ -117,7 +117,7 @@ export function CarsStep({
                   : 'border border-transparent hover:bg-white/[0.03]',
               ].join(' ')}
             >
-              <Checkbox checked={isOwned} readOnly />
+              <Checkbox checked={isOwned} readOnly aria-hidden />
               <span className="flex-1 text-text-primary">{carName}</span>
             </div>
           )

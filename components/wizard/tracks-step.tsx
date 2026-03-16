@@ -125,7 +125,7 @@ export function TracksStep({
                   : 'border border-transparent hover:bg-white/[0.03]',
               ].join(' ')}
             >
-              <Checkbox checked={isOwned} readOnly />
+              <Checkbox checked={isOwned} readOnly aria-hidden />
               <span className="flex-1 text-text-primary">{track.venue}</span>
               {track.config && (
                 <Badge variant="default" className="text-xs">

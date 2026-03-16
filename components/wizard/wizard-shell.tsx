@@ -71,17 +71,22 @@ export function WizardShell({
   initialProfile,
 }: WizardShellProps) {
   const router = useRouter()
-  const [isPending, startTransition] = useTransition()
+  const [isProfilePending, startProfileTransition] = useTransition()
+  const [isSeriesPending, startSeriesTransition] = useTransition()
+  const [isTracksPending, startTracksTransition] = useTransition()
+  const [isCarsPending, startCarsTransition] = useTransition()
 
-  const stored = loadFromStorage()
-
-  const [state, setState] = useState<WizardState>({
-    step: 1,
-    profile: stored.profile ?? initialProfile,
-    selectedSeriesNames: stored.selectedSeriesNames ?? initialSeriesNames,
-    ownedTrackKeys: stored.ownedTrackKeys ?? initialTrackKeys,
-    ownedCarNames: stored.ownedCarNames ?? initialCarNames,
+  const [state, setState] = useState<WizardState>(() => {
+    const stored = loadFromStorage()
+    return {
+      step: 1,
+      profile: stored.profile ?? initialProfile,
+      selectedSeriesNames: stored.selectedSeriesNames ?? initialSeriesNames,
+      ownedTrackKeys: stored.ownedTrackKeys ?? initialTrackKeys,
+      ownedCarNames: stored.ownedCarNames ?? initialCarNames,
+    }
   })
+  const [saveError, setSaveError] = useState<string | null>(null)
 
   function updateState(patch: Partial<WizardState>) {
     setState((prev) => {
@@ -95,30 +100,35 @@ export function WizardShell({
 
   function handleProfileNext(profile: { name: string; licenseClass: string }) {
     updateState({ profile, step: 2 })
-    startTransition(async () => {
+    startProfileTransition(async () => {
       await saveUserProfile(userId, profile.name, profile.licenseClass)
     })
   }
 
   function handleSeriesNext(selectedSeriesNames: string[]) {
     updateState({ selectedSeriesNames, step: 3 })
-    startTransition(async () => {
+    startSeriesTransition(async () => {
       await saveSelectedSeriesNames(userId, SEASON, selectedSeriesNames)
     })
   }
 
   function handleTracksNext(ownedTrackKeys: string[]) {
     updateState({ ownedTrackKeys, step: 4 })
-    startTransition(async () => {
+    startTracksTransition(async () => {
       await saveOwnedTrackKeys(userId, ownedTrackKeys)
     })
   }
 
   function handleCarsDone(ownedCarNames: string[]) {
     updateState({ ownedCarNames })
-    startTransition(async () => {
-      await saveOwnedCarNames(userId, ownedCarNames)
-      router.push('/dashboard')
+    setSaveError(null)
+    startCarsTransition(async () => {
+      try {
+        await saveOwnedCarNames(userId, ownedCarNames)
+        router.push('/dashboard')
+      } catch {
+        setSaveError('Något gick fel. Försök igen.')
+      }
     })
   }
 
@@ -200,17 +210,22 @@ export function WizardShell({
           initialOwnedTrackKeys={state.ownedTrackKeys}
           onNext={handleTracksNext}
           onBack={goBack}
-          isPending={isPending}
+          isPending={isTracksPending}
         />
       )}
       {state.step === 4 && (
-        <CarsStep
-          allCars={allCars}
-          initialOwnedCarNames={state.ownedCarNames}
-          onDone={handleCarsDone}
-          onBack={goBack}
-          isPending={isPending}
-        />
+        <div className="flex flex-col gap-2">
+          <CarsStep
+            allCars={allCars}
+            initialOwnedCarNames={state.ownedCarNames}
+            onDone={handleCarsDone}
+            onBack={goBack}
+            isPending={isCarsPending}
+          />
+          {saveError && (
+            <p className="text-sm text-red-400">{saveError}</p>
+          )}
+        </div>
       )}
     </div>
   )

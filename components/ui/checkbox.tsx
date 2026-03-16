@@ -10,14 +10,16 @@ interface CheckboxProps {
   readOnly?: boolean
   disabled?: boolean
   className?: string
+  'aria-hidden'?: boolean | 'true' | 'false'
 }
 
-export function Checkbox({ checked, onChange, onClick, readOnly, disabled, className }: CheckboxProps) {
+export function Checkbox({ checked, onChange, onClick, readOnly, disabled, className, 'aria-hidden': ariaHidden }: CheckboxProps) {
   return (
     <button
       type="button"
       role="checkbox"
       aria-checked={checked}
+      aria-hidden={ariaHidden}
       disabled={disabled}
       onClick={(e) => {
         onClick?.(e)
