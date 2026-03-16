@@ -265,7 +265,7 @@ export function SeriesSetup({ data, initialSelectedSeriesNames, onNext: onNextPr
           )
         )
       }
-      if (Array.isArray(parsed.selectedSeriesIds)) {
+      if (initialSelectedSeriesNames === undefined && Array.isArray(parsed.selectedSeriesIds)) {
         setSelectedSeriesIds(
           parsed.selectedSeriesIds.filter(
             (id): id is string => typeof id === 'string' && availableSeriesIds.has(id)
