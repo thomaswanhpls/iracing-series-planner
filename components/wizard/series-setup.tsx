@@ -23,7 +23,6 @@ interface PersistedSetupState {
 type SortKey = 'name' | 'category' | 'class' | 'weeks'
 
 const ROW_HEIGHT = 86
-const VIEWPORT_HEIGHT = 540
 const OVERSCAN_ROWS = 6
 const defaultSeason = '2026-2'
 const storageKey = 'series-setup-state-v1'
@@ -41,6 +40,7 @@ export function SeriesSetup({ data }: SeriesSetupProps) {
   const pathname = usePathname()
   const searchParams = useSearchParams()
   const hydratedRef = useRef(false)
+  const scrollContainerRef = useRef<HTMLDivElement>(null)
 
   // --- State ---
   const [selectedCategoryIds, setSelectedCategoryIds] = useState<string[]>(
@@ -125,10 +125,11 @@ export function SeriesSetup({ data }: SeriesSetupProps) {
   // Virtualization
   const allFilteredIds = useMemo(() => sortedSeries.map((s) => s.id), [sortedSeries])
   const totalHeight = sortedSeries.length * ROW_HEIGHT
+  const containerHeight = scrollContainerRef.current?.clientHeight ?? 800
   const visibleStartIndex = Math.max(0, Math.floor(scrollTop / ROW_HEIGHT) - OVERSCAN_ROWS)
   const visibleEndIndex = Math.min(
     sortedSeries.length,
-    Math.ceil((scrollTop + VIEWPORT_HEIGHT) / ROW_HEIGHT) + OVERSCAN_ROWS
+    Math.ceil((scrollTop + containerHeight) / ROW_HEIGHT) + OVERSCAN_ROWS
   )
   const visibleSeries = sortedSeries.slice(visibleStartIndex, visibleEndIndex)
 
@@ -278,10 +279,10 @@ export function SeriesSetup({ data }: SeriesSetupProps) {
                 type="button"
                 onClick={() => toggleCategory(cat.id)}
                 className={cn(
-                  'rounded-lg border px-3.5 py-1.5 text-xs font-medium transition-colors',
+                  'cursor-pointer rounded-lg border px-3.5 py-1.5 text-xs font-medium transition-all',
                   active
-                    ? 'bg-accent-primary/10 border-accent-primary/25 text-accent-primary'
-                    : 'bg-bg-elevated/60 border-border text-text-muted hover:border-accent-primary/30'
+                    ? 'bg-accent-primary/15 border-accent-primary/40 text-accent-primary shadow-[0_0_8px_rgba(255,106,61,0.1)]'
+                    : 'bg-bg-elevated/40 border-border/60 text-text-muted hover:border-border hover:text-text-secondary'
                 )}
               >
                 {cat.label}
@@ -300,10 +301,10 @@ export function SeriesSetup({ data }: SeriesSetupProps) {
                 type="button"
                 onClick={() => toggleClass(cls)}
                 className={cn(
-                  'rounded-full border px-2.5 py-1 text-[11px] font-medium transition-colors',
+                  'cursor-pointer rounded-full border px-2.5 py-1 text-[11px] font-medium transition-all',
                   active
-                    ? 'bg-accent-primary/8 border-accent-primary/18 text-accent-primary'
-                    : 'bg-bg-elevated/40 border-border/50 text-text-muted hover:border-accent-primary/20'
+                    ? 'bg-accent-secondary/10 border-accent-secondary/30 text-accent-secondary'
+                    : 'bg-bg-elevated/30 border-border/40 text-text-muted hover:border-border/70 hover:text-text-secondary'
                 )}
               >
                 {cls}
@@ -348,7 +349,8 @@ export function SeriesSetup({ data }: SeriesSetupProps) {
 
       {/* Virtualized list */}
       <div
-        className="h-[540px] overflow-y-auto rounded-xl border border-border/60 bg-bg-surface/30 p-2"
+        ref={scrollContainerRef}
+        className="max-h-[calc(100vh-320px)] min-h-[400px] overflow-y-auto rounded-xl border border-border/60 bg-bg-surface/30 p-2"
         onScroll={(e) => setScrollTop(e.currentTarget.scrollTop)}
       >
         <div className="relative" style={{ height: `${totalHeight}px` }}>
@@ -365,10 +367,10 @@ export function SeriesSetup({ data }: SeriesSetupProps) {
                 type="button"
                 onClick={() => toggleSeries(entry.id)}
                 className={cn(
-                  'absolute left-0 right-0 flex h-[78px] items-center gap-3 rounded-lg border px-3 text-left transition-all duration-150',
+                  'absolute left-0 right-0 flex h-[78px] cursor-pointer items-center gap-3 rounded-lg border px-3 text-left transition-all duration-150',
                   selected
-                    ? 'border-accent-primary/12 bg-accent-primary/4'
-                    : 'border-border/40 bg-bg-surface/40 hover:border-accent-primary/20 hover:bg-bg-surface/80'
+                    ? 'border-accent-primary/20 bg-accent-primary/6 shadow-[inset_0_0_0_1px_rgba(255,106,61,0.08)]'
+                    : 'border-border/30 bg-bg-surface/30 hover:border-border/60 hover:bg-bg-surface/60'
                 )}
                 style={{ top: `${top}px` }}
               >
