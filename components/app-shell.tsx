@@ -17,11 +17,6 @@ import {
 import { cn } from '@/lib/utils'
 import { OwnershipProvider } from '@/lib/ownership/context'
 
-const planningSteps = [
-  { key: 'setup', label: 'Setup', href: '/setup' },
-  { key: 'tracks', label: 'Banor', href: '/tracks' },
-  { key: 'costs', label: 'Kostnad', href: '/dashboard/costs' },
-] as const
 
 interface AppShellProps {
   children: React.ReactNode
@@ -50,6 +45,15 @@ const navGroups: { key: 'planering' | 'analys'; label: string }[] = [
   { key: 'analys',    label: 'Analys' },
 ]
 
+const pageMeta: Record<string, { breadcrumb: string; title: string }> = {
+  '/setup':           { breadcrumb: 'Planering', title: 'Välj serier' },
+  '/series':          { breadcrumb: 'Planering', title: 'Seriescheman' },
+  '/dashboard':       { breadcrumb: 'Analys',    title: 'Matrisöversikt' },
+  '/dashboard/costs': { breadcrumb: 'Analys',    title: 'Kostnader' },
+  '/tracks':          { breadcrumb: 'Analys',    title: 'Banor' },
+  '/settings':        { breadcrumb: 'Analys',    title: 'Inställningar' },
+}
+
 function getInitials(userId: string): string {
   return userId.slice(0, 2).toUpperCase()
 }
@@ -75,6 +79,13 @@ export function AppShell({ children, userId, initialOwnedTrackIds }: AppShellPro
     pathname.startsWith('/dashboard/costs')
   const hasReachedCostStep = pathname.startsWith('/dashboard/costs')
   const focusModeActive = isPrimaryFlowRoute && !hasReachedCostStep && emphasizeFocusFlow
+
+  const currentPage = Object.keys(pageMeta)
+    .sort((a, b) => b.length - a.length)
+    .find((key) => pathname.startsWith(key))
+  const { breadcrumb: pageBreadcrumb, title: pageTitle } = currentPage
+    ? pageMeta[currentPage]
+    : { breadcrumb: '', title: '' }
 
   useEffect(() => {
     const querySeason = searchParams.get('season')
@@ -112,7 +123,7 @@ export function AppShell({ children, userId, initialOwnedTrackIds }: AppShellPro
                   iRacing <span className="text-accent-cyan">SP</span>
                 </div>
                 <div className="font-mono text-[10px] text-text-muted uppercase tracking-widest mt-1.5">
-                  {seasonBadge}
+                  {seasonBadge} · Säsongsplanerare
                 </div>
               </>
             )}
@@ -150,7 +161,7 @@ export function AppShell({ children, userId, initialOwnedTrackIds }: AppShellPro
                       >
                         {active && (
                           <span
-                            className="absolute left-0 top-0 bottom-0 w-0.5"
+                            className="absolute left-0 top-[6px] bottom-[6px] w-0.5 rounded-r-[2px]"
                             style={{
                               background:
                                 'linear-gradient(180deg, transparent, #00ffff 40%, #00ffff 60%, transparent)',
@@ -191,7 +202,10 @@ export function AppShell({ children, userId, initialOwnedTrackIds }: AppShellPro
                 <div className="flex h-[34px] w-[34px] shrink-0 items-center justify-center rounded-full border border-accent-cyan/20 bg-bg-elevated font-mono text-[11px] font-bold text-accent-cyan">
                   {getInitials(userId)}
                 </div>
-                <span className="text-[13px] font-semibold text-white/80 truncate">{userId}</span>
+                <div className="min-w-0">
+                  <div className="text-[13px] font-semibold text-white/80 truncate">{userId}</div>
+                  <div className="font-mono text-[10px] text-white/25 uppercase tracking-[0.04em] mt-0.5">iRacing Member</div>
+                </div>
               </div>
             )}
           </div>
@@ -222,38 +236,14 @@ export function AppShell({ children, userId, initialOwnedTrackIds }: AppShellPro
         <div className="flex flex-1 flex-col overflow-hidden">
           {/* Topbar */}
           <header className="relative flex h-16 items-center justify-between border-b border-white/[0.06] px-10">
-            <div className="flex items-center gap-4">
-              <div className="flex items-center gap-2 rounded-full border border-border bg-[rgba(26,27,59,0.4)] px-3 py-1">
-                <div className="h-1.5 w-1.5 rounded-full bg-accent-cyan animate-glow-pulse" />
-                <span className="font-mono text-[11px] text-text-muted uppercase tracking-[0.06em]">
-                  {seasonBadge}
+            <div className="flex items-baseline gap-2.5">
+              {pageBreadcrumb && (
+                <span className="font-mono text-[11px] text-white/25 uppercase tracking-[0.06em]">
+                  {pageBreadcrumb} /
                 </span>
-              </div>
-              {flowStep && (
-                <div className="hidden items-center gap-1 rounded-full border border-border bg-[rgba(26,27,59,0.32)] px-2 py-1 md:flex">
-                  {planningSteps.map((step, index) => {
-                    const active = flowStep === step.key
-                    const href = seriesParam ? `${step.href}?series=${seriesParam}` : step.href
-                    return (
-                      <div key={step.key} className="flex items-center gap-1">
-                        <Link
-                          href={href}
-                          className={cn(
-                            'rounded-full px-2.5 py-1 text-[11px] font-medium transition-colors',
-                            active
-                              ? 'bg-accent-cyan/15 text-text-primary'
-                              : 'text-text-muted hover:text-text-primary'
-                          )}
-                        >
-                          {step.label}
-                        </Link>
-                        {index < planningSteps.length - 1 && (
-                          <span className="px-0.5 text-[10px] text-text-muted">→</span>
-                        )}
-                      </div>
-                    )
-                  })}
-                </div>
+              )}
+              {pageTitle && (
+                <span className="text-[16px] font-semibold text-white/90">{pageTitle}</span>
               )}
             </div>
             <div className="flex items-center gap-3">
