@@ -1,20 +1,21 @@
 import './globals.css'
+import type { Metadata } from 'next'
 import { ReactNode } from 'react'
-import { JetBrains_Mono, DM_Sans } from 'next/font/google'
+import { Space_Grotesk, JetBrains_Mono } from 'next/font/google'
 
-const jetbrainsMono = JetBrains_Mono({
+const spaceGrotesk = Space_Grotesk({
   subsets: ['latin'],
   variable: '--font-display',
   display: 'swap',
+  weight: ['400', '500', '600', '700'],
 })
 
-const dmSans = DM_Sans({
+const jetbrainsMono = JetBrains_Mono({
   subsets: ['latin'],
-  variable: '--font-body',
+  variable: '--font-mono',
   display: 'swap',
+  weight: ['400', '500'],
 })
-
-import type { Metadata } from 'next'
 
 export const metadata: Metadata = {
   title: {
@@ -37,8 +38,8 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
-    <html lang="en" className={`${jetbrainsMono.variable} ${dmSans.variable}`}>
-      <body className="min-h-screen bg-bg-base text-text-primary font-body antialiased">
+    <html lang="en" className={`${spaceGrotesk.variable} ${jetbrainsMono.variable}`}>
+      <body className="min-h-screen bg-bg-base font-display text-text-primary antialiased">
         {children}
       </body>
     </html>
