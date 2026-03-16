@@ -544,7 +544,7 @@ export function SeriesSetup({ data }: SeriesSetupProps) {
                   className={cn(
                     'absolute left-0 right-0 flex h-[100px] cursor-pointer items-start gap-[14px] rounded-lg border p-[14px_16px] text-left transition-all duration-150',
                     selected
-                      ? 'border-accent-cyan/50 bg-accent-cyan/[0.14]'
+                      ? 'border-[rgba(0,255,255,0.55)] bg-[rgba(0,255,255,0.18)] shadow-[inset_3px_0_0_rgba(0,255,255,0.7)]'
                       : 'border-transparent hover:border-border hover:bg-white/[0.03]'
                   )}
                   style={{ top: `${top}px` }}

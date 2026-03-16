@@ -29,11 +29,11 @@ export function Checkbox({ checked, onChange, onClick, readOnly, disabled, class
           ? 'border-white/10 bg-transparent opacity-50 cursor-not-allowed'
           : checked
             ? 'border-accent-cyan bg-accent-cyan shadow-[0_0_8px_rgba(0,255,255,0.45)] cursor-pointer'
-            : 'border-white/20 bg-transparent cursor-pointer',
+            : 'border-white/30 bg-transparent cursor-pointer',
         className
       )}
     >
-      {checked && <Check className="h-3 w-3 text-bg-base stroke-[3]" />}
+      {checked && <Check className="h-3.5 w-3.5 stroke-[3]" style={{ color: '#050614' }} />}
     </button>
   )
 }

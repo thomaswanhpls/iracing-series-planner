@@ -543,7 +543,7 @@ export function SeasonScheduleBrowser({ data }: SeasonScheduleBrowserProps) {
                   onClick={() => setSelectedSeriesId(series.id)}
                   className={`w-full rounded-lg border p-3 text-left transition ${
                     isActive
-                      ? 'border-accent-cyan/50 bg-accent-cyan/[0.14]'
+                      ? 'border-[rgba(0,255,255,0.55)] bg-[rgba(0,255,255,0.18)]'
                       : 'border-transparent hover:border-border hover:bg-white/[0.03]'
                   }`}
                 >
