@@ -471,7 +471,7 @@ export function SeasonScheduleBrowser({ data }: SeasonScheduleBrowserProps) {
           <select
             value={activeClass}
             onChange={(event) => setActiveClass(event.target.value)}
-            className="w-full rounded-md border border-border bg-bg-elevated px-3 py-2 text-sm text-text-primary focus:border-border-focus focus:outline-none"
+            className="w-full rounded-sm border border-border bg-white/[0.04] px-3 py-2 font-display text-sm text-text-secondary placeholder:text-text-muted focus:border-border-focus focus:shadow-[0_0_5px_rgba(0,255,255,0.3)] focus:outline-none"
           >
             <option value="all">Alla klasser</option>
             {classes.map((className) => (
@@ -501,7 +501,7 @@ export function SeasonScheduleBrowser({ data }: SeasonScheduleBrowserProps) {
               onClick={() => setActiveCategory(category.id)}
               className={`rounded-full border px-3 py-1.5 text-xs transition ${
                 activeCategory === category.id
-                  ? 'border-accent-cyan bg-accent-cyan/10 text-accent-cyan'
+                  ? 'border-accent-cyan/50 bg-accent-cyan/10 text-accent-cyan'
                   : 'border-border text-text-secondary hover:text-text-primary'
               }`}
             >
@@ -514,7 +514,7 @@ export function SeasonScheduleBrowser({ data }: SeasonScheduleBrowserProps) {
               onClick={() => setShowPrioritizedOnly((value) => !value)}
               className={`rounded-full border px-3 py-1.5 text-xs transition ${
                 showPrioritizedOnly
-                  ? 'border-accent-cyan bg-accent-cyan/10 text-accent-cyan'
+                  ? 'border-accent-cyan/50 bg-accent-cyan/10 text-accent-cyan'
                   : 'border-border text-text-secondary hover:text-text-primary'
               }`}
             >
@@ -544,8 +544,8 @@ export function SeasonScheduleBrowser({ data }: SeasonScheduleBrowserProps) {
                   onClick={() => setSelectedSeriesId(series.id)}
                   className={`w-full rounded-lg border p-3 text-left transition ${
                     isActive
-                      ? 'border-accent-cyan bg-accent-cyan/10'
-                      : 'border-transparent hover:border-border hover:bg-[rgba(26,27,59,0.4)]'
+                      ? 'border-accent-cyan/30 bg-accent-cyan/[0.07]'
+                      : 'border-transparent hover:border-border hover:bg-white/[0.03]'
                   }`}
                 >
                   <div className="mb-2 flex flex-wrap items-center gap-2">

@@ -432,7 +432,7 @@ export function SeriesSetup({ data }: SeriesSetupProps) {
                 className={cn(
                   'cursor-pointer rounded-full border px-3 py-1.5 text-xs font-medium transition-all',
                   allCategoriesSelected
-                    ? 'border-accent-cyan bg-accent-cyan/10 text-text-primary'
+                    ? 'border-accent-cyan/50 bg-accent-cyan/10 text-accent-cyan'
                     : 'border-border text-text-secondary hover:text-text-primary'
                 )}
               >
@@ -486,7 +486,7 @@ export function SeriesSetup({ data }: SeriesSetupProps) {
                       className={cn(
                         'cursor-pointer rounded-full border px-2.5 py-1 text-[11px] font-medium transition-all',
                         active
-                          ? 'border-accent-cyan/40 bg-accent-cyan/10 text-accent-cyan'
+                          ? 'border-accent-cyan/50 bg-accent-cyan/10 text-accent-cyan'
                           : 'border-border/50 bg-[rgba(26,27,59,0.3)] text-text-muted hover:border-border hover:text-text-secondary'
                       )}
                     >
