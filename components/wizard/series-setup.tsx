@@ -544,7 +544,7 @@ export function SeriesSetup({ data }: SeriesSetupProps) {
                   className={cn(
                     'absolute left-0 right-0 flex h-[100px] cursor-pointer items-start gap-[14px] rounded-lg border p-[14px_16px] text-left transition-all duration-150',
                     selected
-                      ? 'border-accent-cyan/30 bg-accent-cyan/[0.07]'
+                      ? 'border-accent-cyan/50 bg-accent-cyan/[0.14]'
                       : 'border-transparent hover:border-border hover:bg-white/[0.03]'
                   )}
                   style={{ top: `${top}px` }}
@@ -553,7 +553,6 @@ export function SeriesSetup({ data }: SeriesSetupProps) {
                     checked={selected}
                     readOnly
                     className="mt-1 shrink-0"
-                    onClick={(e) => e.stopPropagation()}
                   />
                   <div className="flex-1 min-w-0">
                     <div className="mb-1.5 flex flex-wrap items-center gap-1.5">

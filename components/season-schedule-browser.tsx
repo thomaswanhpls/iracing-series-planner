@@ -7,7 +7,6 @@ import { Card } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Table, TBody, Td, Th, THead, Tr } from '@/components/ui/table'
-import { cn } from '@/lib/utils'
 import { splitCars } from '@/lib/iracing/cars'
 import { CarBadge } from '@/components/car-badges'
 import {
@@ -544,7 +543,7 @@ export function SeasonScheduleBrowser({ data }: SeasonScheduleBrowserProps) {
                   onClick={() => setSelectedSeriesId(series.id)}
                   className={`w-full rounded-lg border p-3 text-left transition ${
                     isActive
-                      ? 'border-accent-cyan/30 bg-accent-cyan/[0.07]'
+                      ? 'border-accent-cyan/50 bg-accent-cyan/[0.14]'
                       : 'border-transparent hover:border-border hover:bg-white/[0.03]'
                   }`}
                 >
