@@ -382,7 +382,7 @@ export function SeriesSetup({ data }: SeriesSetupProps) {
         <button
           type="button"
           onClick={() => setFiltersOpen((v) => !v)}
-          className="flex w-full items-center justify-between px-4 py-3 text-left cursor-pointer hover:bg-bg-elevated/30 transition-colors"
+          className="flex w-full items-center justify-between px-4 py-3 text-left cursor-pointer hover:bg-[rgba(26,27,59,0.3)] transition-colors"
         >
           <div className="flex items-center gap-2">
             <Filter className="h-4 w-4 text-text-muted" />
@@ -487,7 +487,7 @@ export function SeriesSetup({ data }: SeriesSetupProps) {
                         'cursor-pointer rounded-full border px-2.5 py-1 text-[11px] font-medium transition-all',
                         active
                           ? 'border-accent-cyan/40 bg-accent-cyan/10 text-accent-cyan'
-                          : 'border-border/50 bg-bg-elevated/30 text-text-muted hover:border-border hover:text-text-secondary'
+                          : 'border-border/50 bg-[rgba(26,27,59,0.3)] text-text-muted hover:border-border hover:text-text-secondary'
                       )}
                     >
                       {cls}

@@ -37,8 +37,8 @@ export function Season2Matrix({ selectedSeries, tracks, ownedTrackIds }: Season2
     <div className="overflow-x-auto rounded-xl border border-border/40 bg-bg-surface/30 backdrop-blur-sm">
       <table className="w-full border-collapse text-sm">
         <thead>
-          <tr className="bg-bg-elevated/60">
-            <th className="sticky left-0 z-10 min-w-[220px] border-r border-border/30 bg-bg-elevated/90 px-4 py-3 text-left font-display text-[10px] font-medium uppercase tracking-widest text-text-muted backdrop-blur-sm">
+          <tr className="bg-[rgba(26,27,59,0.6)]">
+            <th className="sticky left-0 z-10 min-w-[220px] border-r border-border/30 bg-[rgba(26,27,59,0.9)] px-4 py-3 text-left font-display text-[10px] font-medium uppercase tracking-widest text-text-muted backdrop-blur-sm">
               Serie
             </th>
             {weekNumbers.map((weekNumber) => (
@@ -67,7 +67,7 @@ export function Season2Matrix({ selectedSeries, tracks, ownedTrackIds }: Season2
             return (
               <tr
                 key={series.id}
-                className="border-t border-border/20 transition-colors hover:bg-bg-hover/20"
+                className="border-t border-border/20 transition-colors hover:bg-white/[0.03]"
                 style={{ animationDelay: `${rowIndex * 60}ms` }}
               >
                 <td className="sticky left-0 z-10 border-r border-border/30 bg-bg-surface/90 px-4 py-2.5 backdrop-blur-sm">
@@ -92,7 +92,7 @@ export function Season2Matrix({ selectedSeries, tracks, ownedTrackIds }: Season2
                   if (!matchedTrack) {
                     return (
                       <td key={`${series.id}-week-${weekNumber}`} className="px-1 py-1.5">
-                        <div className="truncate rounded-md border border-border/50 bg-bg-elevated/30 px-2 py-1.5 text-xs text-text-muted">
+                        <div className="truncate rounded-md border border-border/50 bg-[rgba(26,27,59,0.3)] px-2 py-1.5 text-xs text-text-muted">
                           {week.track}
                         </div>
                       </td>

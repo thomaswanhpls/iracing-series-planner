@@ -5,7 +5,7 @@ export default function NotFound() {
   return (
     <main className="flex min-h-screen flex-col items-center justify-center bg-bg-base text-text-primary">
       <div className="text-center">
-        <h1 className="font-display text-7xl font-bold text-accent-primary">404</h1>
+        <h1 className="font-display text-7xl font-bold text-accent-cyan">404</h1>
         <p className="mt-4 font-display text-xl text-text-secondary">
           Sidan kunde inte hittas
         </p>

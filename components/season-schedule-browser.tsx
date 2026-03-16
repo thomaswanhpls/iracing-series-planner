@@ -7,6 +7,9 @@ import { Card } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Table, TBody, Td, Th, THead, Tr } from '@/components/ui/table'
+import { cn } from '@/lib/utils'
+import { splitCars } from '@/lib/iracing/cars'
+import { CarBadge } from '@/components/car-badges'
 import {
   CalendarDays,
   CloudRain,
@@ -32,49 +35,6 @@ const categoryBadgeVariants: Record<string, 'default' | 'road' | 'oval' | 'dirt-
   unranked: 'default',
 }
 
-const knownCarBrands = [
-  'Aston Martin',
-  'Mercedes-AMG',
-  'Mercedes Benz',
-  'Alfa Romeo',
-  'Lamborghini',
-  'Chevrolet',
-  'McLaren',
-  'Renault',
-  'Porsche',
-  'Ferrari',
-  'Toyota',
-  'Nissan',
-  'Mazda',
-  'Cadillac',
-  'Hyundai',
-  'Volkswagen',
-  'BMW',
-  'Ford',
-  'Kia',
-] as const
-
-const brandAccentByName: Record<string, { from: string; to: string; ring: string; mono: string }> = {
-  'Aston Martin': { from: '#8FD694', to: '#2D6A4F', ring: '#A7F3D0', mono: 'AM' },
-  'Mercedes-AMG': { from: '#B8C0FF', to: '#4A4E69', ring: '#C7D2FE', mono: 'AMG' },
-  'Mercedes Benz': { from: '#B8C0FF', to: '#4A4E69', ring: '#C7D2FE', mono: 'MB' },
-  'Alfa Romeo': { from: '#FF8FA3', to: '#9D0208', ring: '#FECACA', mono: 'AR' },
-  Lamborghini: { from: '#FDE68A', to: '#92400E', ring: '#FDE68A', mono: 'L' },
-  Chevrolet: { from: '#FDE047', to: '#854D0E', ring: '#FEF08A', mono: 'C' },
-  McLaren: { from: '#FB923C', to: '#C2410C', ring: '#FDBA74', mono: 'M' },
-  Renault: { from: '#FACC15', to: '#A16207', ring: '#FDE047', mono: 'R' },
-  Porsche: { from: '#FCA5A5', to: '#991B1B', ring: '#FECACA', mono: 'P' },
-  Ferrari: { from: '#F87171', to: '#B91C1C', ring: '#FCA5A5', mono: 'F' },
-  Toyota: { from: '#FCA5A5', to: '#7F1D1D', ring: '#FECACA', mono: 'T' },
-  Nissan: { from: '#FCA5A5', to: '#7F1D1D', ring: '#FECACA', mono: 'N' },
-  Mazda: { from: '#C4B5FD', to: '#5B21B6', ring: '#DDD6FE', mono: 'MZ' },
-  Cadillac: { from: '#93C5FD', to: '#1D4ED8', ring: '#BFDBFE', mono: 'CD' },
-  Hyundai: { from: '#93C5FD', to: '#1D4ED8', ring: '#BFDBFE', mono: 'H' },
-  Volkswagen: { from: '#93C5FD', to: '#1D4ED8', ring: '#BFDBFE', mono: 'VW' },
-  BMW: { from: '#93C5FD', to: '#1E40AF', ring: '#BFDBFE', mono: 'BMW' },
-  Ford: { from: '#60A5FA', to: '#1D4ED8', ring: '#93C5FD', mono: 'F' },
-  Kia: { from: '#FDA4AF', to: '#9F1239', ring: '#FBCFE8', mono: 'K' },
-}
 
 function normalize(value: string) {
   return value
@@ -84,59 +44,6 @@ function normalize(value: string) {
     .replace(/[\u0300-\u036f]/g, '')
 }
 
-function splitCars(value: string): string[] {
-  if (!value) return []
-  return value
-    .split(',')
-    .map((entry) => entry.trim())
-    .filter(Boolean)
-}
-
-function inferCarBrand(modelName: string): string {
-  const normalized = normalize(modelName)
-  for (const brand of knownCarBrands) {
-    if (normalized.startsWith(normalize(brand))) return brand
-  }
-  const firstToken = modelName.trim().split(/\s+/)[0]
-  return firstToken || 'Okänt märke'
-}
-
-function BrandEmblem({ brand }: { brand: string }) {
-  const accent = brandAccentByName[brand] ?? {
-    from: '#9CA3AF',
-    to: '#374151',
-    ring: '#D1D5DB',
-    mono: brand.slice(0, 2).toUpperCase(),
-  }
-  const gradientId = `brand-emblem-${brand.replace(/[^a-z0-9]/gi, '-').toLowerCase()}`
-
-  return (
-    <span className="inline-flex h-5 w-5 items-center justify-center" aria-hidden>
-      <svg viewBox="0 0 32 32" className="h-5 w-5">
-        <defs>
-          <linearGradient id={gradientId} x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" stopColor={accent.from} />
-            <stop offset="100%" stopColor={accent.to} />
-          </linearGradient>
-        </defs>
-        <circle cx="16" cy="16" r="15" fill={`url(#${gradientId})`} />
-        <circle cx="16" cy="16" r="14" fill="none" stroke={accent.ring} strokeWidth="1.4" opacity="0.9" />
-        <text
-          x="16"
-          y="19"
-          textAnchor="middle"
-          fontSize={accent.mono.length > 2 ? '8' : '10'}
-          fontFamily="ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial"
-          fontWeight="700"
-          fill="#FFFFFF"
-          letterSpacing="0.4"
-        >
-          {accent.mono}
-        </text>
-      </svg>
-    </span>
-  )
-}
 
 function inferLicenseBadgeVariant(
   value: string
@@ -515,7 +422,7 @@ export function SeasonScheduleBrowser({ data }: SeasonScheduleBrowserProps) {
         </p>
       </div>
 
-      <Card className="space-y-3 border-accent-primary/30 bg-accent-primary/5 p-4">
+      <Card className="space-y-3 border-accent-cyan/30 bg-accent-cyan/[0.05] p-4">
         <div>
           <h3 className="font-display text-base font-semibold text-text-primary">Rekommenderat flöde</h3>
           <p className="mt-1 text-sm text-text-secondary">
@@ -564,7 +471,7 @@ export function SeasonScheduleBrowser({ data }: SeasonScheduleBrowserProps) {
           <select
             value={activeClass}
             onChange={(event) => setActiveClass(event.target.value)}
-            className="w-full rounded-md border border-border bg-bg-elevated px-3 py-2 text-sm text-text-primary focus:border-accent-primary focus:outline-none"
+            className="w-full rounded-md border border-border bg-bg-elevated px-3 py-2 text-sm text-text-primary focus:border-border-focus focus:outline-none"
           >
             <option value="all">Alla klasser</option>
             {classes.map((className) => (
@@ -581,7 +488,7 @@ export function SeasonScheduleBrowser({ data }: SeasonScheduleBrowserProps) {
             onClick={() => setActiveCategory('all')}
             className={`rounded-full border px-3 py-1.5 text-xs transition ${
               activeCategory === 'all'
-                ? 'border-accent-primary bg-accent-primary/10 text-text-primary'
+                ? 'border-accent-cyan bg-accent-cyan/10 text-accent-cyan'
                 : 'border-border text-text-secondary hover:text-text-primary'
             }`}
           >
@@ -594,7 +501,7 @@ export function SeasonScheduleBrowser({ data }: SeasonScheduleBrowserProps) {
               onClick={() => setActiveCategory(category.id)}
               className={`rounded-full border px-3 py-1.5 text-xs transition ${
                 activeCategory === category.id
-                  ? 'border-accent-primary bg-accent-primary/10 text-text-primary'
+                  ? 'border-accent-cyan bg-accent-cyan/10 text-accent-cyan'
                   : 'border-border text-text-secondary hover:text-text-primary'
               }`}
             >
@@ -607,7 +514,7 @@ export function SeasonScheduleBrowser({ data }: SeasonScheduleBrowserProps) {
               onClick={() => setShowPrioritizedOnly((value) => !value)}
               className={`rounded-full border px-3 py-1.5 text-xs transition ${
                 showPrioritizedOnly
-                  ? 'border-accent-primary bg-accent-primary/10 text-text-primary'
+                  ? 'border-accent-cyan bg-accent-cyan/10 text-accent-cyan'
                   : 'border-border text-text-secondary hover:text-text-primary'
               }`}
             >
@@ -637,8 +544,8 @@ export function SeasonScheduleBrowser({ data }: SeasonScheduleBrowserProps) {
                   onClick={() => setSelectedSeriesId(series.id)}
                   className={`w-full rounded-lg border p-3 text-left transition ${
                     isActive
-                      ? 'border-accent-primary bg-accent-primary/10'
-                      : 'border-transparent hover:border-border hover:bg-bg-elevated/40'
+                      ? 'border-accent-cyan bg-accent-cyan/10'
+                      : 'border-transparent hover:border-border hover:bg-[rgba(26,27,59,0.4)]'
                   }`}
                 >
                   <div className="mb-2 flex flex-wrap items-center gap-2">
@@ -697,7 +604,7 @@ function SeriesDetails({ series }: { series: SeasonSeries }) {
           <Badge variant={categoryBadgeVariants[series.categoryId] ?? 'default'}>
             {series.categoryLabel}
           </Badge>
-          <Badge className="bg-accent-primary/20 text-text-primary">{series.className}</Badge>
+          <Badge className="bg-accent-cyan/20 text-accent-cyan">{series.className}</Badge>
           <Badge variant={licenseVariant}>{series.license || 'Licens saknas'}</Badge>
           <Badge className="bg-bg-elevated text-text-primary">{series.frequency || 'Frekvens saknas'}</Badge>
           <Badge variant="default">PDF sida {series.pdfPage || '-'}</Badge>
@@ -706,21 +613,12 @@ function SeriesDetails({ series }: { series: SeasonSeries }) {
       </div>
 
       <div className="space-y-2">
-        <div className="grid gap-2 rounded-lg border border-border/70 bg-bg-elevated/30 p-3">
+        <div className="grid gap-2 rounded-lg border border-border/70 bg-[rgba(26,27,59,0.3)] p-3">
           <div className="text-xs uppercase tracking-wider text-text-muted">Bil(ar)</div>
           {cars.length > 0 ? (
             <div className="flex flex-wrap gap-2">
               {cars.map((carModel, index) => (
-                <span
-                  key={`${series.id}-car-${index}`}
-                  className="inline-flex items-center gap-1.5 rounded-full border border-border/70 bg-bg-elevated/80 px-2.5 py-1"
-                >
-                  <span className="inline-flex items-center gap-1 rounded-full border border-zinc-700/80 bg-black/35 px-2 py-0.5 text-zinc-100">
-                    <BrandEmblem brand={inferCarBrand(carModel)} />
-                    <span className="text-xs font-semibold">{inferCarBrand(carModel)}</span>
-                  </span>
-                  <Badge className="bg-accent-primary/15 text-text-primary">{carModel}</Badge>
-                </span>
+                <CarBadge key={`${series.id}-car-${index}`} carModel={carModel} />
               ))}
             </div>
           ) : (
@@ -742,16 +640,16 @@ function SeriesDetails({ series }: { series: SeasonSeries }) {
             {series.weeks.map((week, index) => (
               <Tr
                 key={`${series.id}-${week.week}-${week.startDate}-${week.track}-${index}`}
-                className="align-top hover:bg-bg-elevated/35"
+                className="align-top hover:bg-[rgba(26,27,59,0.35)]"
               >
                 <Td className="py-2">
-                  <div className="h-full min-h-[64px] rounded-lg border border-border/60 bg-gradient-to-r from-bg-elevated/85 via-bg-elevated/65 to-bg-surface/75 p-2.5">
+                  <div className="h-full min-h-[64px] rounded-lg border border-border/60 bg-gradient-to-r from-[rgba(26,27,59,0.85)] via-[rgba(26,27,59,0.65)] to-bg-surface/75 p-2.5">
                     <div className="mb-2 flex flex-wrap items-center gap-2">
-                      <span className="inline-flex min-w-7 items-center justify-center rounded-md border border-accent-primary/40 bg-accent-primary/20 px-1.5 py-0.5 font-display text-sm font-semibold text-text-primary">
+                      <span className="inline-flex min-w-7 items-center justify-center rounded-md border border-accent-cyan/40 bg-accent-cyan/20 px-1.5 py-0.5 font-display text-sm font-semibold text-text-primary">
                         V{week.week}
                       </span>
-                      <span className="inline-flex items-center gap-1.5 rounded-md border border-border/70 bg-bg-elevated/80 px-2 py-0.5 text-text-primary">
-                        <CalendarDays className="h-3.5 w-3.5 text-accent-primary" />
+                      <span className="inline-flex items-center gap-1.5 rounded-md border border-border/70 bg-bg-elevated px-2 py-0.5 text-text-primary">
+                        <CalendarDays className="h-3.5 w-3.5 text-accent-cyan" />
                         <span className="text-sm font-semibold">{formatCompactDate(week.startDate)}</span>
                       </span>
                     </div>
@@ -772,8 +670,8 @@ function SeriesDetails({ series }: { series: SeasonSeries }) {
                 </Td>
                 <Td className="py-2 text-sm font-medium text-text-primary">{week.length || '-'}</Td>
                 <Td className="py-2 text-sm text-text-secondary">
-                  <span className="inline-flex items-center gap-1.5 rounded-md border border-border/70 bg-bg-elevated/70 px-2 py-1">
-                    <CalendarDays className="h-3.5 w-3.5 text-accent-primary" />
+                  <span className="inline-flex items-center gap-1.5 rounded-md border border-border/70 bg-[rgba(26,27,59,0.7)] px-2 py-1">
+                    <CalendarDays className="h-3.5 w-3.5 text-accent-cyan" />
                     {formatCompactReferenceSession(week.referenceSession)}
                   </span>
                 </Td>

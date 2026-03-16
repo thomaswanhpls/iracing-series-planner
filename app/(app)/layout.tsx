@@ -19,7 +19,7 @@ async function AppLayoutContent({ children }: { children: React.ReactNode }) {
 
 function AppLayoutFallback() {
   return (
-    <div className="flex min-h-screen items-center justify-center bg-bg-main text-sm text-text-secondary">
+    <div className="flex min-h-screen items-center justify-center bg-bg-base text-sm text-text-secondary">
       Laddar app...
     </div>
   )

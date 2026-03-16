@@ -23,8 +23,8 @@ export function Matrix({ schedules, tracks, crossSeriesCounts }: MatrixProps) {
     <div className="overflow-x-auto rounded-xl border border-border/40 bg-bg-surface/30 backdrop-blur-sm">
       <table className="w-full border-collapse text-sm">
         <thead>
-          <tr className="bg-bg-elevated/60">
-            <th className="sticky left-0 z-10 bg-bg-elevated/90 backdrop-blur-sm px-4 py-3 text-left font-display text-[10px] font-medium uppercase tracking-widest text-text-muted min-w-[180px] border-r border-border/30">
+          <tr className="bg-[rgba(26,27,59,0.6)]">
+            <th className="sticky left-0 z-10 bg-[rgba(26,27,59,0.9)] backdrop-blur-sm px-4 py-3 text-left font-display text-[10px] font-medium uppercase tracking-widest text-text-muted min-w-[180px] border-r border-border/30">
               Serie
             </th>
             {weekNumbers.map((w) => (
@@ -50,7 +50,7 @@ export function Matrix({ schedules, tracks, crossSeriesCounts }: MatrixProps) {
             return (
               <tr
                 key={schedule.series_id}
-                className="border-t border-border/20 transition-colors hover:bg-bg-hover/20"
+                className="border-t border-border/20 transition-colors hover:bg-white/[0.03]"
                 style={{ animationDelay: `${rowIdx * 60}ms` }}
               >
                 <td className="sticky left-0 z-10 bg-bg-surface/90 backdrop-blur-sm px-4 py-2.5 border-r border-border/30">

@@ -74,7 +74,7 @@ export function CostTable({ recommendations, costSummary }: CostTableProps) {
       <div className="overflow-hidden rounded-xl border border-border/40 bg-bg-surface/30 backdrop-blur-sm">
         <table className="w-full text-sm">
           <thead>
-            <tr className="bg-bg-elevated/60">
+            <tr className="bg-[rgba(26,27,59,0.6)]">
               <th className="px-4 py-3 text-left text-xs font-display font-medium uppercase tracking-wide text-text-muted">#</th>
               <th className="px-4 py-3 text-left text-xs font-display font-medium uppercase tracking-wide text-text-muted">Bana</th>
               <th className="px-4 py-3 text-left text-xs font-display font-medium uppercase tracking-wide text-text-muted">Serier</th>
@@ -86,10 +86,10 @@ export function CostTable({ recommendations, costSummary }: CostTableProps) {
             {recommendations.map((rec, idx) => (
               <tr
                 key={rec.track.track_id}
-                className="border-t border-border/20 transition-colors hover:bg-bg-hover/20"
+                className="border-t border-border/20 transition-colors hover:bg-white/[0.03]"
               >
                 <td className="px-4 py-3">
-                  <span className="inline-flex h-6 w-6 items-center justify-center rounded-full bg-bg-elevated/80 font-display text-xs font-bold text-text-muted">
+                  <span className="inline-flex h-6 w-6 items-center justify-center rounded-full bg-bg-elevated font-display text-xs font-bold text-text-muted">
                     {idx + 1}
                   </span>
                 </td>
