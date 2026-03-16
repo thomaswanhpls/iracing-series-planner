@@ -6,12 +6,9 @@ import { usePathname, useSearchParams } from 'next/navigation'
 import {
   LayoutDashboard,
   Compass,
-  MapPin,
-  DollarSign,
   Settings,
   ChevronLeft,
   ChevronRight,
-  CalendarDays,
   LogOut,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
@@ -32,26 +29,19 @@ interface NavItem {
 }
 
 const navItems: NavItem[] = [
-  { href: '/setup',           label: 'Setup',         icon: Compass,         group: 'planering' },
-  { href: '/series',          label: 'Seriescheman',  icon: CalendarDays,    group: 'planering' },
-  { href: '/dashboard',       label: 'Matris',        icon: LayoutDashboard, group: 'planering' },
-  { href: '/tracks',          label: 'Banor',         icon: MapPin,          group: 'analys' },
-  { href: '/dashboard/costs', label: 'Kostnader',     icon: DollarSign,      group: 'analys' },
-  { href: '/settings',        label: 'Inställningar', icon: Settings,        group: 'analys' },
+  { href: '/setup',     label: 'Setup',         icon: Compass,         group: 'planering' },
+  { href: '/dashboard', label: 'Dashboard',      icon: LayoutDashboard, group: 'planering' },
+  { href: '/settings',  label: 'Inställningar',  icon: Settings,        group: 'planering' },
 ]
 
 const navGroups: { key: 'planering' | 'analys'; label: string }[] = [
   { key: 'planering', label: 'Planering' },
-  { key: 'analys',    label: 'Analys' },
 ]
 
 const pageMeta: Record<string, { breadcrumb: string; title: string }> = {
-  '/setup':           { breadcrumb: 'Planering', title: 'Välj serier' },
-  '/series':          { breadcrumb: 'Planering', title: 'Seriescheman' },
-  '/dashboard':       { breadcrumb: 'Analys',    title: 'Matrisöversikt' },
-  '/dashboard/costs': { breadcrumb: 'Analys',    title: 'Kostnader' },
-  '/tracks':          { breadcrumb: 'Analys',    title: 'Banor' },
-  '/settings':        { breadcrumb: 'Analys',    title: 'Inställningar' },
+  '/setup':     { breadcrumb: 'Planering', title: 'Välj serier' },
+  '/dashboard': { breadcrumb: 'Planering', title: 'Dashboard' },
+  '/settings':  { breadcrumb: 'Planering', title: 'Inställningar' },
 }
 
 function getInitials(userId: string): string {
@@ -60,25 +50,9 @@ function getInitials(userId: string): string {
 
 export function AppShell({ children, userId, initialOwnedTrackIds }: AppShellProps) {
   const [collapsed, setCollapsed] = useState(false)
-  const [emphasizeFocusFlow, setEmphasizeFocusFlow] = useState(true)
   const [seasonBadge, setSeasonBadge] = useState('2026 S2')
   const pathname = usePathname()
   const searchParams = useSearchParams()
-  const seriesParam = searchParams.get('series')
-  const navShouldCarrySeries = new Set(['/tracks', '/series', '/dashboard', '/dashboard/costs'])
-
-  const flowStep = (() => {
-    if (pathname.startsWith('/setup')) return 'setup'
-    if (pathname.startsWith('/tracks')) return 'tracks'
-    if (pathname.startsWith('/dashboard/costs')) return 'costs'
-    return null
-  })()
-  const isPrimaryFlowRoute =
-    pathname.startsWith('/setup') ||
-    pathname.startsWith('/tracks') ||
-    pathname.startsWith('/dashboard/costs')
-  const hasReachedCostStep = pathname.startsWith('/dashboard/costs')
-  const focusModeActive = isPrimaryFlowRoute && !hasReachedCostStep && emphasizeFocusFlow
 
   const currentPage = Object.keys(pageMeta)
     .sort((a, b) => b.length - a.length)
@@ -140,13 +114,9 @@ export function AppShell({ children, userId, initialOwnedTrackIds }: AppShellPro
                       {label}
                     </div>
                   )}
-                  {groupItems.map(({ href, label: itemLabel, icon: Icon, group }) => {
+                  {groupItems.map(({ href, label: itemLabel, icon: Icon }) => {
                     const active = pathname === href || pathname.startsWith(href + '/')
-                    const navHref =
-                      seriesParam && navShouldCarrySeries.has(href)
-                        ? `${href}?series=${seriesParam}`
-                        : href
-                    const isAnalys = group === 'analys'
+                    const navHref = href
                     return (
                       <Link
                         key={href}
@@ -156,7 +126,6 @@ export function AppShell({ children, userId, initialOwnedTrackIds }: AppShellPro
                           active
                             ? 'text-white bg-accent-cyan/[0.06]'
                             : 'text-white/45 hover:text-white/80 hover:bg-white/[0.03]',
-                          focusModeActive && isAnalys && 'opacity-60'
                         )}
                       >
                         {active && (
@@ -181,11 +150,6 @@ export function AppShell({ children, userId, initialOwnedTrackIds }: AppShellPro
                 </div>
               )
             })}
-            {focusModeActive && !collapsed && (
-              <div className="mx-4 mt-2 rounded-md border border-border/60 bg-white/[0.02] px-3 py-2 text-[11px] text-text-muted">
-                Fokusläge: valfria vyer är tillfälligt dolda.
-              </div>
-            )}
           </nav>
 
           {/* User footer */}
@@ -247,15 +211,6 @@ export function AppShell({ children, userId, initialOwnedTrackIds }: AppShellPro
               )}
             </div>
             <div className="flex items-center gap-3">
-              {isPrimaryFlowRoute && !hasReachedCostStep && (
-                <button
-                  type="button"
-                  onClick={() => setEmphasizeFocusFlow((value) => !value)}
-                  className="rounded-full border border-border bg-[rgba(26,27,59,0.32)] px-3 py-1 text-xs text-text-secondary transition-colors hover:text-text-primary"
-                >
-                  {emphasizeFocusFlow ? 'Visa alla vyer lika tydligt' : 'Betona fokussteg'}
-                </button>
-              )}
             </div>
           </header>
 
