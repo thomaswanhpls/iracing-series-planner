@@ -11,7 +11,6 @@ import {
   Settings,
   ChevronLeft,
   ChevronRight,
-  Trophy,
   CalendarDays,
   LogOut,
 } from 'lucide-react'
@@ -34,17 +33,26 @@ interface NavItem {
   href: string
   label: string
   icon: React.ComponentType<{ className?: string }>
-  group: 'primary' | 'secondary'
+  group: 'planering' | 'analys'
 }
 
 const navItems: NavItem[] = [
-  { href: '/setup', label: 'Setup', icon: Compass, group: 'primary' },
-  { href: '/tracks', label: 'Banor', icon: MapPin, group: 'primary' },
-  { href: '/dashboard/costs', label: 'Kostnader', icon: DollarSign, group: 'primary' },
-  { href: '/series', label: 'Seriescheman (valfri)', icon: CalendarDays, group: 'secondary' },
-  { href: '/dashboard', label: 'Matris', icon: LayoutDashboard, group: 'secondary' },
-  { href: '/settings', label: 'Inställningar', icon: Settings, group: 'secondary' },
+  { href: '/setup',           label: 'Setup',         icon: Compass,         group: 'planering' },
+  { href: '/series',          label: 'Seriescheman',  icon: CalendarDays,    group: 'planering' },
+  { href: '/dashboard',       label: 'Matris',        icon: LayoutDashboard, group: 'planering' },
+  { href: '/tracks',          label: 'Banor',         icon: MapPin,          group: 'analys' },
+  { href: '/dashboard/costs', label: 'Kostnader',     icon: DollarSign,      group: 'analys' },
+  { href: '/settings',        label: 'Inställningar', icon: Settings,        group: 'analys' },
 ]
+
+const navGroups: { key: 'planering' | 'analys'; label: string }[] = [
+  { key: 'planering', label: 'Planering' },
+  { key: 'analys',    label: 'Analys' },
+]
+
+function getInitials(userId: string): string {
+  return userId.slice(0, 2).toUpperCase()
+}
 
 export function AppShell({ children, userId, initialOwnedTrackIds }: AppShellProps) {
   const [collapsed, setCollapsed] = useState(false)
@@ -76,84 +84,122 @@ export function AppShell({ children, userId, initialOwnedTrackIds }: AppShellPro
       localStorage.setItem('planner-season', normalized)
       return
     }
-
     const storedSeason = localStorage.getItem('planner-season')
-    if (storedSeason) {
-      setSeasonBadge(storedSeason)
-    }
+    if (storedSeason) setSeasonBadge(storedSeason)
   }, [searchParams])
 
   return (
     <OwnershipProvider userId={userId} initialOwnedTrackIds={initialOwnedTrackIds}>
-      <div className="flex h-screen overflow-hidden bg-bg-base">
+      <div className="shell flex h-screen overflow-hidden">
         {/* Sidebar */}
         <aside
           className={cn(
-            'relative flex flex-col border-r border-border/50 bg-bg-surface/60 backdrop-blur-xl transition-[width] duration-300 ease-out',
-            collapsed ? 'w-14' : 'w-[220px]'
+            'relative flex flex-col border-r border-border transition-[width] duration-300 ease-out',
+            collapsed ? 'w-14' : 'w-[240px]'
           )}
+          style={{ background: 'linear-gradient(180deg, #1a1b3b 0%, #121332 100%)' }}
         >
-          <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-accent-primary/[0.03] to-transparent" />
-
           {/* Logo */}
-          <div className="relative flex h-14 items-center gap-2.5 border-b border-border/50 px-3">
-            <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-accent-primary/10">
-              <Trophy className="h-4 w-4 text-accent-primary" />
-            </div>
-            {!collapsed && (
-              <span className="font-display text-sm font-bold tracking-tight bg-gradient-to-r from-text-primary to-text-secondary bg-clip-text text-transparent">
-                iRacing Planner
-              </span>
+          <div className={cn(
+            'border-b border-white/[0.06]',
+            collapsed ? 'flex items-center justify-center px-3 pt-5 pb-4' : 'px-6 pt-8 pb-6'
+          )}>
+            {collapsed ? (
+              <span className="font-display text-[17px] font-bold text-accent-cyan">S</span>
+            ) : (
+              <>
+                <div className="font-display text-[17px] font-bold text-text-primary">
+                  iRacing <span className="text-accent-cyan">SP</span>
+                </div>
+                <div className="font-mono text-[10px] text-text-muted uppercase tracking-widest mt-1.5">
+                  {seasonBadge}
+                </div>
+              </>
             )}
           </div>
 
-          {/* Nav */}
-          <nav className="relative flex-1 space-y-1 p-2">
-            {navItems.map(({ href, label, icon: Icon, group }) => {
-              const active = pathname === href || pathname.startsWith(href + '/')
-              const navHref =
-                seriesParam && navShouldCarrySeries.has(href)
-                  ? `${href}?series=${seriesParam}`
-                  : href
+          {/* Nav groups */}
+          <nav className="relative flex-1 overflow-y-auto py-2">
+            {navGroups.map(({ key, label }) => {
+              const groupItems = navItems.filter((item) => item.group === key)
               return (
-                <Link
-                  key={href}
-                  href={navHref}
-                  className={cn(
-                    'group relative flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm transition-all duration-200',
-                    active ? 'text-text-primary' : 'text-text-muted hover:text-text-primary',
-                    focusModeActive && group === 'secondary' && 'opacity-60'
+                <div key={key}>
+                  {!collapsed && (
+                    <div className="font-mono text-[9px] uppercase tracking-[0.12em] text-white/20 px-6 pt-4 pb-2">
+                      {label}
+                    </div>
                   )}
-                >
-                  {active && (
-                    <div className="absolute inset-0 rounded-lg bg-accent-primary/8 border border-accent-primary/15" />
-                  )}
-                  {active && (
-                    <div className="absolute left-0 top-1/2 -translate-y-1/2 h-5 w-[3px] rounded-r-full bg-accent-primary shadow-[0_0_8px_rgba(233,69,96,0.4)]" />
-                  )}
-                  <Icon
-                    className={cn(
-                      'relative h-4 w-4 shrink-0 transition-colors',
-                      active
-                        ? 'text-accent-primary'
-                        : 'text-text-muted group-hover:text-text-secondary'
-                    )}
-                  />
-                  {!collapsed && <span className="relative">{label}</span>}
-                </Link>
+                  {groupItems.map(({ href, label: itemLabel, icon: Icon, group }) => {
+                    const active = pathname === href || pathname.startsWith(href + '/')
+                    const navHref =
+                      seriesParam && navShouldCarrySeries.has(href)
+                        ? `${href}?series=${seriesParam}`
+                        : href
+                    const isAnalys = group === 'analys'
+                    return (
+                      <Link
+                        key={href}
+                        href={navHref}
+                        className={cn(
+                          'relative flex items-center gap-3 px-6 py-3 text-[14px] font-medium transition-colors duration-200',
+                          active
+                            ? 'text-white bg-accent-cyan/[0.06]'
+                            : 'text-white/45 hover:text-white/80 hover:bg-white/[0.03]',
+                          focusModeActive && isAnalys && 'opacity-60'
+                        )}
+                      >
+                        {active && (
+                          <span
+                            className="absolute left-0 top-0 bottom-0 w-0.5"
+                            style={{
+                              background:
+                                'linear-gradient(180deg, transparent, #00ffff 40%, #00ffff 60%, transparent)',
+                            }}
+                          />
+                        )}
+                        <Icon
+                          className={cn(
+                            'h-4 w-4 shrink-0 transition-colors',
+                            active ? 'opacity-100 text-accent-cyan' : 'opacity-55'
+                          )}
+                        />
+                        {!collapsed && <span>{itemLabel}</span>}
+                      </Link>
+                    )
+                  })}
+                </div>
               )
             })}
             {focusModeActive && !collapsed && (
-              <div className="rounded-md border border-border/60 bg-bg-elevated/30 px-3 py-2 text-[11px] text-text-muted">
+              <div className="mx-4 mt-2 rounded-md border border-border/60 bg-white/[0.02] px-3 py-2 text-[11px] text-text-muted">
                 Fokusläge: valfria vyer är tillfälligt dolda.
               </div>
             )}
           </nav>
 
+          {/* User footer */}
+          <div className={cn(
+            'border-t border-white/[0.06]',
+            collapsed ? 'flex items-center justify-center px-3 py-4' : 'px-6 py-5'
+          )}>
+            {collapsed ? (
+              <div className="flex h-[34px] w-[34px] items-center justify-center rounded-full border border-accent-cyan/20 bg-bg-elevated font-mono text-[11px] font-bold text-accent-cyan">
+                {getInitials(userId)}
+              </div>
+            ) : (
+              <div className="flex items-center gap-3">
+                <div className="flex h-[34px] w-[34px] shrink-0 items-center justify-center rounded-full border border-accent-cyan/20 bg-bg-elevated font-mono text-[11px] font-bold text-accent-cyan">
+                  {getInitials(userId)}
+                </div>
+                <span className="text-[13px] font-semibold text-white/80 truncate">{userId}</span>
+              </div>
+            )}
+          </div>
+
           {/* Logout */}
           <Link
             href="/api/auth/logout"
-            className="relative flex h-10 items-center justify-center gap-2 border-t border-border/50 text-text-muted hover:text-text-primary transition-colors px-3"
+            className="relative flex h-10 items-center justify-center gap-2 border-t border-white/[0.06] text-text-muted hover:text-text-primary transition-colors px-3"
           >
             <LogOut className="h-4 w-4 shrink-0" />
             {!collapsed && <span className="text-xs">Logga ut</span>}
@@ -162,7 +208,7 @@ export function AppShell({ children, userId, initialOwnedTrackIds }: AppShellPro
           {/* Collapse toggle */}
           <button
             onClick={() => setCollapsed(!collapsed)}
-            className="relative flex h-10 items-center justify-center border-t border-border/50 text-text-muted hover:text-text-primary transition-colors"
+            className="relative flex h-10 items-center justify-center border-t border-white/[0.06] text-text-muted hover:text-text-primary transition-colors"
           >
             {collapsed ? (
               <ChevronRight className="h-4 w-4" />
@@ -174,17 +220,17 @@ export function AppShell({ children, userId, initialOwnedTrackIds }: AppShellPro
 
         {/* Main content */}
         <div className="flex flex-1 flex-col overflow-hidden">
-          {/* Top bar */}
-          <header className="relative flex h-14 items-center justify-between border-b border-border/50 bg-bg-surface/40 px-6 backdrop-blur-xl">
+          {/* Topbar */}
+          <header className="relative flex h-16 items-center justify-between border-b border-white/[0.06] px-10">
             <div className="flex items-center gap-4">
-              <div className="flex items-center gap-2 rounded-full border border-border bg-bg-elevated/50 px-3 py-1">
-                <div className="h-1.5 w-1.5 rounded-full bg-status-owned animate-glow-pulse" />
-                <span className="font-display text-xs font-medium text-text-secondary">
+              <div className="flex items-center gap-2 rounded-full border border-border bg-[rgba(26,27,59,0.4)] px-3 py-1">
+                <div className="h-1.5 w-1.5 rounded-full bg-accent-cyan animate-glow-pulse" />
+                <span className="font-mono text-[11px] text-text-muted uppercase tracking-[0.06em]">
                   {seasonBadge}
                 </span>
               </div>
               {flowStep && (
-                <div className="hidden items-center gap-1 rounded-full border border-border bg-bg-elevated/40 px-2 py-1 md:flex">
+                <div className="hidden items-center gap-1 rounded-full border border-border bg-[rgba(26,27,59,0.32)] px-2 py-1 md:flex">
                   {planningSteps.map((step, index) => {
                     const active = flowStep === step.key
                     const href = seriesParam ? `${step.href}?series=${seriesParam}` : step.href
@@ -195,7 +241,7 @@ export function AppShell({ children, userId, initialOwnedTrackIds }: AppShellPro
                           className={cn(
                             'rounded-full px-2.5 py-1 text-[11px] font-medium transition-colors',
                             active
-                              ? 'bg-accent-primary/15 text-text-primary'
+                              ? 'bg-accent-cyan/15 text-text-primary'
                               : 'text-text-muted hover:text-text-primary'
                           )}
                         >
@@ -215,12 +261,11 @@ export function AppShell({ children, userId, initialOwnedTrackIds }: AppShellPro
                 <button
                   type="button"
                   onClick={() => setEmphasizeFocusFlow((value) => !value)}
-                  className="rounded-full border border-border bg-bg-elevated/40 px-3 py-1 text-xs text-text-secondary transition-colors hover:text-text-primary"
+                  className="rounded-full border border-border bg-[rgba(26,27,59,0.32)] px-3 py-1 text-xs text-text-secondary transition-colors hover:text-text-primary"
                 >
                   {emphasizeFocusFlow ? 'Visa alla vyer lika tydligt' : 'Betona fokussteg'}
                 </button>
               )}
-              <div className="h-8 w-8 rounded-full bg-gradient-to-br from-accent-primary/20 to-accent-secondary/20 border border-border" />
             </div>
           </header>
 
@@ -231,5 +276,3 @@ export function AppShell({ children, userId, initialOwnedTrackIds }: AppShellPro
     </OwnershipProvider>
   )
 }
-
-
