@@ -24,7 +24,7 @@ export function CostTable({ recommendations, costSummary }: CostTableProps) {
     <div className="space-y-5">
       {/* Summary */}
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-3 stagger-children">
-        <Card glow>
+        <Card>
           <div className="flex items-center gap-3">
             <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-accent-primary/10">
               <span className="font-display text-sm font-bold text-accent-primary">{costSummary.trackCount}</span>
@@ -35,7 +35,7 @@ export function CostTable({ recommendations, costSummary }: CostTableProps) {
             </div>
           </div>
         </Card>
-        <Card accent="owned" glow>
+        <Card>
           <div className="flex items-center gap-3">
             <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-status-owned/10">
               <span className="font-display text-sm font-bold text-status-owned">%</span>
@@ -50,7 +50,7 @@ export function CostTable({ recommendations, costSummary }: CostTableProps) {
             </div>
           </div>
         </Card>
-        <Card accent="missing" glow>
+        <Card>
           <div className="flex items-center gap-3">
             <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-status-missing/10">
               <span className="font-display text-sm font-bold text-status-missing">$</span>

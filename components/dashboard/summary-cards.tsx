@@ -46,7 +46,7 @@ export function SummaryCards({ schedules, ownedTrackIds, tracks, crossSeriesCoun
 
   return (
     <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4 stagger-children">
-      <Card accent="owned" glow>
+      <Card>
         <div className="flex items-center gap-4">
           <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-status-owned/10">
             <MapPin className="h-5 w-5 text-status-owned" />
@@ -65,7 +65,7 @@ export function SummaryCards({ schedules, ownedTrackIds, tracks, crossSeriesCoun
         </div>
       </Card>
 
-      <Card accent="missing" glow>
+      <Card>
         <div className="flex items-center gap-4">
           <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-status-missing/10">
             <DollarSign className="h-5 w-5 text-status-missing" />
@@ -80,7 +80,7 @@ export function SummaryCards({ schedules, ownedTrackIds, tracks, crossSeriesCoun
         </div>
       </Card>
 
-      <Card accent="eligible" glow>
+      <Card>
         <div className="flex items-center gap-4">
           <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-status-eligible/10">
             <Trophy className="h-5 w-5 text-status-eligible" />
@@ -105,7 +105,7 @@ export function SummaryCards({ schedules, ownedTrackIds, tracks, crossSeriesCoun
         </div>
       </Card>
 
-      <Card accent="free" glow>
+      <Card>
         <div className="flex items-center gap-4">
           <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-status-free/10">
             <Star className="h-5 w-5 text-status-free" />
