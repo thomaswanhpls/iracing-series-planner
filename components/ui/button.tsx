@@ -8,16 +8,19 @@ export interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
 }
 
 const variantStyles: Record<ButtonVariant, string> = {
-  primary: 'bg-accent-primary text-white hover:bg-accent-primary/90 hover:shadow-[0_0_20px_rgba(233,69,96,0.25)] active:scale-[0.98]',
-  secondary: 'bg-bg-elevated/80 text-text-primary hover:bg-bg-hover border border-border/60 hover:border-border backdrop-blur-sm',
-  ghost: 'text-text-secondary hover:bg-bg-hover/50 hover:text-text-primary',
+  primary:
+    'bg-accent-cyan text-bg-base font-display font-bold rounded-sm px-5 py-2.5 text-[13px] shadow-[0_0_18px_rgba(0,255,255,0.35)] hover:shadow-[0_0_24px_rgba(0,255,255,0.5)] active:scale-[0.98]',
+  secondary:
+    'border border-border text-text-secondary rounded-sm px-5 py-2.5 text-[13px] hover:bg-bg-hover hover:text-text-primary',
+  ghost:
+    'text-text-secondary text-[13px] hover:text-text-primary hover:bg-white/[0.03] rounded-sm',
 }
 
 export function Button({ className, variant = 'primary', ...props }: ButtonProps) {
   return (
     <button
       className={cn(
-        'inline-flex items-center justify-center gap-2 rounded-lg px-4 py-2 text-sm font-medium transition-all duration-200 disabled:opacity-50 disabled:pointer-events-none',
+        'inline-flex items-center justify-center gap-2 font-display transition-all duration-200 disabled:pointer-events-none disabled:opacity-50',
         variantStyles[variant],
         className
       )}
