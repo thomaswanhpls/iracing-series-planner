@@ -530,10 +530,17 @@ export function SeriesSetup({ data }: SeriesSetupProps) {
               const catVariant = categoryBadgeVariants[entry.categoryId] ?? 'default'
 
               return (
-                <button
+                <div
                   key={entry.id}
-                  type="button"
+                  role="button"
+                  tabIndex={0}
                   onClick={() => toggleSeries(entry.id)}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                      e.preventDefault()
+                      toggleSeries(entry.id)
+                    }
+                  }}
                   className={cn(
                     'absolute left-0 right-0 flex h-[100px] cursor-pointer items-start gap-[14px] rounded-lg border p-[14px_16px] text-left transition-all duration-150',
                     selected
@@ -560,7 +567,7 @@ export function SeriesSetup({ data }: SeriesSetupProps) {
                     <div className="font-display text-[15px] font-semibold text-text-primary tracking-[-0.01em] line-clamp-1">{entry.title}</div>
                   </div>
                   <CarIndicator cars={entry.cars} />
-                </button>
+                </div>
               )
             })}
           </div>
