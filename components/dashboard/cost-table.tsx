@@ -26,8 +26,8 @@ export function CostTable({ recommendations, costSummary }: CostTableProps) {
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-3 stagger-children">
         <Card>
           <div className="flex items-center gap-3">
-            <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-accent-primary/10">
-              <span className="font-display text-sm font-bold text-accent-primary">{costSummary.trackCount}</span>
+            <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-accent-cyan/10">
+              <span className="font-display text-sm font-bold text-accent-cyan">{costSummary.trackCount}</span>
             </div>
             <div>
               <div className="text-xs uppercase tracking-wide text-text-muted">Antal banor</div>

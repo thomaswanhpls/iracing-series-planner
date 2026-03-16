@@ -82,8 +82,8 @@ export function SummaryCards({ schedules, ownedTrackIds, tracks, crossSeriesCoun
 
       <Card>
         <div className="flex items-center gap-4">
-          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-status-eligible/10">
-            <Trophy className="h-5 w-5 text-status-eligible" />
+          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-accent-blue/10">
+            <Trophy className="h-5 w-5 text-accent-blue" />
           </div>
           <div>
             <div className="font-display text-2xl font-bold">
@@ -98,7 +98,7 @@ export function SummaryCards({ schedules, ownedTrackIds, tracks, crossSeriesCoun
               key={i}
               className={cn(
                 'h-1.5 flex-1 rounded-full transition-colors',
-                a.meetsThreshold ? 'bg-status-eligible' : 'bg-bg-elevated'
+                a.meetsThreshold ? 'bg-accent-blue' : 'bg-bg-elevated'
               )}
             />
           ))}
