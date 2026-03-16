@@ -31,7 +31,7 @@ export function SeriesWidget({ seriesData, nextRaceDate }: SeriesWidgetProps) {
             </div>
             {nextRaceDate && (
               <div className="text-sm text-text-secondary mt-1">
-                Nästa vecka startar {new Date(nextRaceDate).toLocaleDateString('sv-SE', { day: 'numeric', month: 'long' })}
+                Nästa vecka startar {new Date(nextRaceDate + 'T12:00:00').toLocaleDateString('sv-SE', { day: 'numeric', month: 'long' })}
               </div>
             )}
           </div>

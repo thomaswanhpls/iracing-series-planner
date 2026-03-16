@@ -14,6 +14,7 @@ import { SeriesSetup } from './series-setup'
 import { TracksStep } from './tracks-step'
 import { CarsStep } from './cars-step'
 import type { IracingTrack } from '@/lib/iracing/types'
+import { CURRENT_SEASON } from '@/lib/iracing/season-data'
 
 export interface WizardState {
   step: 1 | 2 | 3 | 4
@@ -23,7 +24,6 @@ export interface WizardState {
   ownedCarNames: string[]
 }
 
-const SEASON = '2026-2'
 const STORAGE_KEY = 'planner-wizard-state-v1'
 
 function loadFromStorage(): Partial<WizardState> {
@@ -108,7 +108,7 @@ export function WizardShell({
   function handleSeriesNext(selectedSeriesNames: string[]) {
     updateState({ selectedSeriesNames, step: 3 })
     startSeriesTransition(async () => {
-      await saveSelectedSeriesNames(userId, SEASON, selectedSeriesNames)
+      await saveSelectedSeriesNames(userId, CURRENT_SEASON, selectedSeriesNames)
     })
   }
 

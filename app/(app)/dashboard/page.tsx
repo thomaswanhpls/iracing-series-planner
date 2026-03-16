@@ -6,7 +6,8 @@ import {
   fetchOwnedCarNames,
   fetchUserProfile,
 } from '@/lib/db/actions'
-import { getAllSeries, toSeasonScheduleData } from '@/lib/iracing/season-data'
+import { getAllSeries, toSeasonScheduleData, CURRENT_SEASON } from '@/lib/iracing/season-data'
+import type { IracingSeries } from '@/lib/iracing/types'
 import { computeContentCost } from '@/lib/analysis/content-cost'
 import { ProfileWidget } from '@/components/dashboard/profile-widget'
 import { CostWidget } from '@/components/dashboard/cost-widget'
@@ -14,12 +15,10 @@ import { SeriesWidget } from '@/components/dashboard/series-widget'
 import { DashboardContent } from '@/components/dashboard/dashboard-content'
 import { getSeason2Schedules } from '@/lib/season-schedules/markdown'
 
-function getNextRaceDate(selectedSeriesNames: string[]): string | null {
+function getNextRaceDate(selectedSeries: IracingSeries[]): string | null {
   const today = new Date().toISOString().split('T')[0]
-  const allSeries = getAllSeries()
-  const selected = allSeries.filter((s) => selectedSeriesNames.includes(s.seriesName))
   let earliest: string | null = null
-  for (const s of selected) {
+  for (const s of selectedSeries) {
     for (const w of s.weeks) {
       if (w.startDate >= today) {
         if (!earliest || w.startDate < earliest) earliest = w.startDate
@@ -35,7 +34,7 @@ export default async function DashboardPage() {
 
   const [selectedSeriesNames, ownedTrackKeys, ownedCarNames, profile, matrixSeasonData] =
     await Promise.all([
-      fetchSelectedSeriesNames(session.userId, '2026-2'),
+      fetchSelectedSeriesNames(session.userId, CURRENT_SEASON),
       fetchOwnedTrackKeys(session.userId),
       fetchOwnedCarNames(session.userId),
       fetchUserProfile(session.userId),
@@ -52,7 +51,7 @@ export default async function DashboardPage() {
     ownedCarNames,
   })
 
-  const nextRaceDate = getNextRaceDate(selectedSeriesNames)
+  const nextRaceDate = getNextRaceDate(selectedSeries)
 
   const resolvedProfile = profile ?? { name: '', licenseClass: 'Rookie' }
 

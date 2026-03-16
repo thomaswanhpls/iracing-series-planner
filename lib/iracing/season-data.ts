@@ -3,6 +3,8 @@ import type { IracingSeason, IracingSeries, IracingTrack } from './types'
 import { makeTrackKey } from './types'
 import type { SeasonScheduleData, SeasonCategory, SeasonSeries, SeasonWeek } from '@/lib/season-schedules/types'
 
+export const CURRENT_SEASON = '2026-2'
+
 const season = seasonJson as unknown as IracingSeason
 
 export function getAllSeries(): IracingSeries[] {

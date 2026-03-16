@@ -1,5 +1,5 @@
 import { WizardShell } from '@/components/wizard/wizard-shell'
-import { getAllSeries, getUniqueTracks, getAllCars, toSeasonScheduleData } from '@/lib/iracing/season-data'
+import { getAllSeries, getUniqueTracks, getAllCars, toSeasonScheduleData, CURRENT_SEASON } from '@/lib/iracing/season-data'
 import { getSession } from '@/lib/auth/session'
 import {
   fetchSelectedSeriesNames,
@@ -19,7 +19,7 @@ export default async function SetupPage() {
   const allCars = getAllCars()
 
   const [selectedSeriesNames, ownedTrackKeys, ownedCarNames, profile] = await Promise.all([
-    fetchSelectedSeriesNames(session.userId, '2026-2'),
+    fetchSelectedSeriesNames(session.userId, CURRENT_SEASON),
     fetchOwnedTrackKeys(session.userId),
     fetchOwnedCarNames(session.userId),
     fetchUserProfile(session.userId),
