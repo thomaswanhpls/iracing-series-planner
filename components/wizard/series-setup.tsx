@@ -16,6 +16,10 @@ import { cn } from '@/lib/utils'
 
 interface SeriesSetupProps {
   data: SeasonScheduleData
+  /** Pre-selected series titles (from DB / wizard state) */
+  initialSelectedSeriesNames?: string[]
+  /** When provided, called with selected series titles instead of navigating */
+  onNext?: (seriesNames: string[]) => void
 }
 
 interface PersistedSetupState {
@@ -135,7 +139,7 @@ function CarIndicator({ cars }: { cars: string }) {
   )
 }
 
-export function SeriesSetup({ data }: SeriesSetupProps) {
+export function SeriesSetup({ data, initialSelectedSeriesNames, onNext: onNextProp }: SeriesSetupProps) {
   const router = useRouter()
   const pathname = usePathname()
   const searchParams = useSearchParams()
@@ -147,7 +151,13 @@ export function SeriesSetup({ data }: SeriesSetupProps) {
     data.categories.map((c) => c.id)
   )
   const [selectedClassNames, setSelectedClassNames] = useState<string[]>([])
-  const [selectedSeriesIds, setSelectedSeriesIds] = useState<string[]>([])
+  const [selectedSeriesIds, setSelectedSeriesIds] = useState<string[]>(() => {
+    if (initialSelectedSeriesNames && initialSelectedSeriesNames.length > 0) {
+      const nameSet = new Set(initialSelectedSeriesNames)
+      return data.series.filter((s) => nameSet.has(s.title)).map((s) => s.id)
+    }
+    return []
+  })
   const [search, setSearch] = useState(searchParams.get('setup_q') ?? '')
   const [sortKey, setSortKey] = useState<SortKey>(
     (searchParams.get('setup_sort') as SortKey) ?? 'name'
@@ -347,8 +357,15 @@ export function SeriesSetup({ data }: SeriesSetupProps) {
 
   const hasActiveFilters = !allCategoriesSelected || selectedClassNames.length > 0 || search.length > 0
 
-  // Navigate to tracks
+  // Navigate to tracks (or call onNextProp when used inside wizard)
   const handleNext = () => {
+    if (onNextProp) {
+      const selectedTitles = data.series
+        .filter((s) => selectedSeriesIds.includes(s.id))
+        .map((s) => s.title)
+      onNextProp(selectedTitles)
+      return
+    }
     const params = new URLSearchParams()
     params.set('season', defaultSeason)
     if (selectedCategoryIds.length > 0) params.set('categories', selectedCategoryIds.join(','))
