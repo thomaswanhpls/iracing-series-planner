@@ -169,10 +169,12 @@ export async function setOwnedCarNames(userId: string, carNames: string[]): Prom
 export async function getUserProfile(
   userId: string
 ): Promise<{ name: string; licenseClass: string } | null> {
-  const row = await getDb().query.userProfile.findFirst({
-    where: eq(userProfile.userId, userId),
-  })
-  return row ? { name: row.name, licenseClass: row.licenseClass } : null
+  const rows = await getDb()
+    .select({ name: userProfile.name, licenseClass: userProfile.licenseClass })
+    .from(userProfile)
+    .where(eq(userProfile.userId, userId))
+    .limit(1)
+  return rows[0] ?? null
 }
 
 export async function setUserProfile(
