@@ -26,6 +26,18 @@ interface DashboardHubProps {
   currentWeekIndex: number
 }
 
+// Shared widget panel styling — glass card matching the app's design system
+const PANEL = [
+  'relative min-h-0 overflow-hidden rounded-lg',
+  'bg-bg-glass backdrop-blur-md',
+  'border border-[rgba(0,255,255,0.1)]',
+  // Subtle neon glow
+  'shadow-[0_0_0_1px_rgba(0,255,255,0.04),inset_0_1px_0_rgba(0,255,255,0.07)]',
+  // Cyan shimmer on top edge (always-on, dimmer than hover state)
+  'before:absolute before:top-0 before:inset-x-0 before:h-px before:content-[""]',
+  'before:bg-[linear-gradient(90deg,transparent_0%,rgba(0,255,255,0.3)_50%,transparent_100%)]',
+].join(' ')
+
 export function DashboardHub({
   name,
   licenseSportsCar,
@@ -52,33 +64,32 @@ export function DashboardHub({
         seasonLabel={seasonLabel}
       />
       <div
-        className="grid flex-1 overflow-hidden"
+        className="grid flex-1 overflow-hidden p-3"
         style={{
           gridTemplateColumns: '1fr 1fr 1fr',
           gridTemplateRows: '2fr 1fr',
-          gap: '1px',
-          background: 'var(--color-border-subtle)',
+          gap: '10px',
         }}
       >
         {/* Top row: Cost · My Series · Race Conditions */}
-        <div className="min-h-0 overflow-hidden bg-bg-surface">
+        <div className={PANEL}>
           <CostWidget summary={summary} seriesCosts={seriesCosts} />
         </div>
-        <div className="min-h-0 overflow-hidden bg-bg-surface">
+        <div className={PANEL}>
           <MySeriesWidget
             selectedSeries={selectedSeries}
             ownedTrackKeys={ownedTrackKeys}
             currentWeekIndex={currentWeekIndex}
           />
         </div>
-        <div className="min-h-0 overflow-hidden bg-bg-surface">
+        <div className={PANEL}>
           <RaceConditionsWidget
             selectedSeries={selectedSeries}
             currentWeekIndex={currentWeekIndex}
           />
         </div>
         {/* Bottom row: Matrix spanning full width */}
-        <div className="col-span-3 min-h-0 overflow-hidden bg-bg-surface">
+        <div className={`col-span-3 ${PANEL}`}>
           <MatrixWidget
             selectedSeries={selectedSeries}
             ownedTrackKeys={ownedTrackKeys}
