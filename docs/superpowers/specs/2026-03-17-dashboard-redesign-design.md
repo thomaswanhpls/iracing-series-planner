@@ -7,6 +7,8 @@
 
 Redesign the dashboard from a scrollable page into a fixed-height, full-viewport layout where each widget occupies a defined region. Widgets expand to dedicated URLs rather than inline.
 
+The current dashboard (`app/(app)/dashboard/page.tsx`) renders `ProfileWidget`, `CostWidget`, `DashboardContent` (legacy matrix), and `SeriesWidget` in a scrolling column. **`SeriesWidget` is removed** — its role is split between the new My Series widget and the Race Conditions widget.
+
 ## Layout
 
 ```
@@ -27,12 +29,15 @@ Redesign the dashboard from a scrollable page into a fixed-height, full-viewport
 - **Columns:** left ~40%, right ~60%
 - **Left column:** Cost (`auto`) stacked above Matrix (`1fr`)
 - **Right column:** My Series (`1fr`) stacked above Race Conditions (`1fr`)
+- Each panel: `min-height: 0; overflow: hidden` (scrollable panels use `overflow-y: auto`)
 
 ## Profile Strip
 
-**Content:** Racer name · one colored dot + discipline name + license level per discipline (Sports Car, Formula Car, Oval, Dirt Road, Dirt Oval) · season label · "Ändra profil →" link
+**Content:** Racer name · one colored dot + full discipline name + license level per discipline · season label · "Ändra profil →" link
 
-**Season label:** Format `CURRENT_SEASON` (`'2026-2'`) as `"iRacing 2026 S2"` using a small utility: split on `-`, map second part to `S1/S2/S3/S4`.
+**Season label:** Format `CURRENT_SEASON` string (`'2026-2'`) → `'iRacing 2026 S2'` using a small utility function: split on `-`, map second segment `1→S1, 2→S2, 3→S3, 4→S4`.
+
+**Props needed:** `name: string`, `licenseSportsCar: string`, `licenseFormulaCar: string`, `licenseOval: string`, `licenseDirtRoad: string`, `licenseDirtOval: string` — all sourced from `getUserProfile`.
 
 **Discipline dot colors:**
 - Sports Car → blue (`#60b8ff`)
@@ -46,8 +51,10 @@ Redesign the dashboard from a scrollable page into a fixed-height, full-viewport
 ## Cost Widget
 
 **Content:**
-- Large total cost figure (e.g. `$34.95`) with subtitle "X saknade banor"
-- List of selected series with cost per series; series with no missing tracks show `$0` in green
+- Large total cost figure with subtitle "X saknade banor · Y bilar" (from `ContentCostSummary`)
+- Per-series cost list: for each selected series, show the series name and the sum of prices of missing tracks used by that series this season
+
+**Per-series cost computation:** Requires a new utility `computeSeriesCost(selectedSeries, ownedTrackKeys)` that, for each series, sums `getTrackPrice(key)` for all tracks used that season which are not in `ownedTrackKeys` and not free (`price > 0`). Series with total `$0` shown in green.
 
 **Interaction:** Header link "Full analys →" routes to `/dashboard/costs`
 
@@ -55,35 +62,40 @@ Redesign the dashboard from a scrollable page into a fixed-height, full-viewport
 
 **Content — two sections:**
 
-1. **Denna vecka** — one row per selected series showing: status dot (green=owned / red=missing / blue=free-with-subscription), series name, track name + config, ownership label
-2. **Kommande veckor** — compact mini-matrix: series names as row labels, upcoming weeks as columns (weeks after current), each cell colored by ownership status
+1. **Denna vecka** — one row per selected series showing: status dot (green=owned / red=missing / blue=free), series name, track name + config, ownership label ("Äger" / "Saknas" / "Inkl.")
+2. **Kommande veckor** — compact mini-matrix: series names as row labels, remaining weeks as columns, each cell colored by ownership status
 
-**Week numbering:** `IracingWeek.week` is 0-based (0–11). Display to user as 1-based (week 0 = "v1", week 1 = "v2", etc.). The current week is determined by comparing `IracingWeek.startDate` against today's date.
+**Week numbering:** `IracingWeek.week` is 0-based (0–11). Display as 1-based to the user ("v1"–"v12"). Current week = the week whose `startDate <= today < startDate + 7 days`.
 
-**Interaction:** Header link "Full matris →" routes to `/dashboard/matrix` (new route — see URL Routes)
+**Ownership logic** (same for all widgets):
+- Key in `ownedTrackKeys` → owned (green)
+- `getTrackPrice(makeTrackKey(venue, config)) === 0` → free/included (blue)
+- Otherwise → missing (red)
+
+**Interaction:** Header link "Full matris →" routes to `/dashboard/matrix` (new route)
 
 ## My Series Widget (Mina serier)
 
 **Content:** One card per selected series containing:
-- Series name + ownership status badge (Äger / Saknar bana / Inkluderad)
+- Series name + ownership status badge for current week's track (Äger / Saknar bana / Inkluderad) — using the ownership logic above
 - Category badge + license class badge
-- Current week track name
+- Current week track name + config
 
 Cards scroll vertically inside the widget if total height exceeds available space.
 
-**Interaction:** Header link "Ändra urval →" routes to `/setup` (series selection step). Individual cards not linked in v1.
+**Interaction:** Header link "Ändra urval →" routes to `/setup`. Individual cards not linked in v1.
 
 ## Race Conditions Widget (Veckans förutsättningar)
 
-**Content:** One block per selected series showing race conditions for the current week, parsed from `IracingWeek.notes` and `IracingWeek.referenceSession`.
+**Content:** One block per selected series showing conditions for the current week's race, parsed from `IracingWeek.notes` and `IracingWeek.referenceSession` (available directly on `IracingSeries.weeks` — use the raw `IracingSeries[]`, not the `toSeasonScheduleData()` conversion).
 
-**Data source:** Use `IracingSeries[]` directly (not `toSeasonScheduleData()` conversion) — `notes` and `referenceSession` are on `IracingWeek` which is available on `IracingSeries.weeks`.
+**Condition pills:**
+- **Temperature:** regex `(\d+)°C` from notes → e.g. `"25°C"`. Not present when notes starts with `"Constant weather"`.
+- **Rain chance:** regex `Rain chance (\d+)%` → show `"Regn N%"` with cyan/amber accent if > 0%. Omit if `Rain chance None`.
+- **Weather type:** notes containing `"Dynamic sky"` → `"Dynamiskt väder"` (cyan accent); notes starting with `"Constant weather"` without dynamic → `"Konstant väder"`; otherwise `"Fast väder"`.
+- **Start time:** parse from `referenceSession` format `"2026-03-28 13:35 1x"` → show `"13:35"`. Night sessions (time ≥ 20:00 or < 06:00) styled with purple accent.
 
-**Condition pills per series:**
-- Temperature: parse `XX°C` from notes (e.g. `"76°F/25°C, ..."` → `"25°C"`)
-- Rain chance: parse `Rain chance N%` from notes; show `"Regn N%"` highlighted if > 0%; show nothing if `Rain chance None`
-- Weather type: if notes contains `"Dynamic sky"` → `"Dynamiskt väder"` (cyan accent); else `"Fast väder"`
-- Start time: parse date+time from `referenceSession` (format `"2026-03-28 13:35 1x"`) → show time `"13:35"`; night sessions (20:00–05:59) styled with purple accent
+**Edge case:** Some notes are `"Constant weather, Dynamic sky, ..."` — treat `"Dynamic sky"` as the authoritative flag regardless of `"Constant weather"` prefix.
 
 **Interaction:** Header link "Alla serier →" routes to `/series`
 
@@ -92,29 +104,42 @@ Cards scroll vertically inside the widget if total height exceeds available spac
 | Route | Status | Content |
 |---|---|---|
 | `/dashboard` | Existing (rewrite) | Fixed-height hub (this spec) |
-| `/dashboard/costs` | Existing | Full cost breakdown — no changes needed |
-| `/dashboard/matrix` | **New route** | Move existing `DashboardContent` matrix component here; create `app/(app)/dashboard/matrix/page.tsx` |
-| `/setup` | Existing | Wizard — no changes needed |
-| `/series` | Existing (no changes) | Series browser; navigating here from the dashboard widget requires no special filter pre-selection in v1 |
+| `/dashboard/costs` | Existing — **no changes** | Uses old markdown loader + `useOwnership()` context; remains as-is |
+| `/dashboard/matrix` | **New route** | Create `app/(app)/dashboard/matrix/page.tsx`; move `DashboardContent` here |
+| `/setup` | Existing — no changes | Wizard |
+| `/series` | Existing — **no changes** | Uses old markdown loader; linked from Race Conditions widget without filter pre-selection |
+
+**Known pre-existing inconsistency:** `/dashboard/costs` and `/series` both use `getSeason2Schedules()` (markdown-based loader), while the new dashboard widgets use the JSON dataset (`season-2026-s2.json`). Unifying these data sources is out of scope for this redesign.
 
 ## Data Requirements
 
-All data is available from existing sources:
-- `getUserProfile` — name, license levels
-- `getAllSeries` + user's selected series from profile — for all widgets
-- Cost data — from existing cost calculation in `CostWidget`
-- Current week: find week where `IracingWeek.startDate <= today < startDate + 7 days`
-- `IracingWeek.notes` + `IracingWeek.referenceSession` — already in JSON and typed in `lib/iracing/types.ts`
+Sourced in `app/(app)/dashboard/page.tsx` (Server Component):
 
-New utility functions needed (small, pure):
-- `formatSeasonLabel(season: string): string` — `'2026-2'` → `'iRacing 2026 S2'`
-- `parseRaceConditions(notes: string, referenceSession: string)` — returns structured conditions object
-- `getCurrentWeekIndex(weeks: IracingWeek[]): number` — returns 0-based index of current week
+| Data | Source |
+|---|---|
+| `name`, `licenseSportsCar/ForumulaCar/Oval/DirtRoad/DirtOval` | `fetchUserProfile(userId)` |
+| `selectedSeriesNames` | `fetchSelectedSeriesNames(userId, CURRENT_SEASON)` |
+| `ownedTrackKeys` | `fetchOwnedTrackKeys(userId)` |
+| `ownedCarNames` | `fetchOwnedCarNames(userId)` |
+| `allSeries` (IracingSeries[]) | `getAllSeries()` from season JSON |
+| `selectedSeries` | `allSeries.filter(...)` by name |
+| `recommendations`, `summary` | `computeContentCost(...)` (existing) |
+| per-series cost | `computeSeriesCost(...)` (new utility) |
+| season label | `formatSeasonLabel(CURRENT_SEASON)` (new utility) |
 
-## Implementation Notes
+**New pure utility functions** (colocate in `lib/iracing/`):
+- `formatSeasonLabel(season: string): string`
+- `parseRaceConditions(notes: string, referenceSession: string): RaceConditions`
+- `getCurrentWeekIndex(weeks: IracingWeek[]): number`
+- `computeSeriesCost(selectedSeries: IracingSeries[], ownedTrackKeys: string[]): Map<string, number>`
 
-- Dashboard page (`app/(app)/dashboard/page.tsx`) is a Server Component — keep it as-is, pass props down to client widgets
-- Fixed-height layout: each panel must have `min-height: 0` and `overflow: hidden` (or `overflow-y: auto` for scrollable panels)
-- My Series widget scrolls internally with custom scrollbar styling matching existing design
-- Create `app/(app)/dashboard/matrix/page.tsx` and move `DashboardContent` there; update the existing dashboard page to remove the full matrix and add the widget instead
-- `.superpowers/` is in `.gitignore`
+## Components to create/modify
+
+- `app/(app)/dashboard/page.tsx` — rewrite layout; remove `getSeason2Schedules()` call and `SeriesWidget`
+- `app/(app)/dashboard/matrix/page.tsx` — new; render `DashboardContent`
+- `components/dashboard/dashboard-hub.tsx` — new client layout shell with CSS grid
+- `components/dashboard/profile-strip.tsx` — new (replaces `ProfileWidget`)
+- `components/dashboard/cost-widget.tsx` — modify: add per-series breakdown, link instead of expand
+- `components/dashboard/matrix-widget.tsx` — new
+- `components/dashboard/my-series-widget.tsx` — new
+- `components/dashboard/race-conditions-widget.tsx` — new
