@@ -13,20 +13,20 @@ Redesign the dashboard from a scrollable page into a fixed-height, full-viewport
 ┌─────────────────────────────────────────────────────┐
 │  Profile Strip (52px)                               │
 ├──────────────────────────┬──────────────────────────┤
-│  Cost Widget             │                          │
-│  (~30% of remaining h)   │  Series Widget           │
-│                          │  (full height, scrolls)  │
-├──────────────────────────┤                          │
-│  Track Matrix Widget     │                          │
-│  (~70% of remaining h)   │                          │
+│  Cost Widget             │  My Series Widget        │
+│  (auto height)           │  (~50% of right col)     │
+├──────────────────────────┼──────────────────────────┤
+│  Track Matrix Widget     │  Race Conditions Widget  │
+│  (1fr, takes remainder)  │  (~50% of right col)     │
 └──────────────────────────┴──────────────────────────┘
 ```
 
 - **Root element:** `height: 100vh; overflow: hidden; display: flex; flex-direction: column`
 - **Profile strip:** fixed 52px, `flex-shrink: 0`
-- **Main grid:** CSS grid, `flex: 1; min-height: 0`, two columns (~40% / ~60%), left column split into two rows
-- **Left column proportions:** Cost ~`auto`, Matrix `1fr` — matrix takes remaining space
-- **Right column:** series widget spans both rows, scrolls internally
+- **Main grid:** CSS grid, `flex: 1; min-height: 0`
+- **Columns:** left ~40%, right ~60%
+- **Left column:** Cost (`auto`) stacked above Matrix (`1fr`)
+- **Right column:** My Series (`1fr`) stacked above Race Conditions (`1fr`)
 
 ## Profile Strip
 
@@ -58,16 +58,29 @@ Redesign the dashboard from a scrollable page into a fixed-height, full-viewport
 
 **Interaction:** Header link "Full matris →" routes to `/dashboard/matrix`
 
-## Series Widget
+## My Series Widget (Mina serier)
 
 **Content:** One card per selected series containing:
 - Series name + ownership status badge (Äger / Saknar bana / Inkluderad)
 - Category badge + license class badge
 - Current week track name
 
-Cards scroll vertically inside the widget if total height exceeds viewport.
+Cards scroll vertically inside the widget if total height exceeds available space.
 
-**Interaction:** Header link "Utforska serier →" routes to `/series`. Individual series cards are not linked in v1.
+**Interaction:** Header link "Ändra urval →" routes to `/setup` (series selection step). Individual cards not linked in v1.
+
+## Race Conditions Widget (Veckans förutsättningar)
+
+**Content:** One block per selected series showing race conditions for the current week, parsed from the season JSON:
+
+- Series name + current track
+- Condition pills: temperature (from `notes`, e.g. "25°C"), rain chance (from `notes`, highlighted in accent color if > 0%), weather type ("Dynamiskt väder" if `notes` contains "Dynamic sky", else "Fast väder"), start time (from `referenceSession`, e.g. "13:35")
+- Night sessions (time 20:00–05:59) styled with purple accent
+- High rain chance (≥25%) and dynamic weather highlighted in cyan accent
+
+**Data parsing:** `notes` field format: `"76°F/25°C, Rain chance None, ..."` or `"Constant weather, Dynamic sky, ..."`. Parse with regex: extract `XX°C`, `Rain chance N%` or `Rain chance None`, detect "Dynamic sky" string.
+
+**Interaction:** Header link "Alla serier →" routes to `/series`
 
 ## URL Routes (expanded views)
 
@@ -76,22 +89,24 @@ Cards scroll vertically inside the widget if total height exceeds viewport.
 | `/dashboard` | Fixed-height hub (this spec) |
 | `/dashboard/costs` | Full cost breakdown table with per-track detail |
 | `/dashboard/matrix` | Full-page track matrix (existing DashboardContent) |
-| `/series` | Full series browser — pre-filtered to user's selections, but all filters available for exploration |
-
-The `/series` page is the existing series browser. When navigated to from the dashboard it should default-filter to the user's selected series, but the user can freely adjust filters to explore all series. The existing `/dashboard/costs` page may need minor layout adjustments to work as a standalone expanded view, but its content is not redesigned here.
+| `/setup` | Wizard — profile, series selection, tracks, cars |
+| `/series` | Full series browser with filters; navigating here from dashboard shows all series with user's filters as defaults |
 
 ## Data Requirements
 
-All data is already available from existing server components and queries:
+All data is available from existing sources:
 - `getUserProfile` — name, license levels
-- `getAllSeries` / selected series from user profile — for series widget and matrix
+- `getAllSeries` + user's selected series from profile — for My Series and matrix widgets
 - Cost data — from existing cost calculation in `CostWidget`
 - Current week derived from `CURRENT_SEASON` constant and current date
+- `notes` + `referenceSession` fields on `IracingWeek` — for race conditions widget (already in JSON, types already defined)
+
+No new API calls or data fetching logic required.
 
 ## Implementation Notes
 
-- Dashboard page (`app/(app)/dashboard/page.tsx`) is a Server Component — keep it as-is, pass data to client layout shell if needed
-- The fixed-height constraint must not break on shorter screens; consider `min-height` guards on individual panels
-- Series widget uses internal `overflow-y: auto` scroll with custom scrollbar styling matching existing design
-- No new data fetching logic required — restructuring existing widgets only
-- `.superpowers/` should be in `.gitignore`
+- Dashboard page (`app/(app)/dashboard/page.tsx`) is a Server Component — keep it as-is, pass props down to client widgets
+- Fixed-height layout must not break on short screens; each panel should have `min-height: 0` and `overflow: hidden` or `overflow-y: auto`
+- My Series widget scrolls internally with custom scrollbar styling
+- Race conditions parser is a pure utility function — colocate in `lib/iracing/` or inline in the widget
+- `.superpowers/` is in `.gitignore`
