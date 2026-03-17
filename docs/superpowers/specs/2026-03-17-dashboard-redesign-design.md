@@ -67,7 +67,7 @@ Redesign the dashboard from a scrollable page into a fixed-height, full-viewport
 
 Cards scroll vertically inside the widget if total height exceeds viewport.
 
-**Interaction:** Header link "Ändra urval →" routes to `/setup` (series selection step). Individual series cards are not linked in v1.
+**Interaction:** Header link "Utforska serier →" routes to `/series`. Individual series cards are not linked in v1.
 
 ## URL Routes (expanded views)
 
@@ -76,8 +76,9 @@ Cards scroll vertically inside the widget if total height exceeds viewport.
 | `/dashboard` | Fixed-height hub (this spec) |
 | `/dashboard/costs` | Full cost breakdown table with per-track detail |
 | `/dashboard/matrix` | Full-page track matrix (existing DashboardContent) |
+| `/series` | Full series browser — pre-filtered to user's selections, but all filters available for exploration |
 
-The existing `/dashboard/costs` and series widget pages may need minor layout adjustments to work as standalone expanded views, but their content is not redesigned here.
+The `/series` page is the existing series browser. When navigated to from the dashboard it should default-filter to the user's selected series, but the user can freely adjust filters to explore all series. The existing `/dashboard/costs` page may need minor layout adjustments to work as a standalone expanded view, but its content is not redesigned here.
 
 ## Data Requirements
 
