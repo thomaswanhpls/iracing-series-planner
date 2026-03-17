@@ -215,7 +215,7 @@ export function AppShell({ children, userId, initialOwnedTrackIds }: AppShellPro
           </header>
 
           {/* Content area */}
-          <main className="flex-1 overflow-auto p-6">{children}</main>
+          <main className="flex-1 overflow-hidden">{children}</main>
         </div>
       </div>
     </OwnershipProvider>

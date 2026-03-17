@@ -26,15 +26,17 @@ export default async function SetupPage() {
   ])
 
   return (
-    <WizardShell
-      userId={session.userId}
-      seriesData={seriesData}
-      allTracks={allTracks}
-      allCars={allCars}
-      initialSeriesNames={selectedSeriesNames}
-      initialTrackKeys={ownedTrackKeys}
-      initialCarNames={ownedCarNames}
-      initialProfile={profile ?? { name: '', licenseClass: 'Rookie' }}
-    />
+    <div className="h-full overflow-auto p-6">
+      <WizardShell
+        userId={session.userId}
+        seriesData={seriesData}
+        allTracks={allTracks}
+        allCars={allCars}
+        initialSeriesNames={selectedSeriesNames}
+        initialTrackKeys={ownedTrackKeys}
+        initialCarNames={ownedCarNames}
+        initialProfile={profile ?? { name: '', licenseSportsCar: 'Rookie', licenseFormulaCar: 'Rookie', licenseOval: 'Rookie', licenseDirtRoad: 'Rookie', licenseDirtOval: 'Rookie' }}
+      />
+    </div>
   )
 }

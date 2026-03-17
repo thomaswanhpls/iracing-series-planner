@@ -155,6 +155,7 @@ export default function Tracks() {
   const costsHref = seriesParam ? `/dashboard/costs?series=${seriesParam}` : '/dashboard/costs'
 
   return (
+    <div className="h-full overflow-auto p-6">
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <h2 className="font-display text-xl font-bold">Banor</h2>
@@ -327,6 +328,7 @@ export default function Tracks() {
           Inga banor matchar dina filter.
         </div>
       )}
+    </div>
     </div>
   )
 }
