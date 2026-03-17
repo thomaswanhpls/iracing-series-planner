@@ -1,5 +1,14 @@
 // components/dashboard/race-conditions-widget.tsx
 import Link from 'next/link'
+import {
+  Cloud,
+  CloudRain,
+  CloudSun,
+  Moon,
+  Sun,
+  Thermometer,
+  Clock,
+} from 'lucide-react'
 import { parseRaceConditions } from '@/lib/iracing/race-conditions'
 import type { IracingSeries } from '@/lib/iracing/types'
 
@@ -38,21 +47,10 @@ export function RaceConditionsWidget({ selectedSeries, currentWeekIndex }: RaceC
                 <span className="shrink-0 truncate text-xs text-text-muted">{week.track}</span>
               </div>
               <div className="flex flex-wrap gap-1.5">
-                {/* Weather type */}
-                <Pill
-                  label={cond.isDynamic ? 'Dynamiskt väder' : 'Fast väder'}
-                  accent={cond.isDynamic ? 'cyan' : undefined}
-                />
-                {/* Temperature */}
-                {cond.tempC !== null && <Pill label={`${cond.tempC}°C`} />}
-                {/* Rain */}
-                {cond.rainChance !== null && (
-                  <Pill label={`Regn ${cond.rainChance}%`} accent={cond.rainChance >= 25 ? 'amber' : 'cyan'} />
-                )}
-                {/* Time */}
-                {cond.startTime && (
-                  <Pill label={cond.startTime} accent={cond.isNight ? 'purple' : undefined} />
-                )}
+                <WeatherPill isDynamic={cond.isDynamic} />
+                {cond.tempC !== null && <TempPill tempC={cond.tempC} />}
+                {cond.rainChance !== null && <RainPill rainChance={cond.rainChance} />}
+                {cond.startTime && <TimePill startTime={cond.startTime} isNight={cond.isNight} />}
               </div>
             </div>
           )
@@ -62,19 +60,118 @@ export function RaceConditionsWidget({ selectedSeries, currentWeekIndex }: RaceC
   )
 }
 
-function Pill({ label, accent }: { label: string; accent?: 'cyan' | 'amber' | 'purple' }) {
-  const styles = {
-    cyan:    { color: 'var(--color-accent-cyan)',    bg: 'rgba(0,255,255,0.08)',    border: 'rgba(0,255,255,0.2)' },
-    amber:   { color: 'var(--color-accent-orange)',  bg: 'rgba(255,140,0,0.1)',     border: 'rgba(255,140,0,0.2)' },
-    purple:  { color: '#c090ff',                     bg: 'rgba(160,80,255,0.1)',    border: 'rgba(160,80,255,0.2)' },
-    default: { color: 'var(--color-text-muted)',     bg: 'rgba(255,255,255,0.04)', border: 'var(--color-border-subtle)' },
+function WeatherPill({ isDynamic }: { isDynamic: boolean }) {
+  if (isDynamic) {
+    return (
+      <Pill
+        icon={<CloudRain size={11} />}
+        label="Dynamiskt"
+        color="var(--color-accent-cyan)"
+        bg="rgba(0,255,255,0.08)"
+        border="rgba(0,255,255,0.2)"
+      />
+    )
   }
-  const s = styles[accent ?? 'default']
+  return (
+    <Pill
+      icon={<Sun size={11} />}
+      label="Fast väder"
+      color="var(--color-text-muted)"
+      bg="rgba(255,255,255,0.04)"
+      border="rgba(255,255,255,0.08)"
+    />
+  )
+}
+
+function TempPill({ tempC }: { tempC: number }) {
+  const hot = tempC >= 28
+  const cold = tempC <= 10
+  const color = hot
+    ? 'var(--color-accent-orange)'
+    : cold
+      ? '#60b8ff'
+      : 'var(--color-text-secondary)'
+  const bg = hot
+    ? 'rgba(255,140,0,0.1)'
+    : cold
+      ? 'rgba(96,184,255,0.08)'
+      : 'rgba(255,255,255,0.04)'
+  const border = hot
+    ? 'rgba(255,140,0,0.22)'
+    : cold
+      ? 'rgba(96,184,255,0.2)'
+      : 'rgba(255,255,255,0.08)'
+  return (
+    <Pill
+      icon={<Thermometer size={11} />}
+      label={`${tempC}°C`}
+      color={color}
+      bg={bg}
+      border={border}
+    />
+  )
+}
+
+function RainPill({ rainChance }: { rainChance: number }) {
+  const heavy = rainChance >= 50
+  const moderate = rainChance >= 25
+  const color = heavy
+    ? 'var(--color-accent-magenta)'
+    : moderate
+      ? 'var(--color-accent-orange)'
+      : 'var(--color-accent-cyan)'
+  const bg = heavy
+    ? 'rgba(255,0,255,0.08)'
+    : moderate
+      ? 'rgba(255,140,0,0.1)'
+      : 'rgba(0,255,255,0.07)'
+  const border = heavy
+    ? 'rgba(255,0,255,0.2)'
+    : moderate
+      ? 'rgba(255,140,0,0.22)'
+      : 'rgba(0,255,255,0.18)'
+  return (
+    <Pill
+      icon={heavy ? <CloudRain size={11} /> : <Cloud size={11} />}
+      label={`${rainChance}%`}
+      color={color}
+      bg={bg}
+      border={border}
+    />
+  )
+}
+
+function TimePill({ startTime, isNight }: { startTime: string; isNight: boolean }) {
+  return (
+    <Pill
+      icon={isNight ? <Moon size={11} /> : <CloudSun size={11} />}
+      label={startTime}
+      color={isNight ? '#c090ff' : 'var(--color-text-secondary)'}
+      bg={isNight ? 'rgba(160,80,255,0.1)' : 'rgba(255,255,255,0.04)'}
+      border={isNight ? 'rgba(160,80,255,0.22)' : 'rgba(255,255,255,0.08)'}
+    />
+  )
+}
+
+function Pill({
+  icon,
+  label,
+  color,
+  bg,
+  border,
+}: {
+  icon: React.ReactNode
+  label: string
+  color: string
+  bg: string
+  border: string
+}) {
   return (
     <span
-      className="inline-flex items-center rounded px-2 py-0.5 text-xs whitespace-nowrap"
-      style={{ color: s.color, background: s.bg, border: `1px solid ${s.border}` }}
+      className="inline-flex items-center gap-1 rounded px-2 py-0.5 text-xs whitespace-nowrap font-medium"
+      style={{ color, background: bg, border: `1px solid ${border}` }}
     >
+      {icon}
       {label}
     </span>
   )
