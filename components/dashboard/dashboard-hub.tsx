@@ -55,17 +55,17 @@ export function DashboardHub({
         className="grid flex-1 overflow-hidden"
         style={{
           gridTemplateColumns: '2fr 3fr',
-          gridTemplateRows: 'auto 1fr',
+          gridTemplateRows: '1fr 1fr',
           gap: '1px',
-          background: 'rgba(255,255,255,0.05)',
+          background: 'var(--color-border-subtle)',
         }}
       >
         {/* Top-left: Cost */}
-        <div className="overflow-hidden" style={{ background: '#0d0d0d' }}>
+        <div className="min-h-0 overflow-hidden bg-bg-surface">
           <CostWidget summary={summary} seriesCosts={seriesCosts} />
         </div>
         {/* Top-right: My Series */}
-        <div className="overflow-hidden" style={{ background: '#0d0d0d' }}>
+        <div className="min-h-0 overflow-hidden bg-bg-surface">
           <MySeriesWidget
             selectedSeries={selectedSeries}
             ownedTrackKeys={ownedTrackKeys}
@@ -73,7 +73,7 @@ export function DashboardHub({
           />
         </div>
         {/* Bottom-left: Matrix */}
-        <div className="overflow-hidden" style={{ background: '#0d0d0d' }}>
+        <div className="min-h-0 overflow-hidden bg-bg-surface">
           <MatrixWidget
             selectedSeries={selectedSeries}
             ownedTrackKeys={ownedTrackKeys}
@@ -81,7 +81,7 @@ export function DashboardHub({
           />
         </div>
         {/* Bottom-right: Race Conditions */}
-        <div className="overflow-hidden" style={{ background: '#0d0d0d' }}>
+        <div className="min-h-0 overflow-hidden bg-bg-surface">
           <RaceConditionsWidget
             selectedSeries={selectedSeries}
             currentWeekIndex={currentWeekIndex}

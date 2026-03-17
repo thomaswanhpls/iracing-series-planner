@@ -14,9 +14,21 @@ function getTrackStatus(venue: string, config: string | null, ownedSet: Set<stri
 }
 
 const BADGE_STYLES: Record<TrackStatus, { label: string; color: string; bg: string }> = {
-  owned: { label: 'Äger', color: '#50c878', bg: 'rgba(80,200,120,0.12)' },
-  missing: { label: 'Saknar bana', color: '#ff6060', bg: 'rgba(255,80,80,0.1)' },
-  free: { label: 'Inkluderad', color: '#60b8ff', bg: 'rgba(80,180,255,0.1)' },
+  owned: {
+    label: 'Äger',
+    color: 'var(--color-accent-cyan)',
+    bg: 'var(--color-status-owned)',
+  },
+  missing: {
+    label: 'Saknar bana',
+    color: 'var(--color-accent-magenta)',
+    bg: 'var(--color-status-alert)',
+  },
+  free: {
+    label: 'Inkluderad',
+    color: 'var(--color-accent-orange)',
+    bg: 'var(--color-status-free)',
+  },
 }
 
 const CATEGORY_LABELS: Record<string, string> = {
@@ -38,17 +50,17 @@ export function MySeriesWidget({ selectedSeries, ownedTrackKeys, currentWeekInde
   const ownedSet = new Set(ownedTrackKeys)
 
   return (
-    <div className="flex flex-col overflow-hidden min-h-0">
-      <div className="flex shrink-0 items-center justify-between px-3.5 pb-2 pt-3">
-        <span className="text-[10px] font-bold uppercase tracking-widest text-white/40">Mina serier</span>
+    <div className="flex h-full flex-col min-h-0">
+      <div className="flex shrink-0 items-center justify-between px-4 pb-2 pt-3">
+        <span className="text-xs font-bold uppercase tracking-widest text-text-muted">Mina serier</span>
         <Link
           href="/setup"
-          className="text-[10px] text-cyan-400/40 transition-colors hover:text-cyan-400/80"
+          className="text-xs text-accent-cyan/40 transition-colors hover:text-accent-cyan/80"
         >
           Ändra urval →
         </Link>
       </div>
-      <div className="flex flex-1 flex-col gap-1.5 overflow-y-auto px-3.5 pb-3">
+      <div className="flex flex-1 flex-col gap-2 overflow-y-auto px-4 pb-3">
         {selectedSeries.map((s) => {
           const week = s.weeks[currentWeekIndex]
           const status = week ? getTrackStatus(week.venue, week.config, ownedSet) : 'owned'
@@ -56,34 +68,27 @@ export function MySeriesWidget({ selectedSeries, ownedTrackKeys, currentWeekInde
           return (
             <div
               key={s.seriesName}
-              className="shrink-0 rounded-md border px-2.5 py-2"
-              style={{ borderColor: 'rgba(255,255,255,0.07)' }}
+              className="shrink-0 rounded-md border border-border-subtle px-3 py-2.5"
             >
-              <div className="mb-1.5 flex items-start justify-between gap-2">
-                <span className="text-[10px] font-semibold leading-snug text-white/60">{s.seriesName}</span>
+              <div className="mb-2 flex items-start justify-between gap-2">
+                <span className="text-sm font-semibold leading-snug text-text-secondary">{s.seriesName}</span>
                 <span
-                  className="shrink-0 rounded px-1.5 py-0.5 text-[9px] font-semibold"
+                  className="shrink-0 rounded px-2 py-0.5 text-xs font-semibold"
                   style={{ color: badge.color, background: badge.bg }}
                 >
                   {badge.label}
                 </span>
               </div>
-              <div className="mb-1 flex flex-wrap gap-1">
-                <span
-                  className="rounded-[3px] border px-1.5 py-0.5 text-[9px] text-white/30"
-                  style={{ borderColor: 'rgba(255,255,255,0.06)', background: 'rgba(255,255,255,0.04)' }}
-                >
+              <div className="mb-1.5 flex flex-wrap gap-1.5">
+                <span className="rounded border border-border-subtle bg-bg-base px-2 py-0.5 text-xs text-text-muted">
                   {CATEGORY_LABELS[s.category] ?? s.category}
                 </span>
-                <span
-                  className="rounded-[3px] border px-1.5 py-0.5 text-[9px] text-white/30"
-                  style={{ borderColor: 'rgba(255,255,255,0.06)', background: 'rgba(255,255,255,0.04)' }}
-                >
+                <span className="rounded border border-border-subtle bg-bg-base px-2 py-0.5 text-xs text-text-muted">
                   {s.class}
                 </span>
               </div>
               {week && (
-                <div className="text-[9px] truncate" style={{ color: 'rgba(255,255,255,0.25)' }}>{week.track}</div>
+                <div className="truncate text-xs text-text-muted/60">{week.track}</div>
               )}
             </div>
           )
