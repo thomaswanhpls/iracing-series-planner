@@ -71,7 +71,7 @@ export function MySeriesWidget({ selectedSeries, ownedTrackKeys, currentWeekInde
               className="shrink-0 rounded-md border border-border-subtle px-3 py-2.5"
             >
               <div className="mb-2 flex items-start justify-between gap-2">
-                <span className="text-sm font-semibold leading-snug text-text-secondary">{s.seriesName}</span>
+                <span className="text-sm font-semibold leading-snug text-text-primary">{s.seriesName}</span>
                 <span
                   className="shrink-0 rounded px-2 py-0.5 text-xs font-semibold"
                   style={{ color: badge.color, background: badge.bg }}
@@ -80,15 +80,15 @@ export function MySeriesWidget({ selectedSeries, ownedTrackKeys, currentWeekInde
                 </span>
               </div>
               <div className="mb-1.5 flex flex-wrap gap-1.5">
-                <span className="rounded border border-border-subtle bg-bg-base px-2 py-0.5 text-xs text-text-muted">
+                <span className="rounded border border-border-subtle bg-bg-base px-2 py-0.5 text-xs text-text-secondary">
                   {CATEGORY_LABELS[s.category] ?? s.category}
                 </span>
-                <span className="rounded border border-border-subtle bg-bg-base px-2 py-0.5 text-xs text-text-muted">
+                <span className="rounded border border-border-subtle bg-bg-base px-2 py-0.5 text-xs text-text-secondary">
                   {s.class}
                 </span>
               </div>
               {week && (
-                <div className="truncate text-xs text-text-muted">{week.track}</div>
+                <div className="truncate text-xs text-text-secondary">{week.track}</div>
               )}
             </div>
           )

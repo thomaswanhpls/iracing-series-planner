@@ -38,7 +38,7 @@ export function CostWidget({ summary, recommendations, missingCarBySeries }: Cos
           <div className="text-3xl font-bold leading-none tabular-nums text-accent-orange">
             ${summary.totalAfterDiscount.toFixed(2)}
           </div>
-          <div className="mt-1.5 text-xs text-text-muted">
+          <div className="mt-1.5 text-xs text-text-secondary">
             {summary.trackCount} banor · {summary.carCount} serier saknar bil
           </div>
         </div>
@@ -61,7 +61,7 @@ export function CostWidget({ summary, recommendations, missingCarBySeries }: Cos
                       {formatTrackKey(rec.item.name)}
                     </div>
                     {rec.item.seriesCount > 1 && (
-                      <div className="text-xs text-text-muted">{rec.item.seriesCount} serier</div>
+                      <div className="text-xs text-text-secondary">{rec.item.seriesCount} serier</div>
                     )}
                   </div>
                   <span
@@ -91,7 +91,7 @@ export function CostWidget({ summary, recommendations, missingCarBySeries }: Cos
                 >
                   <div className="min-w-0">
                     <div className="truncate text-sm text-text-secondary">{entry.seriesName}</div>
-                    <div className="truncate text-xs text-text-muted">{entry.cheapestCar}</div>
+                    <div className="truncate text-xs text-text-secondary">{entry.cheapestCar}</div>
                   </div>
                   <span
                     className="ml-3 shrink-0 text-sm font-semibold tabular-nums"
