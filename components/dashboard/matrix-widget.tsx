@@ -39,7 +39,7 @@ export function MatrixWidget({ selectedSeries, ownedTrackKeys, currentWeekIndex 
 
   return (
     <div className="flex h-full flex-col min-h-0">
-      <div className="flex shrink-0 items-center justify-between px-4 pb-2 pt-3">
+      <div className="flex shrink-0 items-center justify-between px-5 pb-2 pt-3">
         <span className="text-xs font-bold uppercase tracking-widest text-text-muted">
           Track Matrix · v{currentWeekIndex + 1}
         </span>
@@ -50,17 +50,16 @@ export function MatrixWidget({ selectedSeries, ownedTrackKeys, currentWeekIndex 
           Full matris →
         </Link>
       </div>
-      <div className="flex flex-1 flex-col overflow-y-auto px-4 pb-3">
+
+      <div className="flex flex-1 flex-col overflow-y-auto px-5 pb-4">
         {/* Week column headers */}
-        <div className="mb-1 flex gap-0.5 pl-[140px]">
+        <div className="mb-1.5 flex pl-[180px] pr-1">
           {allWeekIndices.map((wi) => (
             <div
               key={wi}
-              className="w-6 shrink-0 text-center text-[10px]"
+              className="flex-1 text-center text-xs font-medium"
               style={{
-                color: wi === currentWeekIndex
-                  ? 'var(--color-accent-cyan)'
-                  : 'var(--color-text-muted)',
+                color: wi === currentWeekIndex ? 'var(--color-accent-cyan)' : 'var(--color-text-muted)',
                 opacity: wi === currentWeekIndex ? 1 : 0.5,
               }}
             >
@@ -70,50 +69,52 @@ export function MatrixWidget({ selectedSeries, ownedTrackKeys, currentWeekIndex 
         </div>
 
         {/* Series rows */}
-        <div className="flex flex-col gap-0.5">
+        <div className="flex flex-col gap-1">
           {selectedSeries.map((s) => (
-            <div key={s.seriesName} className="flex items-center gap-0.5">
-              <span className="w-[136px] shrink-0 truncate text-xs text-text-secondary pr-1">
+            <div key={s.seriesName} className="flex items-center">
+              <span className="w-[180px] shrink-0 truncate pr-3 text-sm text-text-secondary">
                 {s.seriesName}
               </span>
-              {allWeekIndices.map((wi) => {
-                const week = s.weeks[wi]
-                const isCurrent = wi === currentWeekIndex
-                if (!week) return (
-                  <div
-                    key={wi}
-                    className="h-4 w-6 shrink-0 rounded-[2px]"
-                    style={{ background: 'rgba(255,255,255,0.04)' }}
-                  />
-                )
-                const status = getStatus(week.venue, week.config, ownedSet)
-                return (
-                  <div
-                    key={wi}
-                    className="h-4 w-6 shrink-0 rounded-[2px]"
-                    style={{
-                      background: STATUS_CELL_BG[status],
-                      outline: isCurrent ? '1px solid var(--color-accent-cyan)' : undefined,
-                      outlineOffset: isCurrent ? '-1px' : undefined,
-                    }}
-                    title={`v${wi + 1} · ${week.track} — ${STATUS_LABELS[status]}`}
-                  />
-                )
-              })}
+              <div className="flex flex-1 gap-0.5 pr-1">
+                {allWeekIndices.map((wi) => {
+                  const week = s.weeks[wi]
+                  const isCurrent = wi === currentWeekIndex
+                  if (!week) return (
+                    <div
+                      key={wi}
+                      className="h-5 flex-1 rounded-[3px]"
+                      style={{ background: 'rgba(255,255,255,0.04)' }}
+                    />
+                  )
+                  const status = getStatus(week.venue, week.config, ownedSet)
+                  return (
+                    <div
+                      key={wi}
+                      className="h-5 flex-1 rounded-[3px]"
+                      style={{
+                        background: STATUS_CELL_BG[status],
+                        outline: isCurrent ? '2px solid var(--color-accent-cyan)' : undefined,
+                        outlineOffset: isCurrent ? '-1px' : undefined,
+                      }}
+                      title={`v${wi + 1} · ${week.track} — ${STATUS_LABELS[status]}`}
+                    />
+                  )
+                })}
+              </div>
             </div>
           ))}
         </div>
 
         {/* Legend */}
-        <div className="mt-3 flex gap-4">
+        <div className="mt-4 flex gap-5">
           {[
-            { label: 'Äger', color: 'rgba(0,255,255,0.18)', text: 'var(--color-accent-cyan)' },
-            { label: 'Saknas', color: 'rgba(255,0,255,0.15)', text: 'var(--color-accent-magenta)' },
-            { label: 'Inkl.', color: 'rgba(255,140,0,0.18)', text: 'var(--color-accent-orange)' },
-          ].map(({ label, color, text }) => (
-            <span key={label} className="flex items-center gap-1.5 text-[10px]" style={{ color: 'var(--color-text-muted)' }}>
-              <span className="h-3 w-5 rounded-[2px]" style={{ background: color }} />
-              <span style={{ color: text }}>{label}</span>
+            { label: 'Äger', bg: 'rgba(0,255,255,0.18)',  color: 'var(--color-accent-cyan)' },
+            { label: 'Saknas', bg: 'rgba(255,0,255,0.15)', color: 'var(--color-accent-magenta)' },
+            { label: 'Inkl.', bg: 'rgba(255,140,0,0.18)',  color: 'var(--color-accent-orange)' },
+          ].map(({ label, bg, color }) => (
+            <span key={label} className="flex items-center gap-2 text-xs">
+              <span className="h-4 w-7 rounded-[3px]" style={{ background: bg }} />
+              <span style={{ color }}>{label}</span>
             </span>
           ))}
         </div>
