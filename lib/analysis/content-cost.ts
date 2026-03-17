@@ -43,7 +43,9 @@ export function computeContentCost({
     }
   }
 
-  // Count how many series need each missing car
+  // For each series, determine the cheapest car needed to be eligible.
+  // If you already own at least one car in the series → no car cost.
+  // If you own none → cheapest available car (min cost to participate).
   const carSeriesCount = new Map<string, number>()
   for (const s of selectedSeries) {
     const carsThisSeries = new Set<string>()
@@ -51,10 +53,21 @@ export function computeContentCost({
     for (const w of s.weeks) {
       if (w.weekCars) for (const car of w.weekCars) carsThisSeries.add(car)
     }
+    const hasAnyCar = Array.from(carsThisSeries).some((car) => ownedCarSet.has(car))
+    if (hasAnyCar) continue
+
+    // Find the cheapest car in this series
+    let cheapestCar: string | null = null
+    let cheapestPrice = Infinity
     for (const car of carsThisSeries) {
-      if (!ownedCarSet.has(car)) {
-        carSeriesCount.set(car, (carSeriesCount.get(car) ?? 0) + 1)
+      const price = getCarPrice(car)
+      if (price < cheapestPrice) {
+        cheapestPrice = price
+        cheapestCar = car
       }
+    }
+    if (cheapestCar !== null) {
+      carSeriesCount.set(cheapestCar, (carSeriesCount.get(cheapestCar) ?? 0) + 1)
     }
   }
 
@@ -89,7 +102,12 @@ export function computeContentCost({
   const discountAmount = totalBeforeDiscount * (percent / 100)
 
   const trackCount = Array.from(trackSeriesCount.keys()).length
-  const carCount = Array.from(carSeriesCount.keys()).length
+  // carCount = number of series where you own no eligible car (need to buy one)
+  const carCount = selectedSeries.filter((s) => {
+    const cars = new Set<string>(s.cars)
+    for (const w of s.weeks) if (w.weekCars) for (const c of w.weekCars) cars.add(c)
+    return !Array.from(cars).some((c) => ownedCarSet.has(c))
+  }).length
 
   const summary: ContentCostSummary = {
     totalBeforeDiscount,
