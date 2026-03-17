@@ -1,49 +1,53 @@
-'use client'
-
-import { useState } from 'react'
-import { Card } from '@/components/ui/card'
-import { CostTable } from './cost-table'
-import type { ContentPurchaseRecommendation, ContentCostSummary } from '@/lib/analysis/types'
+// components/dashboard/cost-widget.tsx
+import Link from 'next/link'
+import type { ContentCostSummary } from '@/lib/analysis/types'
 
 interface CostWidgetProps {
-  recommendations: ContentPurchaseRecommendation[]
   summary: ContentCostSummary
+  seriesCosts: Record<string, number>  // seriesName → cost
 }
 
-export function CostWidget({ recommendations, summary }: CostWidgetProps) {
-  const [expanded, setExpanded] = useState(false)
+export function CostWidget({ summary, seriesCosts }: CostWidgetProps) {
+  const entries = Object.entries(seriesCosts).sort((a, b) => b[1] - a[1])
 
   return (
-    <div className="flex flex-col gap-3">
-      <Card
-        className="p-5 cursor-pointer select-none"
-        onClick={() => setExpanded((v) => !v)}
-      >
-        <div className="flex items-start justify-between">
-          <div>
-            <div className="text-xs font-mono uppercase tracking-widest text-text-muted mb-1">
-              Kostnad
-            </div>
-            <div className="text-2xl font-bold font-display text-text-primary">
-              ${summary.totalAfterDiscount.toFixed(2)}
-            </div>
-            <div className="text-sm text-text-secondary mt-1">
-              {summary.trackCount} banor · {summary.carCount} bilar saknas
-            </div>
+    <div className="flex flex-col overflow-hidden min-h-0">
+      <div className="flex shrink-0 items-center justify-between px-3.5 pb-2 pt-3">
+        <span className="text-[10px] font-bold uppercase tracking-widest text-white/40">Kostnader</span>
+        <Link
+          href="/dashboard/costs"
+          className="text-[10px] text-cyan-400/40 transition-colors hover:text-cyan-400/80"
+        >
+          Full analys →
+        </Link>
+      </div>
+      <div className="flex-1 overflow-y-auto px-3.5 pb-3">
+        <div className="mb-3">
+          <div className="text-[28px] font-bold leading-none tabular-nums" style={{ color: '#ff9060' }}>
+            ${summary.totalAfterDiscount.toFixed(2)}
           </div>
-          <span className="text-xs text-text-muted mt-1">
-            {expanded ? '▲ Dölj' : '▼ Visa detaljer'}
-          </span>
+          <div className="mt-1 text-[10px] text-white/30">
+            {summary.trackCount} saknade banor · {summary.carCount} bilar
+          </div>
         </div>
-      </Card>
-
-      {expanded && (
-        <CostTable
-          recommendations={recommendations}
-          costSummary={summary}
-          variant="content"
-        />
-      )}
+        <div className="flex flex-col gap-[3px]">
+          {entries.map(([name, cost]) => (
+            <div
+              key={name}
+              className="flex items-center justify-between rounded px-2 py-1.5 text-[10px]"
+              style={{ background: 'rgba(255,255,255,0.025)' }}
+            >
+              <span className="truncate text-white/50">{name}</span>
+              <span
+                className="ml-2 shrink-0 font-semibold tabular-nums"
+                style={{ color: cost === 0 ? '#50c878' : '#ff9060' }}
+              >
+                ${cost.toFixed(2)}
+              </span>
+            </div>
+          ))}
+        </div>
+      </div>
     </div>
   )
 }
