@@ -71,7 +71,7 @@ export function MatrixWidget({ selectedSeries, ownedTrackKeys, currentWeekIndex 
         <div className="flex flex-col gap-1">
           {selectedSeries.map((s) => (
             <div key={s.seriesName} className="flex items-center">
-              <span className="w-[180px] shrink-0 truncate pr-3 text-sm text-text-secondary">
+              <span className="w-[180px] shrink-0 truncate pr-3 text-sm text-text-primary">
                 {s.seriesName}
               </span>
               <div className="flex flex-1 gap-0.5 pr-1">

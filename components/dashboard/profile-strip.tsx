@@ -48,8 +48,8 @@ export function ProfileStrip({
         {DISCIPLINES.map(({ key, label, color }) => (
           <span key={key} className="flex items-center gap-1.5 text-xs">
             <span className="h-2 w-2 rounded-full shrink-0" style={{ background: color }} />
-            <span className="text-text-muted">{label}</span>
-            <span className="font-semibold text-text-secondary">{levels[key]}</span>
+            <span className="text-text-secondary">{label}</span>
+            <span className="font-semibold text-text-primary">{levels[key]}</span>
           </span>
         ))}
       </div>

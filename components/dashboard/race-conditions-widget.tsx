@@ -102,8 +102,8 @@ export function RaceConditionsWidget({ selectedSeries, currentWeekIndex }: RaceC
               style={{ background: accent.bg, border: `1px solid ${accent.border}` }}
             >
               <div className="mb-2 flex items-baseline justify-between gap-2">
-                <span className="truncate text-sm font-semibold text-text-secondary">{s.seriesName}</span>
-                <span className="shrink-0 truncate text-xs text-text-muted">{week.track}</span>
+                <span className="truncate text-sm font-semibold text-text-primary">{s.seriesName}</span>
+                <span className="shrink-0 truncate text-xs text-text-secondary">{week.track}</span>
               </div>
               <div className="flex flex-wrap gap-1.5">
                 <WeatherPill isDynamic={cond.isDynamic} />
