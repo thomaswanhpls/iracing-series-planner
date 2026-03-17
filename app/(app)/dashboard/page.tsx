@@ -45,15 +45,41 @@ export default async function DashboardPage() {
   const selectedSeries = allSeries.filter((s) => selectedSeriesNames.includes(s.seriesName))
   const selectedSeriesData = toSeasonScheduleData(selectedSeries)
 
-  const { recommendations, summary } = computeContentCost({
+  const { summary } = computeContentCost({
     selectedSeries,
     ownedTrackKeys,
     ownedCarNames,
   })
 
+  // Per-series cost: sum of missing track prices for each series
+  const { makeTrackKey } = await import('@/lib/iracing/types')
+  const { getTrackPrice } = await import('@/lib/iracing/track-prices')
+  const ownedTrackSet = new Set(ownedTrackKeys)
+  const seriesCosts: Record<string, number> = {}
+  for (const s of selectedSeries) {
+    const seen = new Set<string>()
+    let cost = 0
+    for (const w of s.weeks) {
+      const key = makeTrackKey(w.venue, w.config)
+      if (!ownedTrackSet.has(key) && !seen.has(key)) {
+        seen.add(key)
+        cost += getTrackPrice(key)
+      }
+    }
+    seriesCosts[s.seriesName] = cost
+  }
+
   const nextRaceDate = getNextRaceDate(selectedSeries)
 
-  const resolvedProfile = profile ?? { name: '', licenseClass: 'Rookie' }
+  const resolvedProfile = profile ?? {
+    name: '',
+    licenseClass: 'Rookie',
+    licenseSportsCar: 'Rookie',
+    licenseFormulaCar: 'Rookie',
+    licenseOval: 'Rookie',
+    licenseDirtRoad: 'Rookie',
+    licenseDirtOval: 'Rookie',
+  }
 
   return (
     <div className="flex flex-col gap-6">
@@ -61,10 +87,14 @@ export default async function DashboardPage() {
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
         <ProfileWidget
           name={resolvedProfile.name}
-          licenseClass={resolvedProfile.licenseClass}
+          licenseSportsCar={resolvedProfile.licenseSportsCar}
+          licenseFormulaCar={resolvedProfile.licenseFormulaCar}
+          licenseOval={resolvedProfile.licenseOval}
+          licenseDirtRoad={resolvedProfile.licenseDirtRoad}
+          licenseDirtOval={resolvedProfile.licenseDirtOval}
           selectedSeriesCount={selectedSeriesNames.length}
         />
-        <CostWidget recommendations={recommendations} summary={summary} />
+        <CostWidget summary={summary} seriesCosts={seriesCosts} />
       </div>
 
       {/* Matrix: full width */}
