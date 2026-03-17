@@ -15,21 +15,16 @@ function getStatus(venue: string, config: string | null, ownedSet: Set<string>):
   return 'missing'
 }
 
-// Mini-matrix cell backgrounds — subtle tints aligned to design system accents
 const STATUS_CELL_BG: Record<CellStatus, string> = {
-  owned: 'rgba(0,255,255,0.18)',   // cyan — accent-cyan
-  missing: 'rgba(255,0,255,0.15)', // magenta — accent-magenta
-  free: 'rgba(255,140,0,0.18)',    // orange — accent-orange
+  owned:   'rgba(0,255,255,0.18)',
+  missing: 'rgba(255,0,255,0.15)',
+  free:    'rgba(255,140,0,0.18)',
 }
+
 const STATUS_LABELS: Record<CellStatus, string> = {
-  owned: 'Äger',
+  owned:   'Äger',
   missing: 'Saknas',
-  free: 'Inkl.',
-}
-const STATUS_DOT: Record<CellStatus, string> = {
-  owned: 'var(--color-accent-cyan)',
-  missing: 'var(--color-accent-magenta)',
-  free: 'var(--color-accent-orange)',
+  free:    'Inkl.',
 }
 
 interface MatrixWidgetProps {
@@ -40,10 +35,7 @@ interface MatrixWidgetProps {
 
 export function MatrixWidget({ selectedSeries, ownedTrackKeys, currentWeekIndex }: MatrixWidgetProps) {
   const ownedSet = new Set(ownedTrackKeys)
-  const upcomingWeekIndices = (selectedSeries[0]?.weeks ?? [])
-    .map((_, i) => i)
-    .filter((i) => i > currentWeekIndex)
-    .slice(0, 8)
+  const allWeekIndices = (selectedSeries[0]?.weeks ?? []).map((_, i) => i)
 
   return (
     <div className="flex h-full flex-col min-h-0">
@@ -58,74 +50,73 @@ export function MatrixWidget({ selectedSeries, ownedTrackKeys, currentWeekIndex 
           Full matris →
         </Link>
       </div>
-      <div className="flex flex-1 flex-col gap-3 overflow-y-auto px-4 pb-3">
-        {/* This week */}
-        <div>
-          <div className="mb-2 text-[10px] font-semibold uppercase tracking-widest text-text-muted/60">
-            Denna vecka
-          </div>
-          <div className="flex flex-col gap-1">
-            {selectedSeries.map((s) => {
-              const week = s.weeks[currentWeekIndex]
-              if (!week) return null
-              const status = getStatus(week.venue, week.config, ownedSet)
-              return (
-                <div
-                  key={s.seriesName}
-                  className="flex items-center gap-2.5 rounded-md border border-border-subtle px-3 py-2"
-                >
-                  <span
-                    className="h-2 w-2 shrink-0 rounded-full"
-                    style={{ background: STATUS_DOT[status] }}
-                  />
-                  <div className="flex flex-1 min-w-0 flex-col gap-0.5">
-                    <span className="truncate text-sm text-text-secondary">{s.seriesName}</span>
-                    <span className="truncate text-xs text-text-muted">{week.track}</span>
-                  </div>
-                  <span className="shrink-0 text-xs font-semibold" style={{ color: STATUS_DOT[status] }}>
-                    {STATUS_LABELS[status]}
-                  </span>
-                </div>
-              )
-            })}
-          </div>
+      <div className="flex flex-1 flex-col overflow-y-auto px-4 pb-3">
+        {/* Week column headers */}
+        <div className="mb-1 flex gap-0.5 pl-[140px]">
+          {allWeekIndices.map((wi) => (
+            <div
+              key={wi}
+              className="w-6 shrink-0 text-center text-[10px]"
+              style={{
+                color: wi === currentWeekIndex
+                  ? 'var(--color-accent-cyan)'
+                  : 'var(--color-text-muted)',
+                opacity: wi === currentWeekIndex ? 1 : 0.5,
+              }}
+            >
+              {wi + 1}
+            </div>
+          ))}
         </div>
 
-        {/* Upcoming weeks mini-matrix */}
-        {upcomingWeekIndices.length > 0 && (
-          <div>
-            <div className="mb-2 text-[10px] font-semibold uppercase tracking-widest text-text-muted/60">
-              Kommande veckor
+        {/* Series rows */}
+        <div className="flex flex-col gap-0.5">
+          {selectedSeries.map((s) => (
+            <div key={s.seriesName} className="flex items-center gap-0.5">
+              <span className="w-[136px] shrink-0 truncate text-xs text-text-secondary pr-1">
+                {s.seriesName}
+              </span>
+              {allWeekIndices.map((wi) => {
+                const week = s.weeks[wi]
+                const isCurrent = wi === currentWeekIndex
+                if (!week) return (
+                  <div
+                    key={wi}
+                    className="h-4 w-6 shrink-0 rounded-[2px]"
+                    style={{ background: 'rgba(255,255,255,0.04)' }}
+                  />
+                )
+                const status = getStatus(week.venue, week.config, ownedSet)
+                return (
+                  <div
+                    key={wi}
+                    className="h-4 w-6 shrink-0 rounded-[2px]"
+                    style={{
+                      background: STATUS_CELL_BG[status],
+                      outline: isCurrent ? '1px solid var(--color-accent-cyan)' : undefined,
+                      outlineOffset: isCurrent ? '-1px' : undefined,
+                    }}
+                    title={`v${wi + 1} · ${week.track} — ${STATUS_LABELS[status]}`}
+                  />
+                )
+              })}
             </div>
-            {/* Week labels */}
-            <div className="mb-1 flex gap-0.5 pl-[120px]">
-              {upcomingWeekIndices.map((wi) => (
-                <div key={wi} className="w-5 text-center text-[10px] text-text-muted/40">
-                  v{wi + 1}
-                </div>
-              ))}
-            </div>
-            {/* Rows */}
-            {selectedSeries.map((s) => (
-              <div key={s.seriesName} className="mb-0.5 flex items-center gap-0.5">
-                <span className="w-[116px] shrink-0 truncate text-xs text-text-muted">{s.seriesName}</span>
-                {upcomingWeekIndices.map((wi) => {
-                  const week = s.weeks[wi]
-                  if (!week) return <div key={wi} className="h-3 w-5 rounded-[2px]" />
-                  const status = getStatus(week.venue, week.config, ownedSet)
-                  return (
-                    <div
-                      key={wi}
-                      className="h-3 w-5 shrink-0 rounded-[2px]"
-                      style={{ background: STATUS_CELL_BG[status] }}
-                      title={`${week.track} — ${STATUS_LABELS[status]}`}
-                    />
-                  )
-                })}
-              </div>
-            ))}
-          </div>
-        )}
+          ))}
+        </div>
+
+        {/* Legend */}
+        <div className="mt-3 flex gap-4">
+          {[
+            { label: 'Äger', color: 'rgba(0,255,255,0.18)', text: 'var(--color-accent-cyan)' },
+            { label: 'Saknas', color: 'rgba(255,0,255,0.15)', text: 'var(--color-accent-magenta)' },
+            { label: 'Inkl.', color: 'rgba(255,140,0,0.18)', text: 'var(--color-accent-orange)' },
+          ].map(({ label, color, text }) => (
+            <span key={label} className="flex items-center gap-1.5 text-[10px]" style={{ color: 'var(--color-text-muted)' }}>
+              <span className="h-3 w-5 rounded-[2px]" style={{ background: color }} />
+              <span style={{ color: text }}>{label}</span>
+            </span>
+          ))}
+        </div>
       </div>
     </div>
   )
