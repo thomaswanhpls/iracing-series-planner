@@ -2,7 +2,7 @@ import type { IracingSeries } from '@/lib/iracing/types'
 import { makeTrackKey } from '@/lib/iracing/types'
 import { getTrackPrice } from '@/lib/iracing/track-prices'
 import { getCarPrice } from '@/lib/iracing/car-prices'
-import type { ContentPurchaseRecommendation, ContentCostSummary } from './types'
+import type { ContentPurchaseRecommendation, ContentCostSummary, MissingCarForSeries } from './types'
 
 interface ComputeContentCostArgs {
   selectedSeries: IracingSeries[]
@@ -12,6 +12,7 @@ interface ComputeContentCostArgs {
 
 interface ContentCostResult {
   recommendations: ContentPurchaseRecommendation[]
+  missingCarBySeries: MissingCarForSeries[]
   summary: ContentCostSummary
 }
 
@@ -47,6 +48,7 @@ export function computeContentCost({
   // If you already own at least one car in the series → no car cost.
   // If you own none → cheapest available car (min cost to participate).
   const carSeriesCount = new Map<string, number>()
+  const missingCarBySeries: MissingCarForSeries[] = []
   for (const s of selectedSeries) {
     const carsThisSeries = new Set<string>()
     for (const car of s.cars) carsThisSeries.add(car)
@@ -68,6 +70,7 @@ export function computeContentCost({
     }
     if (cheapestCar !== null) {
       carSeriesCount.set(cheapestCar, (carSeriesCount.get(cheapestCar) ?? 0) + 1)
+      missingCarBySeries.push({ seriesName: s.seriesName, cheapestCar, price: cheapestPrice })
     }
   }
 
@@ -119,5 +122,5 @@ export function computeContentCost({
     carCount,
   }
 
-  return { recommendations: items, summary }
+  return { recommendations: items, missingCarBySeries, summary }
 }

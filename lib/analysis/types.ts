@@ -32,6 +32,12 @@ export interface ContentPurchaseRecommendation {
   cumulativeCost: number  // running total including this item
 }
 
+export interface MissingCarForSeries {
+  seriesName: string
+  cheapestCar: string
+  price: number
+}
+
 export interface ContentCostSummary {
   totalBeforeDiscount: number
   discountTier: string

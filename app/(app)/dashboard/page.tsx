@@ -8,7 +8,6 @@ import {
 } from '@/lib/db/actions'
 import { getAllSeries, CURRENT_SEASON } from '@/lib/iracing/season-data'
 import { computeContentCost } from '@/lib/analysis/content-cost'
-import { computeSeriesCost } from '@/lib/analysis/series-cost'
 import { formatSeasonLabel } from '@/lib/iracing/format-season-label'
 import { getCurrentWeekIndex } from '@/lib/iracing/current-week'
 import { DashboardHub } from '@/components/dashboard/dashboard-hub'
@@ -27,8 +26,7 @@ export default async function DashboardPage() {
   const allSeries = getAllSeries()
   const selectedSeries = allSeries.filter((s) => selectedSeriesNames.includes(s.seriesName))
 
-  const { summary } = computeContentCost({ selectedSeries, ownedTrackKeys, ownedCarNames })
-  const seriesCosts = Object.fromEntries(computeSeriesCost(selectedSeries, ownedTrackKeys))
+  const { summary, recommendations, missingCarBySeries } = computeContentCost({ selectedSeries, ownedTrackKeys, ownedCarNames })
 
   const currentWeekIndex = selectedSeries[0]
     ? getCurrentWeekIndex(selectedSeries[0].weeks)
@@ -54,7 +52,8 @@ export default async function DashboardPage() {
       licenseDirtOval={resolvedProfile.licenseDirtOval}
       seasonLabel={formatSeasonLabel(CURRENT_SEASON)}
       summary={summary}
-      seriesCosts={seriesCosts}
+      recommendations={recommendations}
+      missingCarBySeries={missingCarBySeries}
       selectedSeries={selectedSeries}
       ownedTrackKeys={ownedTrackKeys}
       currentWeekIndex={currentWeekIndex}

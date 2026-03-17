@@ -1,7 +1,7 @@
 'use client'
 
 import type { IracingSeries } from '@/lib/iracing/types'
-import type { ContentCostSummary } from '@/lib/analysis/types'
+import type { ContentCostSummary, ContentPurchaseRecommendation, MissingCarForSeries } from '@/lib/analysis/types'
 import { ProfileStrip } from './profile-strip'
 import { CostWidget } from './cost-widget'
 import { MatrixWidget } from './matrix-widget'
@@ -19,7 +19,8 @@ interface DashboardHubProps {
   seasonLabel: string
   // Cost
   summary: ContentCostSummary
-  seriesCosts: Record<string, number>  // Map is not JSON-serializable across server→client
+  recommendations: ContentPurchaseRecommendation[]
+  missingCarBySeries: MissingCarForSeries[]
   // Shared series data
   selectedSeries: IracingSeries[]
   ownedTrackKeys: string[]
@@ -47,7 +48,8 @@ export function DashboardHub({
   licenseDirtOval,
   seasonLabel,
   summary,
-  seriesCosts,
+  recommendations,
+  missingCarBySeries,
   selectedSeries,
   ownedTrackKeys,
   currentWeekIndex,
@@ -73,7 +75,7 @@ export function DashboardHub({
       >
         {/* Top row: Cost · My Series · Race Conditions */}
         <div className={PANEL}>
-          <CostWidget summary={summary} seriesCosts={seriesCosts} />
+          <CostWidget summary={summary} recommendations={recommendations} missingCarBySeries={missingCarBySeries} />
         </div>
         <div className={PANEL}>
           <MySeriesWidget
