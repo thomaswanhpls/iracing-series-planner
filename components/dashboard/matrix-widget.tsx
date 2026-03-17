@@ -45,7 +45,7 @@ export function MatrixWidget({ selectedSeries, ownedTrackKeys, currentWeekIndex 
         </span>
         <Link
           href="/dashboard/matrix"
-          className="text-xs text-accent-cyan/40 transition-colors hover:text-accent-cyan/80"
+          className="text-xs text-accent-cyan/60 transition-colors hover:text-accent-cyan/80"
         >
           Full matris →
         </Link>
@@ -60,7 +60,6 @@ export function MatrixWidget({ selectedSeries, ownedTrackKeys, currentWeekIndex 
               className="flex-1 text-center text-xs font-medium"
               style={{
                 color: wi === currentWeekIndex ? 'var(--color-accent-cyan)' : 'var(--color-text-muted)',
-                opacity: wi === currentWeekIndex ? 1 : 0.5,
               }}
             >
               {wi + 1}

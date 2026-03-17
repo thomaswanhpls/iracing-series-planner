@@ -82,7 +82,7 @@ export function RaceConditionsWidget({ selectedSeries, currentWeekIndex }: RaceC
         </span>
         <Link
           href="/series"
-          className="text-xs text-accent-cyan/40 transition-colors hover:text-accent-cyan/80"
+          className="text-xs text-accent-cyan/60 transition-colors hover:text-accent-cyan/80"
         >
           Alla serier →
         </Link>
@@ -125,7 +125,7 @@ function WeatherPill({ isDynamic }: { isDynamic: boolean }) {
   if (isDynamic) {
     return <Pill icon={<CloudRain size={11} />} label="Dynamiskt" color="var(--color-accent-cyan)" bg="rgba(0,255,255,0.08)" border="rgba(0,255,255,0.2)" />
   }
-  return <Pill icon={<Sun size={11} />} label="Fast väder" color="var(--color-text-muted)" bg="rgba(255,255,255,0.04)" border="rgba(255,255,255,0.08)" />
+  return <Pill icon={<Sun size={11} />} label="Fast väder" color="var(--color-text-secondary)" bg="rgba(255,255,255,0.04)" border="rgba(255,255,255,0.1)" />
 }
 
 function TempPill({ tempC }: { tempC: number }) {

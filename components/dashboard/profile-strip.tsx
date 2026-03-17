@@ -55,7 +55,7 @@ export function ProfileStrip({
       </div>
       <div className="ml-auto flex items-center gap-4">
         <span className="text-xs text-text-muted">{seasonLabel}</span>
-        <Link href="/setup" className="text-xs text-accent-cyan/40 transition-colors hover:text-accent-cyan/80">
+        <Link href="/setup" className="text-xs text-accent-cyan/60 transition-colors hover:text-accent-cyan/80">
           Ändra profil →
         </Link>
       </div>

@@ -27,7 +27,7 @@ export function CostWidget({ summary, recommendations, missingCarBySeries }: Cos
         <span className="text-xs font-bold uppercase tracking-widest text-text-muted">Kostnader</span>
         <Link
           href="/dashboard/costs"
-          className="text-xs text-accent-cyan/40 transition-colors hover:text-accent-cyan/80"
+          className="text-xs text-accent-cyan/60 transition-colors hover:text-accent-cyan/80"
         >
           Full analys →
         </Link>
@@ -61,7 +61,7 @@ export function CostWidget({ summary, recommendations, missingCarBySeries }: Cos
                       {formatTrackKey(rec.item.name)}
                     </div>
                     {rec.item.seriesCount > 1 && (
-                      <div className="text-xs text-text-muted/60">{rec.item.seriesCount} serier</div>
+                      <div className="text-xs text-text-muted">{rec.item.seriesCount} serier</div>
                     )}
                   </div>
                   <span
@@ -91,7 +91,7 @@ export function CostWidget({ summary, recommendations, missingCarBySeries }: Cos
                 >
                   <div className="min-w-0">
                     <div className="truncate text-sm text-text-secondary">{entry.seriesName}</div>
-                    <div className="truncate text-xs text-text-muted/60">{entry.cheapestCar}</div>
+                    <div className="truncate text-xs text-text-muted">{entry.cheapestCar}</div>
                   </div>
                   <span
                     className="ml-3 shrink-0 text-sm font-semibold tabular-nums"

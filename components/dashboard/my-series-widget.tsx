@@ -55,7 +55,7 @@ export function MySeriesWidget({ selectedSeries, ownedTrackKeys, currentWeekInde
         <span className="text-xs font-bold uppercase tracking-widest text-text-muted">Mina serier</span>
         <Link
           href="/setup"
-          className="text-xs text-accent-cyan/40 transition-colors hover:text-accent-cyan/80"
+          className="text-xs text-accent-cyan/60 transition-colors hover:text-accent-cyan/80"
         >
           Ändra urval →
         </Link>
@@ -88,7 +88,7 @@ export function MySeriesWidget({ selectedSeries, ownedTrackKeys, currentWeekInde
                 </span>
               </div>
               {week && (
-                <div className="truncate text-xs text-text-muted/60">{week.track}</div>
+                <div className="truncate text-xs text-text-muted">{week.track}</div>
               )}
             </div>
           )
