@@ -117,7 +117,7 @@ Sourced in `app/(app)/dashboard/page.tsx` (Server Component):
 
 | Data | Source |
 |---|---|
-| `name`, `licenseSportsCar/ForumulaCar/Oval/DirtRoad/DirtOval` | `fetchUserProfile(userId)` |
+| `name`, `licenseSportsCar/FormulaCar/Oval/DirtRoad/DirtOval` | `fetchUserProfile(userId)` |
 | `selectedSeriesNames` | `fetchSelectedSeriesNames(userId, CURRENT_SEASON)` |
 | `ownedTrackKeys` | `fetchOwnedTrackKeys(userId)` |
 | `ownedCarNames` | `fetchOwnedCarNames(userId)` |
