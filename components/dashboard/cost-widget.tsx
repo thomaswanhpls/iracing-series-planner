@@ -57,7 +57,7 @@ export function CostWidget({ summary, recommendations, missingCarBySeries }: Cos
                   className="flex items-center justify-between rounded-md border border-border-subtle px-3 py-2"
                 >
                   <div className="min-w-0">
-                    <div className="truncate text-sm text-text-secondary">
+                    <div className="truncate text-sm text-text-primary">
                       {formatTrackKey(rec.item.name)}
                     </div>
                     {rec.item.seriesCount > 1 && (
@@ -90,7 +90,7 @@ export function CostWidget({ summary, recommendations, missingCarBySeries }: Cos
                   className="flex items-center justify-between rounded-md border border-border-subtle px-3 py-2"
                 >
                   <div className="min-w-0">
-                    <div className="truncate text-sm text-text-secondary">{entry.seriesName}</div>
+                    <div className="truncate text-sm text-text-primary">{entry.seriesName}</div>
                     <div className="truncate text-xs text-text-secondary">{entry.cheapestCar}</div>
                   </div>
                   <span
