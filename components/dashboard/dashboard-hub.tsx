@@ -55,7 +55,7 @@ export function DashboardHub({
         className="grid flex-1 overflow-hidden"
         style={{
           gridTemplateColumns: '1fr 1fr 1fr',
-          gridTemplateRows: '1fr 2fr',
+          gridTemplateRows: '2fr 1fr',
           gap: '1px',
           background: 'var(--color-border-subtle)',
         }}
