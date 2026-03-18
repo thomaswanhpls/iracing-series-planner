@@ -11,7 +11,8 @@
     "selectFiltered": "Markera filtrerade",
     "deselectFiltered": "Avmarkera filtrerade",
     "notFound": "Inga resultat hittades.",
-    "allContent": "Allt content ägt ✓"
+    "allContent": "Allt content ägt ✓",
+    "changeProfile": "Byt profil"
   },
   "nav": {
     "setup": "Setup",

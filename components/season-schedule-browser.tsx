@@ -11,6 +11,7 @@ import { splitCars } from '@/lib/iracing/cars'
 import { CarBadge } from '@/components/car-badges'
 import {
   CalendarDays,
+  ChevronDown,
   CloudRain,
   Flag,
   Gauge,
@@ -439,18 +440,21 @@ export function SeasonScheduleBrowser({ data }: SeasonScheduleBrowserProps) {
             onChange={(event) => setSearch(event.target.value)}
             placeholder={t('searchPlaceholder')}
           />
-          <select
-            value={activeClass}
-            onChange={(event) => setActiveClass(event.target.value)}
-            className="w-full rounded-sm border border-border bg-white/[0.04] px-3 py-2 font-display text-sm text-text-secondary placeholder:text-text-muted focus:border-border-focus focus:shadow-[0_0_5px_rgba(0,255,255,0.3)] focus:outline-none"
-          >
-            <option value="all">{t('allClasses')}</option>
-            {classes.map((className) => (
-              <option key={className} value={className}>
-                {className}
-              </option>
-            ))}
-          </select>
+          <div className="relative">
+            <select
+              value={activeClass}
+              onChange={(event) => setActiveClass(event.target.value)}
+              className="w-full appearance-none rounded-sm border border-border bg-bg-elevated pl-3 pr-9 py-2 font-display text-sm text-text-secondary transition-[border-color,box-shadow] focus:border-border-focus focus:shadow-[0_0_5px_rgba(0,232,224,0.3)] focus:outline-none cursor-pointer [&>option]:bg-bg-elevated [&>option]:text-text-primary"
+            >
+              <option value="all">{t('allClasses')}</option>
+              {classes.map((className) => (
+                <option key={className} value={className}>
+                  {className}
+                </option>
+              ))}
+            </select>
+            <ChevronDown className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-text-muted" />
+          </div>
         </div>
 
         <div className="flex flex-wrap gap-2">

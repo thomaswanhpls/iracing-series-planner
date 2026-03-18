@@ -11,7 +11,8 @@
     "selectFiltered": "Select filtered",
     "deselectFiltered": "Deselect filtered",
     "notFound": "No results found.",
-    "allContent": "All content owned ✓"
+    "allContent": "All content owned ✓",
+    "changeProfile": "Change profile"
   },
   "nav": {
     "setup": "Setup",
