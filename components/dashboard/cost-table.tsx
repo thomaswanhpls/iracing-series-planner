@@ -1,15 +1,106 @@
 'use client'
 
-import type { PurchaseRecommendation, CostSummary } from '@/lib/analysis/types'
+import type { PurchaseRecommendation, CostSummary, ContentPurchaseRecommendation, ContentCostSummary } from '@/lib/analysis/types'
 import { Card } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 
-interface CostTableProps {
-  recommendations: PurchaseRecommendation[]
-  costSummary: CostSummary
-}
+type CostTableProps =
+  | {
+      recommendations: PurchaseRecommendation[]
+      costSummary: CostSummary
+      variant?: 'legacy'
+    }
+  | {
+      recommendations: ContentPurchaseRecommendation[]
+      costSummary: ContentCostSummary
+      variant: 'content'
+    }
 
-export function CostTable({ recommendations, costSummary }: CostTableProps) {
+export function CostTable(props: CostTableProps) {
+  if (props.variant === 'content') {
+    const { recommendations, costSummary } = props
+    if (recommendations.length === 0) {
+      return (
+        <Card>
+          <p className="text-text-secondary text-center py-8">
+            Inget att köpa — du har allt du behöver!
+          </p>
+        </Card>
+      )
+    }
+    return (
+      <div className="space-y-5">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-3 stagger-children">
+          <Card>
+            <div className="flex items-center gap-3">
+              <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-accent-cyan/10">
+                <span className="font-display text-sm font-bold text-accent-cyan">
+                  {costSummary.trackCount + costSummary.carCount}
+                </span>
+              </div>
+              <div>
+                <div className="text-xs uppercase tracking-wide text-text-muted">Banor + bilar</div>
+                <div className="font-display text-lg font-bold">
+                  {costSummary.trackCount}b + {costSummary.carCount}bil
+                </div>
+              </div>
+            </div>
+          </Card>
+          <Card>
+            <div className="flex items-center gap-3">
+              <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-status-owned/10">
+                <span className="font-display text-sm font-bold text-status-owned">%</span>
+              </div>
+              <div>
+                <div className="text-xs uppercase tracking-wide text-text-muted">
+                  Rabatt ({costSummary.discountTier}: {costSummary.discountPercent}%)
+                </div>
+                <div className="font-display text-lg font-bold text-status-owned">
+                  -${costSummary.discountAmount.toFixed(2)}
+                </div>
+              </div>
+            </div>
+          </Card>
+          <Card>
+            <div className="flex items-center gap-3">
+              <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-accent-cyan/10">
+                <span className="font-display text-sm font-bold text-accent-cyan">$</span>
+              </div>
+              <div>
+                <div className="text-xs uppercase tracking-wide text-text-muted">Total</div>
+                <div className="font-display text-lg font-bold">
+                  ${costSummary.totalAfterDiscount.toFixed(2)}
+                </div>
+              </div>
+            </div>
+          </Card>
+        </div>
+        <div className="space-y-2">
+          {recommendations.map((rec) => (
+            <div
+              key={rec.item.name}
+              className="flex items-center justify-between rounded-md border border-border-subtle bg-bg-glass px-4 py-2.5 text-sm"
+            >
+              <div className="flex items-center gap-2">
+                <span className="text-xs uppercase tracking-wide text-text-muted w-8">
+                  {rec.item.type === 'track' ? 'Bana' : 'Bil'}
+                </span>
+                <span className="text-text-primary">{rec.item.name}</span>
+              </div>
+              <div className="flex items-center gap-4">
+                <span className="text-xs text-text-muted">{rec.item.seriesCount} serier</span>
+                <span className="font-mono text-sm text-text-primary">
+                  ${rec.item.price.toFixed(2)}
+                </span>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    )
+  }
+
+  const { recommendations, costSummary } = props
   if (recommendations.length === 0) {
     return (
       <Card>
@@ -24,10 +115,10 @@ export function CostTable({ recommendations, costSummary }: CostTableProps) {
     <div className="space-y-5">
       {/* Summary */}
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-3 stagger-children">
-        <Card glow>
+        <Card>
           <div className="flex items-center gap-3">
-            <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-accent-primary/10">
-              <span className="font-display text-sm font-bold text-accent-primary">{costSummary.trackCount}</span>
+            <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-accent-cyan/10">
+              <span className="font-display text-sm font-bold text-accent-cyan">{costSummary.trackCount}</span>
             </div>
             <div>
               <div className="text-xs uppercase tracking-wide text-text-muted">Antal banor</div>
@@ -35,7 +126,7 @@ export function CostTable({ recommendations, costSummary }: CostTableProps) {
             </div>
           </div>
         </Card>
-        <Card accent="owned" glow>
+        <Card>
           <div className="flex items-center gap-3">
             <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-status-owned/10">
               <span className="font-display text-sm font-bold text-status-owned">%</span>
@@ -50,7 +141,7 @@ export function CostTable({ recommendations, costSummary }: CostTableProps) {
             </div>
           </div>
         </Card>
-        <Card accent="missing" glow>
+        <Card>
           <div className="flex items-center gap-3">
             <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-status-missing/10">
               <span className="font-display text-sm font-bold text-status-missing">$</span>
@@ -74,7 +165,7 @@ export function CostTable({ recommendations, costSummary }: CostTableProps) {
       <div className="overflow-hidden rounded-xl border border-border/40 bg-bg-surface/30 backdrop-blur-sm">
         <table className="w-full text-sm">
           <thead>
-            <tr className="bg-bg-elevated/60">
+            <tr className="bg-[rgba(26,27,59,0.6)]">
               <th className="px-4 py-3 text-left text-xs font-display font-medium uppercase tracking-wide text-text-muted">#</th>
               <th className="px-4 py-3 text-left text-xs font-display font-medium uppercase tracking-wide text-text-muted">Bana</th>
               <th className="px-4 py-3 text-left text-xs font-display font-medium uppercase tracking-wide text-text-muted">Serier</th>
@@ -86,10 +177,10 @@ export function CostTable({ recommendations, costSummary }: CostTableProps) {
             {recommendations.map((rec, idx) => (
               <tr
                 key={rec.track.track_id}
-                className="border-t border-border/20 transition-colors hover:bg-bg-hover/20"
+                className="border-t border-border/20 transition-colors hover:bg-white/[0.03]"
               >
                 <td className="px-4 py-3">
-                  <span className="inline-flex h-6 w-6 items-center justify-center rounded-full bg-bg-elevated/80 font-display text-xs font-bold text-text-muted">
+                  <span className="inline-flex h-6 w-6 items-center justify-center rounded-full bg-bg-elevated font-display text-xs font-bold text-text-muted">
                     {idx + 1}
                   </span>
                 </td>

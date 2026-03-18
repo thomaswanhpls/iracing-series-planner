@@ -50,3 +50,66 @@ export interface TrackOwnership {
 
 export const WEEKS_PER_SEASON = 12
 export const PARTICIPATION_THRESHOLD = 8
+
+// ── JSON-native types (season-2026-s2.json) ──────────────────────────────────
+
+export type IracingCategory =
+  | 'OVAL'
+  | 'SPORTS_CAR'
+  | 'FORMULA_CAR'
+  | 'DIRT_OVAL'
+  | 'DIRT_ROAD'
+  | 'UNRANKED'
+
+export interface IracingWeek {
+  week: number
+  startDate: string
+  track: string           // full combined string e.g. "Charlotte Motor Speedway - Oval"
+  venue: string           // venue only e.g. "Charlotte Motor Speedway"
+  config: string | null   // config only e.g. "Oval", or null
+  raceLength: string
+  referenceSession: string
+  notes: string
+  weekCars?: string[]     // overrides series.cars for rotating-car series when present
+}
+
+export interface IracingSeries {
+  category: IracingCategory
+  class: string
+  seriesName: string
+  cars: string[]
+  license: string
+  scheduleFrequency: string
+  minEntries: number
+  splitAt: number
+  drops: number
+  incidentRules: string
+  weeks: IracingWeek[]
+}
+
+export interface IracingTrackPopularity {
+  seriesCount: number
+  weekCount: number
+  popularityScore: number
+}
+
+export interface IracingSeason {
+  season: string
+  generatedAt: string
+  totalSeries: number
+  cars: string[]
+  venuePopularity: Record<string, IracingTrackPopularity>
+  trackPopularity: Record<string, IracingTrackPopularity>
+  series: IracingSeries[]
+}
+
+export interface IracingTrack {
+  venue: string
+  config: string | null
+  popularityScore: number
+}
+
+/** Canonical track key: `"${venue}|${config ?? ''}"` */
+export function makeTrackKey(venue: string, config: string | null): string {
+  return `${venue}|${config ?? ''}`
+}

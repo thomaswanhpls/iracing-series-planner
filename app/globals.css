@@ -1,45 +1,69 @@
 @import "tailwindcss";
 
 @theme {
-  /* Background */
-  --color-bg-base: #0A0A12;
-  --color-bg-surface: #12121E;
-  --color-bg-elevated: #1C1C30;
-  --color-bg-hover: #252545;
+  /* Backgrounds */
+  --color-bg-base: #040816;
+  --color-bg-surface: #0e1230;
+  --color-bg-elevated: rgba(18, 22, 52, 0.85);
+  --color-bg-glass: rgba(12, 25, 50, 0.65);
+  --color-bg-hover: rgba(0, 232, 224, 0.05);
 
-  /* Accent */
-  --color-accent-primary: #E94560;
-  --color-accent-secondary: #0F3460;
-  --color-accent-muted: #16213E;
-  --color-accent-glow: #E9456040;
+  /* Accents — solid hex so Tailwind /opacity modifiers work */
+  --color-accent-cyan:    #00e8e0;  /* warm teal — owned / positive / links */
+  --color-accent-magenta: #ff2d8a;  /* hot rose  — missing / alert / the spice */
+  --color-accent-orange:  #ff8c00;  /* amber     — costs money / purchase needed */
+  --color-accent-blue:    #0db9f2;  /* sky blue  — informational */
+  --color-accent-green:   #2dd9a8;  /* mint      — included free / best option */
+  --color-accent-red:     #ff3d5a;  /* warm red  — danger / severe conditions */
 
-  /* Status */
-  --color-status-owned: #2ECC71;
-  --color-status-missing: #E94560;
-  --color-status-free: #F39C12;
-  --color-status-eligible: #3498DB;
+  /* Status backgrounds */
+  --color-status-owned:   rgba(0, 232, 224, 0.15);
+  --color-status-missing: rgba(255, 255, 255, 0.06);
+  --color-status-free:    rgba(45, 217, 168, 0.12);
+  --color-status-alert:   rgba(255, 45, 138, 0.15);
 
   /* Text */
-  --color-text-primary: #F0F0F0;
-  --color-text-secondary: #9A9AB0;
-  --color-text-muted: #7A7A96;
+  --color-text-primary:   #ffffff;
+  --color-text-secondary: rgba(255, 255, 255, 0.70);
+  --color-text-muted:     rgba(255, 255, 255, 0.50);
 
-  /* Border */
-  --color-border: #1E1E36;
-  --color-border-subtle: #16162A;
-  --color-border-glow: #E9456030;
+  /* Borders */
+  --color-border:        #1e2260;
+  --color-border-subtle: #0d2448;
+  --color-border-focus:  #00e8e0;
 
   /* Fonts */
-  --font-display: "JetBrains Mono", monospace;
-  --font-body: "DM Sans", sans-serif;
+  --font-display: 'Space Grotesk', sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
 
   /* Animations */
-  --animate-fade-in: fade-in 0.3s ease-out;
-  --animate-slide-up: slide-up 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+  --animate-fade-in:    fade-in 0.3s ease-out;
+  --animate-slide-up:   slide-up 0.5s cubic-bezier(0.16, 1, 0.3, 1);
   --animate-slide-left: slide-left 0.3s cubic-bezier(0.16, 1, 0.3, 1);
   --animate-glow-pulse: glow-pulse 3s ease-in-out infinite;
-  --animate-shimmer: shimmer 2s linear infinite;
-  --animate-float: float 6s ease-in-out infinite;
+  --animate-shimmer:    shimmer 2s linear infinite;
+  --animate-float:      float 6s ease-in-out infinite;
+}
+
+:root {
+  color-scheme: dark;
+}
+
+html {
+  background: #040816;
+}
+
+body {
+  background: #040816;
+}
+
+/* App shell root — deep space background with subtle colour bleed */
+.shell {
+  background:
+    radial-gradient(ellipse at 15% 40%, rgba(0, 232, 224, 0.06) 0%, transparent 55%),
+    radial-gradient(ellipse at 85% 15%, rgba(255, 45, 138, 0.05) 0%, transparent 45%),
+    radial-gradient(ellipse at 50% 90%, rgba(13, 25, 80, 0.4) 0%, transparent 60%),
+    #040816;
 }
 
 @keyframes fade-in {
@@ -77,86 +101,6 @@
   to { opacity: 1; transform: scale(1); }
 }
 
-/* Noise texture overlay for depth */
-.noise-overlay::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  opacity: 0.03;
-  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
-  pointer-events: none;
-  z-index: 1;
-}
-
-/* Glass morphism card */
-.glass {
-  background: linear-gradient(
-    135deg,
-    rgba(255, 255, 255, 0.03) 0%,
-    rgba(255, 255, 255, 0.01) 100%
-  );
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border: 1px solid rgba(255, 255, 255, 0.05);
-}
-
-/* Gradient border effect */
-.gradient-border {
-  position: relative;
-}
-.gradient-border::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  border-radius: inherit;
-  padding: 1px;
-  background: linear-gradient(135deg, var(--color-accent-primary), var(--color-accent-secondary), var(--color-accent-primary));
-  mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-  mask-composite: exclude;
-  -webkit-mask-composite: xor;
-  pointer-events: none;
-  opacity: 0.4;
-  transition: opacity 0.3s;
-}
-.gradient-border:hover::before {
-  opacity: 0.8;
-}
-
-/* Glow shadow utilities */
-.glow-red {
-  box-shadow: 0 0 20px rgba(233, 69, 96, 0.15), 0 0 60px rgba(233, 69, 96, 0.05);
-}
-.glow-green {
-  box-shadow: 0 0 20px rgba(46, 204, 113, 0.15), 0 0 60px rgba(46, 204, 113, 0.05);
-}
-.glow-blue {
-  box-shadow: 0 0 20px rgba(52, 152, 219, 0.15), 0 0 60px rgba(52, 152, 219, 0.05);
-}
-
-/* Custom scrollbar */
-::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
-}
-
-::-webkit-scrollbar-track {
-  background: transparent;
-}
-
-::-webkit-scrollbar-thumb {
-  background: var(--color-border);
-  border-radius: 3px;
-}
-
-::-webkit-scrollbar-thumb:hover {
-  background: var(--color-text-muted);
-}
-
-/* Selection */
-::selection {
-  background: color-mix(in srgb, var(--color-accent-primary) 30%, transparent);
-}
-
 /* Stagger animation for children */
 .stagger-children > * {
   animation: slide-up 0.5s cubic-bezier(0.16, 1, 0.3, 1) both;
@@ -169,3 +113,28 @@
 .stagger-children > *:nth-child(6) { animation-delay: 300ms; }
 .stagger-children > *:nth-child(7) { animation-delay: 360ms; }
 .stagger-children > *:nth-child(8) { animation-delay: 420ms; }
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(0, 232, 224, 0.2);
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(0, 232, 224, 0.4);
+}
+
+/* Selection */
+::selection {
+  background: rgba(0, 232, 224, 0.2);
+  color: #ffffff;
+}

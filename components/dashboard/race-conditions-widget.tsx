@@ -1,0 +1,173 @@
+// components/dashboard/race-conditions-widget.tsx
+import Link from 'next/link'
+import {
+  ArrowRight,
+  Cloud,
+  CloudRain,
+  CloudSun,
+  Moon,
+  Sun,
+  Sunrise,
+  Sunset,
+  Thermometer,
+} from 'lucide-react'
+import { parseRaceConditions } from '@/lib/iracing/race-conditions'
+import type { IracingSeries } from '@/lib/iracing/types'
+
+interface RaceConditionsWidgetProps {
+  selectedSeries: IracingSeries[]
+  currentWeekIndex: number
+}
+
+// ── Time of day ───────────────────────────────────────────────────────────────
+
+type TimeOfDay = 'night' | 'dawn' | 'morning' | 'afternoon' | 'evening'
+
+function getTimeOfDay(startTime: string | null): TimeOfDay {
+  if (!startTime) return 'afternoon'
+  const hour = parseInt(startTime.split(':')[0], 10)
+  if (hour >= 20 || hour < 5)  return 'night'
+  if (hour >= 5  && hour < 8)  return 'dawn'
+  if (hour >= 8  && hour < 13) return 'morning'
+  if (hour >= 13 && hour < 18) return 'afternoon'
+  return 'evening'
+}
+
+const TIME_THEME: Record<TimeOfDay, { bg: string; border: string; label: string; color: string; icon: React.ReactNode }> = {
+  night:     { bg: 'rgba(100,60,200,0.1)',  border: 'rgba(160,80,255,0.22)', label: 'Natt',    color: '#c090ff',                    icon: <Moon size={11} /> },
+  dawn:      { bg: 'rgba(255,160,60,0.08)', border: 'rgba(255,180,80,0.22)', label: 'Gryning', color: '#ffb84a',                    icon: <Sunrise size={11} /> },
+  morning:   { bg: 'rgba(255,230,100,0.07)',border: 'rgba(255,220,80,0.2)',  label: 'Morgon',  color: '#ffd84a',                    icon: <Sun size={11} /> },
+  afternoon: { bg: 'rgba(255,255,255,0.04)',border: 'rgba(255,255,255,0.1)', label: 'Dag',     color: 'var(--color-text-secondary)', icon: <CloudSun size={11} /> },
+  evening:   { bg: 'rgba(255,90,30,0.08)',  border: 'rgba(255,110,40,0.22)', label: 'Kväll',   color: '#ff7040',                    icon: <Sunset size={11} /> },
+}
+
+// Card accent per time of day — subtle tint on the series block
+const CARD_ACCENT: Record<TimeOfDay, { bg: string; border: string }> = {
+  night:     { bg: 'rgba(100,60,200,0.07)', border: 'rgba(160,80,255,0.18)' },
+  dawn:      { bg: 'rgba(255,160,60,0.06)', border: 'rgba(255,180,80,0.16)' },
+  morning:   { bg: 'rgba(255,220,80,0.05)', border: 'rgba(255,220,80,0.14)' },
+  afternoon: { bg: 'rgba(255,255,255,0.03)',border: 'rgba(255,255,255,0.08)' },
+  evening:   { bg: 'rgba(255,90,30,0.06)',  border: 'rgba(255,110,40,0.16)' },
+}
+
+// ── Temperature ───────────────────────────────────────────────────────────────
+
+type TempTier = 'freezing' | 'cold' | 'mild' | 'warm' | 'hot' | 'extreme'
+
+function getTempTier(tempC: number): TempTier {
+  if (tempC <= 4)  return 'freezing'
+  if (tempC <= 13) return 'cold'
+  if (tempC <= 22) return 'mild'
+  if (tempC <= 28) return 'warm'
+  if (tempC <= 34) return 'hot'
+  return 'extreme'
+}
+
+const TEMP_STYLE: Record<TempTier, { color: string; bg: string; border: string }> = {
+  freezing: { color: '#a0d8ff', bg: 'rgba(160,216,255,0.1)',  border: 'rgba(160,216,255,0.25)' },
+  cold:     { color: '#60b8ff', bg: 'rgba(96,184,255,0.08)',  border: 'rgba(96,184,255,0.2)'   },
+  mild:     { color: 'var(--color-text-secondary)', bg: 'rgba(255,255,255,0.04)', border: 'rgba(255,255,255,0.1)' },
+  warm:     { color: '#ffd060', bg: 'rgba(255,210,80,0.08)',  border: 'rgba(255,210,80,0.2)'   },
+  hot:      { color: 'var(--color-accent-orange)', bg: 'rgba(255,140,0,0.1)',  border: 'rgba(255,140,0,0.25)'  },
+  extreme:  { color: 'var(--color-accent-red)',     bg: 'rgba(255,61,90,0.1)',  border: 'rgba(255,61,90,0.25)'  },
+}
+
+// ── Widget ────────────────────────────────────────────────────────────────────
+
+export function RaceConditionsWidget({ selectedSeries, currentWeekIndex }: RaceConditionsWidgetProps) {
+  return (
+    <div className="flex h-full flex-col min-h-0">
+      <div className="shrink-0 px-4 pb-2 pt-3">
+        <span className="text-xs font-bold uppercase tracking-widest text-text-muted">
+          Veckans förutsättningar
+        </span>
+      </div>
+      <div className="flex flex-1 flex-col gap-2 overflow-y-auto px-4 pb-3">
+        {selectedSeries.map((s) => {
+          const week = s.weeks[currentWeekIndex]
+          if (!week) return null
+          const cond = parseRaceConditions(week.notes, week.referenceSession)
+          const tod = getTimeOfDay(cond.startTime)
+          const accent = CARD_ACCENT[tod]
+
+          return (
+            <div
+              key={s.seriesName}
+              className="shrink-0 rounded-lg px-3 py-2.5"
+              style={{ background: accent.bg, border: `1px solid ${accent.border}` }}
+            >
+              <div className="mb-2 flex items-baseline justify-between gap-2">
+                <span className="truncate text-sm font-semibold text-text-primary">{s.seriesName}</span>
+                <span className="shrink-0 truncate text-xs text-text-secondary">{week.track}</span>
+              </div>
+              <div className="flex flex-wrap gap-1.5">
+                <WeatherPill isDynamic={cond.isDynamic} />
+                {cond.tempC !== null && <TempPill tempC={cond.tempC} />}
+                {cond.rainChance !== null && <RainPill rainChance={cond.rainChance} />}
+                {cond.startTime && <TimePill startTime={cond.startTime} tod={tod} />}
+              </div>
+            </div>
+          )
+        })}
+      </div>
+      <Link
+        href="/series"
+        className="group shrink-0 flex items-center justify-center gap-2 border-t border-[rgba(0,232,224,0.2)] py-3 text-sm font-medium text-accent-cyan transition-all hover:bg-[rgba(0,232,224,0.07)]"
+      >
+        Alla serier
+        <ArrowRight size={14} className="transition-transform group-hover:translate-x-1" />
+      </Link>
+    </div>
+  )
+}
+
+// ── Pills ─────────────────────────────────────────────────────────────────────
+
+function WeatherPill({ isDynamic }: { isDynamic: boolean }) {
+  if (isDynamic) {
+    return <Pill icon={<CloudRain size={11} />} label="Dynamiskt" color="var(--color-accent-cyan)" bg="rgba(0,232,224,0.08)" border="rgba(0,232,224,0.2)" />
+  }
+  return <Pill icon={<Sun size={11} />} label="Fast väder" color="var(--color-text-secondary)" bg="rgba(255,255,255,0.04)" border="rgba(255,255,255,0.1)" />
+}
+
+function TempPill({ tempC }: { tempC: number }) {
+  const s = TEMP_STYLE[getTempTier(tempC)]
+  return <Pill icon={<Thermometer size={11} />} label={`${tempC}°C`} {...s} />
+}
+
+function RainPill({ rainChance }: { rainChance: number }) {
+  const heavy = rainChance >= 50
+  const moderate = rainChance >= 25
+  return (
+    <Pill
+      icon={heavy ? <CloudRain size={11} /> : <Cloud size={11} />}
+      label={`${rainChance}%`}
+      color={heavy ? 'var(--color-accent-red)' : moderate ? 'var(--color-accent-orange)' : 'var(--color-accent-cyan)'}
+      bg={heavy ? 'rgba(255,61,90,0.1)' : moderate ? 'rgba(255,140,0,0.1)' : 'rgba(0,232,224,0.07)'}
+      border={heavy ? 'rgba(255,61,90,0.25)' : moderate ? 'rgba(255,140,0,0.22)' : 'rgba(0,232,224,0.18)'}
+    />
+  )
+}
+
+function TimePill({ startTime, tod }: { startTime: string; tod: TimeOfDay }) {
+  const t = TIME_THEME[tod]
+  return <Pill icon={t.icon} label={startTime} color={t.color} bg={t.bg} border={t.border} />
+}
+
+function Pill({ icon, label, color, bg, border }: {
+  icon: React.ReactNode
+  label: string
+  color: string
+  bg: string
+  border: string
+}) {
+  return (
+    <span
+      className="inline-flex items-center gap-1 rounded px-2 py-0.5 text-xs whitespace-nowrap font-medium"
+      style={{ color, background: bg, border: `1px solid ${border}` }}
+    >
+      {icon}
+      {label}
+    </span>
+  )
+}

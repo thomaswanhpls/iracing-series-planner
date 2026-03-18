@@ -9,3 +9,4 @@ dist
 .agents/
 .playwright-cli/
 AGENTS.md
+.superpowers/

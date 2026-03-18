@@ -59,7 +59,7 @@ export function DashboardContent({ seasonData }: DashboardContentProps) {
     return (
       <div className="flex flex-col items-center justify-center gap-6 py-24">
         <div className="relative">
-          <div className="absolute inset-0 animate-glow-pulse rounded-full bg-accent-primary/10 blur-xl" />
+          <div className="absolute inset-0 animate-glow-pulse rounded-full bg-accent-cyan/10 blur-xl" />
           <div className="relative flex h-16 w-16 items-center justify-center rounded-2xl bg-bg-surface border border-border/40">
             <Compass className="h-7 w-7 text-text-muted" />
           </div>

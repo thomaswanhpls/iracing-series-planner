@@ -6,7 +6,15 @@ export function Table({ className, ...props }: HTMLAttributes<HTMLTableElement>)
 }
 
 export function THead({ className, ...props }: HTMLAttributes<HTMLTableSectionElement>) {
-  return <thead className={cn('bg-bg-elevated text-text-secondary', className)} {...props} />
+  return (
+    <thead
+      className={cn(
+        'bg-[linear-gradient(180deg,rgba(27,42,67,0.96),rgba(17,27,45,0.98))] text-text-secondary',
+        className
+      )}
+      {...props}
+    />
+  )
 }
 
 export function TBody({ className, ...props }: HTMLAttributes<HTMLTableSectionElement>) {
@@ -14,7 +22,7 @@ export function TBody({ className, ...props }: HTMLAttributes<HTMLTableSectionEl
 }
 
 export function Tr({ className, ...props }: HTMLAttributes<HTMLTableRowElement>) {
-  return <tr className={cn('border-b border-border-subtle', className)} {...props} />
+  return <tr className={cn('border-b border-border-subtle/90', className)} {...props} />
 }
 
 export function Th({ className, ...props }: HTMLAttributes<HTMLTableCellElement>) {

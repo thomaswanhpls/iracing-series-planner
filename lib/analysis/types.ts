@@ -16,3 +16,34 @@ export interface CostSummary {
   totalAfterDiscount: number
   trackCount: number
 }
+
+// ── JSON-native cost types ────────────────────────────────────────────────────
+
+export interface ContentItem {
+  name: string            // venue+config string for tracks, car name for cars
+  type: 'track' | 'car'
+  price: number           // USD
+  seriesCount: number     // how many selected series need this item
+}
+
+export interface ContentPurchaseRecommendation {
+  item: ContentItem
+  score: number           // = seriesCount (for sorting)
+  cumulativeCost: number  // running total including this item
+}
+
+export interface MissingCarForSeries {
+  seriesName: string
+  cheapestCar: string
+  price: number
+}
+
+export interface ContentCostSummary {
+  totalBeforeDiscount: number
+  discountTier: string
+  discountPercent: number
+  discountAmount: number
+  totalAfterDiscount: number
+  trackCount: number
+  carCount: number
+}
