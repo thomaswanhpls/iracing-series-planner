@@ -1,5 +1,5 @@
 import { redirect } from 'next/navigation'
-import { setRequestLocale } from 'next-intl/server'
+import { setRequestLocale, getTranslations } from 'next-intl/server'
 import { Car, MapPin, TrendingDown } from 'lucide-react'
 import { getSession } from '@/lib/auth/session'
 import { fetchSelectedSeriesNames, fetchOwnedTrackKeys, fetchOwnedCarNames } from '@/lib/db/actions'
@@ -26,6 +26,7 @@ export default async function CostsPage({
   setRequestLocale(locale)
   const session = await getSession()
   if (!session) redirect('/')
+  const t = await getTranslations('dashboard.costs')
 
   const [selectedSeriesNames, ownedTrackKeys, ownedCarNames] = await Promise.all([
     fetchSelectedSeriesNames(session.userId, CURRENT_SEASON),
@@ -123,9 +124,9 @@ export default async function CostsPage({
     <div className="h-full overflow-auto p-6">
       {/* Header */}
       <div className="mb-6">
-        <h1 className="text-lg font-bold text-text-primary">Kostnadsanalys</h1>
+        <h1 className="text-lg font-bold text-text-primary">{t('pageTitle')}</h1>
         <p className="mt-1 text-sm text-text-secondary">
-          Baserat på {selectedSeries.length} valda serier för {CURRENT_SEASON}
+          {t('pageSubtitle', { count: selectedSeries.length, season: CURRENT_SEASON })}
         </p>
       </div>
 
@@ -137,16 +138,16 @@ export default async function CostsPage({
               ${summary.totalAfterDiscount.toFixed(2)}
             </div>
             <div className="mt-1 text-sm text-text-secondary">
-              {summary.trackCount} saknade {summary.trackCount === 1 ? 'bana' : 'banor'} ·{' '}
-              {summary.carCount} {summary.carCount === 1 ? 'serie' : 'serier'} saknar bil
+              {t('missingTracks', { count: summary.trackCount, trackWord: summary.trackCount === 1 ? t('track') : t('tracks_plural') })}
+              {' · '}
+              {t('missingCars', { count: summary.carCount, seriesWord: t('seriesWord') })}
             </div>
           </div>
           {summary.discountPercent > 0 && (
             <div className="flex items-center gap-2 rounded-md border border-border-subtle px-3 py-2 text-xs text-text-secondary">
               <TrendingDown size={12} className="text-accent-cyan" />
               <span>
-                {summary.discountTier}-rabatt {summary.discountPercent}% tillämpad (−$
-                {summary.discountAmount.toFixed(2)})
+                {t('discountApplied', { tier: summary.discountTier, percent: summary.discountPercent, amount: summary.discountAmount.toFixed(2) })}
               </span>
             </div>
           )}
@@ -154,7 +155,7 @@ export default async function CostsPage({
       </div>
 
       {priorityTracks.length === 0 && missingCarBySeries.length === 0 && (
-        <div className="text-sm text-text-secondary">Allt content ägt — inga inköp behövs ✓</div>
+        <div className="text-sm text-text-secondary">{t('allOwned')}</div>
       )}
 
       <div className="flex flex-col gap-10">
@@ -163,7 +164,7 @@ export default async function CostsPage({
           <section>
             <div className="mb-3 flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-text-muted">
               <MapPin size={12} />
-              Köpprioritet — banor
+              {t('purchasePriority')}
             </div>
             <div className="flex flex-col gap-2">
               {priorityTracks.map((rec) => {
@@ -179,7 +180,7 @@ export default async function CostsPage({
                           {formatTrackKey(rec.item.name)}
                         </div>
                         <div className="mt-0.5 text-xs text-text-secondary">
-                          {rec.item.seriesCount} {rec.item.seriesCount === 1 ? 'serie' : 'serier'} behöver den
+                          {rec.item.seriesCount === 1 ? t('seriesNeedOne') : t('seriesNeed', { count: rec.item.seriesCount })}
                         </div>
                       </div>
                       <span
@@ -189,7 +190,7 @@ export default async function CostsPage({
                             rec.item.price === 0 ? 'var(--color-accent-cyan)' : 'var(--color-accent-orange)',
                         }}
                       >
-                        {rec.item.price === 0 ? 'Inkl.' : `$${rec.item.price.toFixed(2)}`}
+                        {rec.item.price === 0 ? t('included') : `$${rec.item.price.toFixed(2)}`}
                       </span>
                     </div>
                     {seriesForTrack.length > 0 && (
@@ -216,7 +217,7 @@ export default async function CostsPage({
           <section>
             <div className="mb-3 flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-text-muted">
               <Car size={12} />
-              Alla bilalternativ per serie
+              {t('allCarOptions')}
             </div>
             <div className="flex flex-col gap-3">
               {allCarsBySeries.map(({ seriesName, cars }) => (
@@ -231,7 +232,7 @@ export default async function CostsPage({
                         <span className="text-xs text-text-secondary">
                           {i === 0 && (
                             <span className="mr-1.5 rounded bg-accent-green/10 px-1 py-0.5 text-[10px] font-bold uppercase tracking-wide text-accent-green">
-                              Billigast
+                              {t('cheapest')}
                             </span>
                           )}
                           {car.name}
@@ -243,7 +244,7 @@ export default async function CostsPage({
                               car.price === 0 ? 'var(--color-accent-green)' : 'var(--color-accent-orange)',
                           }}
                         >
-                          {car.price === 0 ? 'Inkl.' : `$${car.price.toFixed(2)}`}
+                          {car.price === 0 ? t('included') : `$${car.price.toFixed(2)}`}
                         </span>
                       </div>
                     ))}
@@ -258,7 +259,7 @@ export default async function CostsPage({
         {perSeriesMissing.length > 0 && (
           <section>
             <div className="mb-3 text-xs font-bold uppercase tracking-widest text-text-muted">
-              Vad varje serie behöver
+              {t('perSeriesNeeds')}
             </div>
             <div className="flex flex-col gap-2">
               {perSeriesMissing.map(({ seriesName, missingTracks, cheapestCar }) => (

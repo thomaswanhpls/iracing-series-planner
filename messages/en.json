@@ -3,6 +3,7 @@
     "back": "← Back",
     "next": "Next →",
     "saving": "Saving...",
+    "loading": "Loading...",
     "search": "Search",
     "owned": "owned",
     "included": "Included",
@@ -47,6 +48,13 @@
     }
   },
   "wizard": {
+    "steps": {
+      "profile": "Profile",
+      "tracks": "Tracks",
+      "cars": "Cars",
+      "series": "Series"
+    },
+    "saveError": "Something went wrong. Try again.",
     "series": {
       "title": "Your series",
       "subtitle": "Select the series you want to race this season.",
@@ -55,7 +63,8 @@
         "label": "Sort",
         "name": "Name",
         "category": "Category",
-        "class": "Class"
+        "class": "Class",
+        "weeks": "Weeks"
       },
       "filter": {
         "allCategories": "All",
@@ -68,7 +77,17 @@
       "showOnlySelected": "Show only selected",
       "noResults": "No series found.",
       "weeksShort": "w",
-      "weeksCount": "{count} wk"
+      "weeksCount": "{count} wk",
+      "filterActive": "Active",
+      "sortAsc": "A-Z",
+      "sortDesc": "Z-A",
+      "seriesMatch": "{count} series match",
+      "selectAll": "Select all",
+      "clear": "Clear",
+      "save": "Save →",
+      "continueToTracks": "Continue to Tracks →",
+      "filterInfo": "All categories shown. Class filter pre-set from Rookie up to your license level per discipline — click to narrow. Unranked series always shown last.",
+      "carsLabel": "{count, plural, one {Car} other {Cars}} ({count})"
     },
     "tracks": {
       "title": "Your tracks",
@@ -190,5 +209,61 @@
   "settings": {
     "title": "Settings",
     "comingSoon": "Settings coming soon."
+  },
+  "tracks": {
+    "title": "Tracks",
+    "markAllFree": "Mark all free",
+    "clearAll": "Clear all",
+    "ownedStats": "{owned} purchased tracks marked as owned • {free} included with membership",
+    "recentChanges": "Recently changed",
+    "noRecentChanges": "No changes in this session.",
+    "added": "Added",
+    "removed": "Removed",
+    "reviewOwned": "Review: Your purchased tracks",
+    "noOwnedTracks": "No purchased tracks marked yet.",
+    "categoryLabel": "Category:",
+    "statusLabel": "Status:",
+    "filterAll": "All",
+    "filterOwned": "Owned",
+    "filterMissing": "Missing",
+    "filterFree": "Free",
+    "viewSeriesSchedules": "Optional: Review Series Schedules",
+    "continueToCosts": "Continue to Costs",
+    "partiallyOwned": "Partially owned ({owned}/{total})",
+    "noResults": "No tracks match your filters.",
+    "fromPrice": "fr. ${price}"
+  },
+  "seriesBrowser": {
+    "title": "Series Schedules",
+    "categories": "Categories",
+    "series": "Series",
+    "showing": "Showing",
+    "prioritized": "Prioritized",
+    "searchPlaceholder": "Search series or track...",
+    "allClasses": "All classes",
+    "all": "All",
+    "prioritizedOnly": "Prioritized only",
+    "resetFilters": "Reset filters",
+    "prioritizedBadge": "Prioritized",
+    "noResults": "No series matched the filter.",
+    "selectSeriesPrompt": "Select a series from the list.",
+    "car": "Car(s)",
+    "track": "Track",
+    "length": "Length",
+    "reference": "Reference",
+    "noLicense": "No license info",
+    "noFrequency": "No frequency info",
+    "weekPrefix": "W"
+  },
+  "trackCell": {
+    "owned": "Owned",
+    "missing": "Missing — ${price}",
+    "free": "Included with subscription",
+    "usedInSeries": "Used in {count} series"
+  },
+  "notFound": {
+    "title": "Page not found",
+    "description": "Check the address or go back to the home page.",
+    "backToHome": "Back to home"
   }
 }

@@ -3,6 +3,7 @@
 
 import Link from 'next/link'
 import { ArrowRight } from 'lucide-react'
+import { useTranslations } from 'next-intl'
 import { makeTrackKey } from '@/lib/iracing/types'
 import { getTrackPrice } from '@/lib/iracing/track-prices'
 import type { IracingSeries } from '@/lib/iracing/types'
@@ -22,11 +23,6 @@ const STATUS_CELL_BG: Record<CellStatus, string> = {
   free:    'rgba(45,217,168,0.18)',
 }
 
-const STATUS_LABELS: Record<CellStatus, string> = {
-  owned:   'Äger',
-  missing: 'Saknas',
-  free:    'Inkl.',
-}
 
 interface MatrixWidgetProps {
   selectedSeries: IracingSeries[]
@@ -35,14 +31,20 @@ interface MatrixWidgetProps {
 }
 
 export function MatrixWidget({ selectedSeries, ownedTrackKeys, currentWeekIndex }: MatrixWidgetProps) {
+  const t = useTranslations('dashboard.matrix')
   const ownedSet = new Set(ownedTrackKeys)
+  const statusLabels: Record<CellStatus, string> = {
+    owned:   t('legend.owned'),
+    missing: t('legend.missing'),
+    free:    t('legend.included'),
+  }
   const allWeekIndices = (selectedSeries[0]?.weeks ?? []).map((_, i) => i)
 
   return (
     <div className="flex h-full flex-col min-h-0">
       <div className="shrink-0 px-5 pb-2 pt-3">
         <span className="text-xs font-bold uppercase tracking-widest text-text-muted">
-          Track Matrix · v{currentWeekIndex + 1}
+          {t('widgetTitle', { week: currentWeekIndex + 1 })}
         </span>
       </div>
 
@@ -90,7 +92,7 @@ export function MatrixWidget({ selectedSeries, ownedTrackKeys, currentWeekIndex 
                         outline: isCurrent ? '2px solid var(--color-accent-cyan)' : undefined,
                         outlineOffset: isCurrent ? '-1px' : undefined,
                       }}
-                      title={`v${wi + 1} · ${week.track} — ${STATUS_LABELS[status]}`}
+                      title={`v${wi + 1} · ${week.track} — ${statusLabels[status]}`}
                     />
                   )
                 })}
@@ -102,9 +104,9 @@ export function MatrixWidget({ selectedSeries, ownedTrackKeys, currentWeekIndex 
         {/* Legend */}
         <div className="mt-4 flex gap-5">
           {[
-            { label: 'Äger',   bg: 'rgba(0,232,224,0.18)',   color: 'var(--color-accent-cyan)' },
-            { label: 'Saknas', bg: 'rgba(255,45,138,0.15)',   color: 'var(--color-accent-magenta)' },
-            { label: 'Inkl.',  bg: 'rgba(45,217,168,0.18)',  color: 'var(--color-accent-green)' },
+            { label: t('legend.owned'),    bg: 'rgba(0,232,224,0.18)',  color: 'var(--color-accent-cyan)' },
+            { label: t('legend.missing'),  bg: 'rgba(255,45,138,0.15)', color: 'var(--color-accent-magenta)' },
+            { label: t('legend.included'), bg: 'rgba(45,217,168,0.18)', color: 'var(--color-accent-green)' },
           ].map(({ label, bg, color }) => (
             <span key={label} className="flex items-center gap-2 text-xs">
               <span className="h-4 w-7 rounded-[3px]" style={{ background: bg }} />
@@ -117,7 +119,7 @@ export function MatrixWidget({ selectedSeries, ownedTrackKeys, currentWeekIndex 
         href="/dashboard/matrix"
         className="group shrink-0 flex items-center justify-center gap-2 border-t border-[rgba(0,232,224,0.2)] py-3 text-sm font-medium text-accent-cyan transition-all hover:bg-[rgba(0,232,224,0.07)]"
       >
-        Öppna full matris
+        {t('openFull')}
         <ArrowRight size={14} className="transition-transform group-hover:translate-x-1" />
       </Link>
     </div>

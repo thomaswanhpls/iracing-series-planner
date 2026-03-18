@@ -3,6 +3,7 @@
     "back": "← Tillbaka",
     "next": "Nästa →",
     "saving": "Sparar...",
+    "loading": "Laddar...",
     "search": "Sök",
     "owned": "ägda",
     "included": "Ingår",
@@ -47,6 +48,13 @@
     }
   },
   "wizard": {
+    "steps": {
+      "profile": "Profil",
+      "tracks": "Banor",
+      "cars": "Bilar",
+      "series": "Serier"
+    },
+    "saveError": "Något gick fel. Försök igen.",
     "series": {
       "title": "Dina serier",
       "subtitle": "Välj de serier du vill tävla i den här säsongen.",
@@ -55,7 +63,8 @@
         "label": "Sortering",
         "name": "Namn",
         "category": "Kategori",
-        "class": "Klass"
+        "class": "Klass",
+        "weeks": "Veckor"
       },
       "filter": {
         "allCategories": "Alla",
@@ -68,7 +77,17 @@
       "showOnlySelected": "Visa endast valda",
       "noResults": "Inga serier hittades.",
       "weeksShort": "v",
-      "weeksCount": "{count} vk"
+      "weeksCount": "{count} vk",
+      "filterActive": "Aktiva",
+      "sortAsc": "A-Ö",
+      "sortDesc": "Ö-A",
+      "seriesMatch": "{count} serier matchar",
+      "selectAll": "Välj alla",
+      "clear": "Rensa",
+      "save": "Spara →",
+      "continueToTracks": "Fortsätt till Banor →",
+      "filterInfo": "Alla kategorier visas. Klassfilter är förinställt från Rookie upp till din licensnivå per disciplin — klicka ur klasser eller kategorier ovan för att smalna av. Unranked-serier hamnar alltid längst ned.",
+      "carsLabel": "{count, plural, one {Bil} other {Bilar}} ({count})"
     },
     "tracks": {
       "title": "Dina banor",
@@ -190,5 +209,61 @@
   "settings": {
     "title": "Inställningar",
     "comingSoon": "Inställningar kommer här."
+  },
+  "tracks": {
+    "title": "Banor",
+    "markAllFree": "Markera alla gratis",
+    "clearAll": "Rensa alla",
+    "ownedStats": "{owned} köpta banor markerade som ägda • {free} ingår med medlemskap",
+    "recentChanges": "Nyligen ändrat",
+    "noRecentChanges": "Inga ändringar ännu i denna session.",
+    "added": "Lagd till",
+    "removed": "Borttagen",
+    "reviewOwned": "Review: Dina köpta banor",
+    "noOwnedTracks": "Inga köpta banor markerade ännu.",
+    "categoryLabel": "Kategori:",
+    "statusLabel": "Status:",
+    "filterAll": "Alla",
+    "filterOwned": "Ägda",
+    "filterMissing": "Saknas",
+    "filterFree": "Gratis",
+    "viewSeriesSchedules": "Valfritt: Granska Seriescheman",
+    "continueToCosts": "Fortsätt till Kostnader",
+    "partiallyOwned": "Delvis ägd ({owned}/{total})",
+    "noResults": "Inga banor matchar dina filter.",
+    "fromPrice": "fr. ${price}"
+  },
+  "seriesBrowser": {
+    "title": "Seriescheman",
+    "categories": "Kategorier",
+    "series": "Serier",
+    "showing": "Visar",
+    "prioritized": "Prioriterade",
+    "searchPlaceholder": "Sök serie eller bana...",
+    "allClasses": "Alla klasser",
+    "all": "Alla",
+    "prioritizedOnly": "Endast prioriterade",
+    "resetFilters": "Rensa filter",
+    "prioritizedBadge": "Prioriterad",
+    "noResults": "Ingen serie matchade filtret.",
+    "selectSeriesPrompt": "Välj en serie i listan till vänster.",
+    "car": "Bil(ar)",
+    "track": "Bana",
+    "length": "Längd",
+    "reference": "Referens",
+    "noLicense": "Licens saknas",
+    "noFrequency": "Frekvens saknas",
+    "weekPrefix": "V"
+  },
+  "trackCell": {
+    "owned": "Ägd",
+    "missing": "Saknas — ${price}",
+    "free": "Gratis med prenumeration",
+    "usedInSeries": "Används i {count} serier"
+  },
+  "notFound": {
+    "title": "Sidan kunde inte hittas",
+    "description": "Kontrollera adressen eller gå tillbaka till startsidan.",
+    "backToHome": "Tillbaka till start"
   }
 }

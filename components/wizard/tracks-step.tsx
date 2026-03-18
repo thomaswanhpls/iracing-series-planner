@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useMemo } from 'react'
+import { useTranslations } from 'next-intl'
 import type { IracingTrack } from '@/lib/iracing/types'
 import { makeTrackKey } from '@/lib/iracing/types'
 import { getTrackPrice } from '@/lib/iracing/track-prices'
@@ -66,6 +67,8 @@ export function TracksStep({
   onBack,
   isPending,
 }: TracksStepProps) {
+  const t = useTranslations('wizard.tracks')
+  const tCommon = useTranslations('common')
   const freeTrackKeys = useMemo(
     () => new Set(allTracks.map((t) => makeTrackKey(t.venue, t.config)).filter((k) => getTrackPrice(k) === 0)),
     [allTracks]
@@ -123,27 +126,25 @@ export function TracksStep({
   return (
     <div className="flex flex-col gap-4">
       <div>
-        <h2 className="text-lg font-semibold text-text-primary mb-1">Dina banor</h2>
-        <p className="text-sm text-text-secondary">
-          Markera de banor du redan äger. Omarkerade banor räknas som köpbehov i kostnadskalkylerna.
-        </p>
+        <h2 className="text-lg font-semibold text-text-primary mb-1">{t('title')}</h2>
+        <p className="text-sm text-text-secondary">{t('subtitle')}</p>
       </div>
 
       <div className="flex items-center gap-3">
         <Input
           type="text"
-          placeholder="Sök bana..."
+          placeholder={t('search')}
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           className="max-w-xs"
         />
         <span className="text-xs text-text-muted">
-          {ownedVenueCount} / {totalVenues} ägda
+          {t('ownedCount', { owned: ownedVenueCount, total: totalVenues })}
         </span>
       </div>
 
       <p className="text-[11px] text-text-muted rounded-md border border-border/40 bg-bg-elevated/50 px-3 py-2">
-        Banor som ingår i iRacing-prenumerationen är förkryssade automatiskt — de behöver inte köpas.
+        {t('freeTracksNote')}
       </p>
 
       {filtered.length > 0 && (
@@ -153,8 +154,8 @@ export function TracksStep({
           className="self-start text-xs text-accent-cyan/70 hover:text-accent-cyan transition-colors"
         >
           {filtered.every((g) => g.configKeys.some((k) => owned.has(k)))
-            ? 'Avmarkera filtrerade'
-            : 'Markera filtrerade'}
+            ? tCommon('deselectFiltered')
+            : tCommon('selectFiltered')}
         </button>
       )}
 
@@ -163,7 +164,7 @@ export function TracksStep({
         style={{ maxHeight: '50vh' }}
       >
         {filtered.length === 0 && (
-          <p className="py-4 text-center text-sm text-text-muted">Inga banor hittades.</p>
+          <p className="py-4 text-center text-sm text-text-muted">{t('noResults')}</p>
         )}
         {filtered.map((group) => {
           const isOwned = group.configKeys.some((k) => owned.has(k))
@@ -197,7 +198,7 @@ export function TracksStep({
                   {isFree && (
                     <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded-full"
                       style={{ color: 'var(--color-accent-green)', background: 'rgba(45,217,168,0.12)' }}>
-                      Ingår
+                      {t('includedBadge')}
                     </span>
                   )}
                 </div>
@@ -219,10 +220,10 @@ export function TracksStep({
 
       <div className="flex items-center gap-3">
         <Button variant="ghost" onClick={onBack}>
-          ← Tillbaka
+          {tCommon('back')}
         </Button>
         <Button onClick={() => onNext(Array.from(owned))} disabled={isPending}>
-          {isPending ? 'Sparar...' : 'Nästa →'}
+          {isPending ? tCommon('saving') : tCommon('next')}
         </Button>
       </div>
     </div>

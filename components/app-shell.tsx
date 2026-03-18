@@ -52,6 +52,7 @@ function getInitials(userId: string): string {
 
 export function AppShell({ children, userId, initialOwnedTrackIds }: AppShellProps) {
   const t = useTranslations('nav')
+  const tShell = useTranslations('dashboard.appShell')
   const [collapsed, setCollapsed] = useState(false)
   const [seasonBadge, setSeasonBadge] = useState('2026 S2')
   const pathname = usePathname()
@@ -102,7 +103,7 @@ export function AppShell({ children, userId, initialOwnedTrackIds }: AppShellPro
                   iRacing <span className="text-accent-cyan">SP</span>
                 </div>
                 <div className="font-mono text-[10px] text-text-muted uppercase tracking-widest mt-1.5">
-                  {seasonBadge} · Säsongsplanerare
+                  {seasonBadge} · {tShell('seasonPlanner')}
                 </div>
               </>
             )}
@@ -173,7 +174,7 @@ export function AppShell({ children, userId, initialOwnedTrackIds }: AppShellPro
                 </div>
                 <div className="min-w-0">
                   <div className="text-[13px] font-semibold text-white/80 truncate">{userId}</div>
-                  <div className="font-mono text-[10px] text-white/25 uppercase tracking-[0.04em] mt-0.5">iRacing Member</div>
+                  <div className="font-mono text-[10px] text-white/25 uppercase tracking-[0.04em] mt-0.5">{tShell('iracingMember')}</div>
                 </div>
               </div>
             )}

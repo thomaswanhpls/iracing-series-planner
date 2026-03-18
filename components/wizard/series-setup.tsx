@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useMemo, useRef, useState } from 'react'
+import { useTranslations } from 'next-intl'
 import { createPortal } from 'react-dom'
 import { usePathname, useRouter, useSearchParams } from 'next/navigation'
 import { ChevronDown, ChevronUp, Filter, Info } from 'lucide-react'
@@ -130,6 +131,7 @@ function normalize(value: string) {
 }
 
 function CarIndicator({ cars }: { cars: string }) {
+  const t = useTranslations('wizard.series')
   const carList = splitCars(cars)
   const [open, setOpen] = useState(false)
   const anchorRef = useRef<HTMLSpanElement>(null)
@@ -183,7 +185,7 @@ function CarIndicator({ cars }: { cars: string }) {
           onMouseLeave={handleLeave}
         >
           <div className="mb-2 text-[10px] font-semibold uppercase tracking-wider text-text-muted">
-            Bil{carList.length > 1 ? 'ar' : ''} ({carList.length})
+            {t('carsLabel', { count: carList.length })}
           </div>
           <div className="flex flex-wrap gap-2">
             {carList.map((car, i) => (
@@ -198,6 +200,8 @@ function CarIndicator({ cars }: { cars: string }) {
 }
 
 export function SeriesSetup({ data, initialSelectedSeriesNames, userLicenseClasses, onNext: onNextProp, onBack }: SeriesSetupProps) {
+  const t = useTranslations('wizard.series')
+  const tCommon = useTranslations('common')
   const router = useRouter()
   const pathname = usePathname()
   const searchParams = useSearchParams()
@@ -471,22 +475,20 @@ export function SeriesSetup({ data, initialSelectedSeriesNames, userLicenseClass
       {/* Header */}
       <div className="flex justify-between items-start">
         <div>
-          <h2 className="font-display text-2xl font-bold text-text-primary">Välj dina serier</h2>
-          <p className="text-sm text-text-secondary mt-1">
-            2026 Season 2 · Markera serier du vill köra, sen fortsätt till banval.
-          </p>
+          <h2 className="font-display text-2xl font-bold text-text-primary">{t('title')}</h2>
+          <p className="text-sm text-text-secondary mt-1">{t('subtitle')}</p>
         </div>
         <div className="flex items-center gap-3">
           {onBack && (
             <Button variant="ghost" onClick={onBack}>
-              ← Tillbaka
+              {tCommon('back')}
             </Button>
           )}
           <span className="px-3 py-1.5 rounded-full border border-accent-cyan/30 bg-accent-cyan/10 text-accent-cyan text-xs font-display font-semibold">
-            {selectedSeriesIds.length} valda
+            {t('selected', { count: selectedSeriesIds.length })}
           </span>
           <Button onClick={handleNext} disabled={selectedSeriesIds.length === 0}>
-            {onNextProp ? 'Spara →' : 'Fortsätt till Banor →'}
+            {onNextProp ? t('save') : t('continueToTracks')}
           </Button>
         </div>
       </div>
@@ -503,7 +505,7 @@ export function SeriesSetup({ data, initialSelectedSeriesNames, userLicenseClass
             <span className="text-sm font-medium text-text-primary">Filter</span>
             {hasActiveFilters && (
               <span className="rounded-full bg-accent-cyan/15 border border-accent-cyan/30 px-2 py-0.5 text-[10px] font-semibold text-accent-cyan">
-                Aktiva
+                {t('filterActive')}
               </span>
             )}
           </div>
@@ -519,7 +521,7 @@ export function SeriesSetup({ data, initialSelectedSeriesNames, userLicenseClass
             {/* Search + sort row */}
             <div className="grid gap-3 md:grid-cols-[1fr_160px_auto]">
               <Input
-                placeholder="Sök serie, bil eller bana..."
+                placeholder={t('search')}
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
               />
@@ -529,15 +531,15 @@ export function SeriesSetup({ data, initialSelectedSeriesNames, userLicenseClass
                   onChange={(e) => setSortKey(e.target.value as SortKey)}
                   className="w-full appearance-none rounded-sm border border-border bg-bg-elevated pl-4 pr-9 py-[10px] font-display text-[14px] text-text-secondary transition-[border-color,box-shadow] focus:border-border-focus focus:shadow-[0_0_5px_rgba(0,232,224,0.3)] focus:outline-none cursor-pointer [&>option]:bg-bg-elevated [&>option]:text-text-primary"
                 >
-                  <option value="name">Namn</option>
-                  <option value="category">Kategori</option>
-                  <option value="class">Klass</option>
-                  <option value="weeks">Veckor</option>
+                  <option value="name">{t('sort.name')}</option>
+                  <option value="category">{t('sort.category')}</option>
+                  <option value="class">{t('sort.class')}</option>
+                  <option value="weeks">{t('sort.weeks')}</option>
                 </select>
                 <ChevronDown className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-text-muted" />
               </div>
               <Button variant="secondary" className="h-10 text-xs" onClick={() => setSortAscending((v) => !v)}>
-                {sortAscending ? 'A-Ö' : 'Ö-A'}
+                {sortAscending ? t('sortAsc') : t('sortDesc')}
               </Button>
             </div>
 
@@ -553,7 +555,7 @@ export function SeriesSetup({ data, initialSelectedSeriesNames, userLicenseClass
                     : 'border-border text-text-secondary hover:text-text-primary'
                 )}
               >
-                Alla
+                {t('filter.allCategories')}
               </button>
               {data.categories.map((cat) => {
                 const active = selectedCategoryIds.includes(cat.id) && !allCategoriesSelected
@@ -585,7 +587,7 @@ export function SeriesSetup({ data, initialSelectedSeriesNames, userLicenseClass
                   onClick={resetFilters}
                   className="cursor-pointer rounded-full border border-border px-3 py-1.5 text-xs text-text-secondary transition hover:text-text-primary"
                 >
-                  Rensa filter
+                  {t('filter.resetFilters')}
                 </button>
               )}
             </div>
@@ -621,21 +623,19 @@ export function SeriesSetup({ data, initialSelectedSeriesNames, userLicenseClass
       {userLicenseClasses && (
         <div className="flex items-start gap-2 rounded-md border border-border/40 bg-bg-elevated/50 px-3 py-2.5 text-[11px] text-text-muted">
           <Info className="h-3.5 w-3.5 mt-0.5 shrink-0 text-accent-cyan/60" />
-          <span>
-            Alla kategorier visas. Klassfilter är förinställt från Rookie upp till din licensnivå per disciplin — klicka ur klasser eller kategorier ovan för att smalna av. Unranked-serier hamnar alltid längst ned.
-          </span>
+          <span>{t('filterInfo')}</span>
         </div>
       )}
 
       {/* Series count + bulk actions */}
       <div className="flex justify-between items-center">
-        <span className="text-xs text-text-muted">{sortedSeries.length} serier matchar</span>
+        <span className="text-xs text-text-muted">{t('seriesMatch', { count: sortedSeries.length })}</span>
         <div className="flex gap-3">
           <Button variant="ghost" className="h-7 px-2 text-xs" onClick={() => selectManySeries(allFilteredIds)} disabled={allFilteredIds.length === 0}>
-            Välj alla
+            {t('selectAll')}
           </Button>
           <Button variant="ghost" className="h-7 px-2 text-xs" onClick={clearManySeries}>
-            Rensa
+            {t('clear')}
           </Button>
         </div>
       </div>
@@ -703,7 +703,7 @@ export function SeriesSetup({ data, initialSelectedSeriesNames, userLicenseClass
       {/* Empty state */}
       {sortedSeries.length === 0 && (
         <Card className="p-4 text-sm text-text-secondary">
-          Ingen serie matchade filtret.
+          {t('noResults')}
         </Card>
       )}
     </div>
