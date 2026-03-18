@@ -22,12 +22,11 @@ export const metadata: Metadata = {
     default: 'iRacing Season Planner',
     template: '%s | iRacing Season Planner',
   },
-  description: 'Planera din iRacing-säsong. Optimera inköp av banor och maximera ditt deltagande.',
+  description: 'Plan your iRacing season. Optimize track purchases and maximize your participation.',
   openGraph: {
     title: 'iRacing Season Planner',
-    description: 'Planera din iRacing-säsong. Optimera inköp av banor och maximera ditt deltagande.',
+    description: 'Plan your iRacing season. Optimize track purchases and maximize your participation.',
     type: 'website',
-    locale: 'sv_SE',
     siteName: 'iRacing Season Planner',
   },
   robots: {
@@ -38,7 +37,7 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
-    <html lang="en" className={`${spaceGrotesk.variable} ${jetbrainsMono.variable}`}>
+    <html className={`${spaceGrotesk.variable} ${jetbrainsMono.variable}`}>
       <body className="min-h-screen bg-bg-base font-display text-text-primary antialiased">
         {children}
       </body>

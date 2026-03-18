@@ -1,4 +1,5 @@
 import { redirect } from 'next/navigation'
+import { setRequestLocale } from 'next-intl/server'
 import { Car, MapPin, TrendingDown } from 'lucide-react'
 import { getSession } from '@/lib/auth/session'
 import { fetchSelectedSeriesNames, fetchOwnedTrackKeys, fetchOwnedCarNames } from '@/lib/db/actions'
@@ -16,7 +17,13 @@ function formatTrackKey(key: string): string {
   return config ? `${venue} — ${config}` : venue
 }
 
-export default async function CostsPage() {
+export default async function CostsPage({
+  params,
+}: {
+  params: Promise<{ locale: string }>
+}) {
+  const { locale } = await params
+  setRequestLocale(locale)
   const session = await getSession()
   if (!session) redirect('/')
 

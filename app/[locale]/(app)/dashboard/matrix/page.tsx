@@ -1,4 +1,5 @@
 import { redirect } from 'next/navigation'
+import { setRequestLocale } from 'next-intl/server'
 import { getSession } from '@/lib/auth/session'
 import { fetchSelectedSeriesNames, fetchOwnedTrackKeys } from '@/lib/db/actions'
 import { getAllSeries, CURRENT_SEASON } from '@/lib/iracing/season-data'
@@ -32,7 +33,13 @@ function formatWeekDate(startDate: string): string {
   return d.toLocaleDateString('sv-SE', { day: 'numeric', month: 'short' })
 }
 
-export default async function MatrixPage() {
+export default async function MatrixPage({
+  params,
+}: {
+  params: Promise<{ locale: string }>
+}) {
+  const { locale } = await params
+  setRequestLocale(locale)
   const session = await getSession()
   if (!session) redirect('/')
 

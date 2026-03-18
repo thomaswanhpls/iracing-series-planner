@@ -1,0 +1,194 @@
+{
+  "common": {
+    "back": "← Back",
+    "next": "Next →",
+    "saving": "Saving...",
+    "search": "Search",
+    "owned": "owned",
+    "included": "Included",
+    "missing": "Missing",
+    "selectFiltered": "Select filtered",
+    "deselectFiltered": "Deselect filtered",
+    "notFound": "No results found.",
+    "allContent": "All content owned ✓"
+  },
+  "nav": {
+    "setup": "Setup",
+    "dashboard": "Dashboard",
+    "settings": "Settings",
+    "logout": "Log out",
+    "planGroup": "Planning"
+  },
+  "landing": {
+    "seasonBadge": "2026 SEASON 2 — BETA",
+    "title": "iRacing Season Planner",
+    "subtitle": "Plan your season. Optimize your purchases.",
+    "subtitleAccent": "Race more, pay less.",
+    "cta": "Get started",
+    "ctaSecondary": "Dashboard",
+    "footer": "Built for iRacing enthusiasts who want to maximize their time on track",
+    "features": {
+      "series": {
+        "title": "Series planning",
+        "description": "Pick your series and instantly see which tracks you need to hit the 8/12 threshold."
+      },
+      "costs": {
+        "title": "Cost analysis",
+        "description": "Optimized purchase list that maximizes value with volume discounts."
+      },
+      "tracks": {
+        "title": "Track overview",
+        "description": "Complete track library with ownership status and cross-references between series."
+      },
+      "smart": {
+        "title": "Smart optimization",
+        "description": "Greedy set-cover algorithm finds the minimum purchases for maximum participation."
+      }
+    }
+  },
+  "wizard": {
+    "series": {
+      "title": "Your series",
+      "subtitle": "Select the series you want to race this season.",
+      "search": "Search series...",
+      "sort": {
+        "label": "Sort",
+        "name": "Name",
+        "category": "Category",
+        "class": "Class"
+      },
+      "filter": {
+        "allCategories": "All",
+        "allClasses": "All classes",
+        "allBrands": "All brands",
+        "resetFilters": "Reset filters",
+        "brands": "Brands"
+      },
+      "selected": "{count} selected",
+      "showOnlySelected": "Show only selected",
+      "noResults": "No series found.",
+      "weeksShort": "w",
+      "weeksCount": "{count} wk"
+    },
+    "tracks": {
+      "title": "Your tracks",
+      "subtitle": "Mark the tracks you already own. Unmarked tracks count as purchase needs in cost calculations.",
+      "search": "Search track...",
+      "ownedCount": "{owned} / {total} owned",
+      "freeTracksNote": "Tracks included with the iRacing subscription are pre-checked — they don't need to be purchased.",
+      "includedBadge": "Included",
+      "noResults": "No tracks found."
+    },
+    "cars": {
+      "title": "Your cars",
+      "subtitle": "Mark the cars you already own. Unmarked cars may affect cost calculations.",
+      "search": "Search car...",
+      "ownedCount": "{owned} / {total} owned",
+      "noResults": "No cars found."
+    },
+    "profile": {
+      "title": "Your profile",
+      "subtitle": "What's your name, and what license class do you hold per discipline?",
+      "name": "Name",
+      "nameOptional": "(optional)",
+      "namePlaceholder": "e.g. Max Verstappen",
+      "licensePerDiscipline": "License class per discipline",
+      "disciplines": {
+        "sportsCar": "Sports Car",
+        "sportsCarSub": "GT, TCR, prototype",
+        "formulaCar": "Formula Car",
+        "formulaCarSub": "F3, F4, IR-18",
+        "oval": "Oval",
+        "ovalSub": "NASCAR, stock cars",
+        "dirtRoad": "Dirt Road",
+        "dirtRoadSub": "Rallycross, dirt road",
+        "dirtOval": "Dirt Oval",
+        "dirtOvalSub": "Sprint cars, midgets"
+      },
+      "licenseOptions": {
+        "Rookie": "Rookie",
+        "D": "D class",
+        "C": "C class",
+        "B": "B class",
+        "A": "A class",
+        "Pro": "Pro",
+        "WC": "WC"
+      }
+    }
+  },
+  "dashboard": {
+    "appShell": {
+      "seasonPlanner": "Season Planner",
+      "iracingMember": "iRacing Member"
+    },
+    "costs": {
+      "widgetTitle": "Costs",
+      "tracks": "Tracks",
+      "carMissing": "Missing car",
+      "allOwned": "All content owned ✓",
+      "fullAnalysis": "Full cost analysis",
+      "series": "{count} series",
+      "included": "Incl.",
+      "pageTitle": "Cost Analysis",
+      "pageSubtitle": "Based on {count} selected series for {season}",
+      "purchasePriority": "Purchase priority — tracks",
+      "allCarOptions": "All car options per series",
+      "perSeriesNeeds": "What each series needs",
+      "cheapest": "Cheapest",
+      "seriesNeed": "{count} series need it",
+      "seriesNeedOne": "1 series needs it",
+      "missingTracks": "{count} missing {trackWord}",
+      "track": "track",
+      "tracks_plural": "tracks",
+      "missingCars": "{count} {seriesWord} missing a car",
+      "seriesWord": "series",
+      "discountApplied": "{tier}-discount {percent}% applied (−${amount})",
+      "backToDashboard": "← Dashboard"
+    },
+    "matrix": {
+      "widgetTitle": "Track Matrix · w{week}",
+      "openFull": "Open full matrix",
+      "pageTitle": "Track Matrix",
+      "pageSubtitle": "{count} series · week {week} highlighted · {season}",
+      "thisWeek": "This week (w{week})",
+      "legend": {
+        "owned": "Owned",
+        "missing": "Missing",
+        "included": "Incl."
+      },
+      "backToDashboard": "← Dashboard"
+    },
+    "mySeries": {
+      "widgetTitle": "My Series",
+      "editSeries": "Edit series selection",
+      "statusOwned": "Owned",
+      "statusMissing": "Missing track",
+      "statusIncluded": "Included",
+      "categories": {
+        "SPORTS_CAR": "Sports Car",
+        "FORMULA_CAR": "Formula Car",
+        "OVAL": "Oval",
+        "DIRT_ROAD": "Dirt Road",
+        "DIRT_OVAL": "Dirt Oval",
+        "UNRANKED": "Unranked"
+      }
+    },
+    "raceConditions": {
+      "widgetTitle": "This week's conditions",
+      "allSeries": "All series",
+      "dynamic": "Dynamic",
+      "fixedWeather": "Fixed weather",
+      "timeOfDay": {
+        "night": "Night",
+        "dawn": "Dawn",
+        "morning": "Morning",
+        "afternoon": "Afternoon",
+        "evening": "Evening"
+      }
+    }
+  },
+  "settings": {
+    "title": "Settings",
+    "comingSoon": "Settings coming soon."
+  }
+}

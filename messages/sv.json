@@ -1,0 +1,194 @@
+{
+  "common": {
+    "back": "← Tillbaka",
+    "next": "Nästa →",
+    "saving": "Sparar...",
+    "search": "Sök",
+    "owned": "ägda",
+    "included": "Ingår",
+    "missing": "Saknas",
+    "selectFiltered": "Markera filtrerade",
+    "deselectFiltered": "Avmarkera filtrerade",
+    "notFound": "Inga resultat hittades.",
+    "allContent": "Allt content ägt ✓"
+  },
+  "nav": {
+    "setup": "Setup",
+    "dashboard": "Dashboard",
+    "settings": "Inställningar",
+    "logout": "Logga ut",
+    "planGroup": "Planering"
+  },
+  "landing": {
+    "seasonBadge": "2026 SÄSONG 2 — BETA",
+    "title": "iRacing Säsongsplanerare",
+    "subtitle": "Planera din säsong. Optimera dina inköp.",
+    "subtitleAccent": "Kör mer, betala mindre.",
+    "cta": "Kom igång",
+    "ctaSecondary": "Dashboard",
+    "footer": "Byggd för iRacing-entusiaster som vill maximera sin tid på banan",
+    "features": {
+      "series": {
+        "title": "Serieplanering",
+        "description": "Välj serier och se direkt vilka banor du behöver för att nå 8/12-tröskeln."
+      },
+      "costs": {
+        "title": "Kostnadsanalys",
+        "description": "Optimerad inköpslista som maximerar värde med volymrabatter."
+      },
+      "tracks": {
+        "title": "Banöversikt",
+        "description": "Komplett banbibliotek med ägandestatus och korsreferenser mellan serier."
+      },
+      "smart": {
+        "title": "Smart optimering",
+        "description": "Greedy set cover-algoritm hittar minimala inköp för maximal deltagan."
+      }
+    }
+  },
+  "wizard": {
+    "series": {
+      "title": "Dina serier",
+      "subtitle": "Välj de serier du vill tävla i den här säsongen.",
+      "search": "Sök serie...",
+      "sort": {
+        "label": "Sortering",
+        "name": "Namn",
+        "category": "Kategori",
+        "class": "Klass"
+      },
+      "filter": {
+        "allCategories": "Alla",
+        "allClasses": "Alla klasser",
+        "allBrands": "Alla märken",
+        "resetFilters": "Återställ filter",
+        "brands": "Märken"
+      },
+      "selected": "{count} valda",
+      "showOnlySelected": "Visa endast valda",
+      "noResults": "Inga serier hittades.",
+      "weeksShort": "v",
+      "weeksCount": "{count} vk"
+    },
+    "tracks": {
+      "title": "Dina banor",
+      "subtitle": "Markera de banor du redan äger. Omarkerade banor räknas som köpbehov i kostnadskalkylerna.",
+      "search": "Sök bana...",
+      "ownedCount": "{owned} / {total} ägda",
+      "freeTracksNote": "Banor som ingår i iRacing-prenumerationen är förkryssade automatiskt — de behöver inte köpas.",
+      "includedBadge": "Ingår",
+      "noResults": "Inga banor hittades."
+    },
+    "cars": {
+      "title": "Dina bilar",
+      "subtitle": "Markera de bilar du redan äger. Omarkerade bilar kan påverka kostnadskalkylerna.",
+      "search": "Sök bil...",
+      "ownedCount": "{owned} / {total} ägda",
+      "noResults": "Inga bilar hittades."
+    },
+    "profile": {
+      "title": "Din profil",
+      "subtitle": "Vad heter du, och vilken licensklass kör du i per disciplin?",
+      "name": "Namn",
+      "nameOptional": "(valfritt)",
+      "namePlaceholder": "T.ex. Max Verstappen",
+      "licensePerDiscipline": "Licensklass per disciplin",
+      "disciplines": {
+        "sportsCar": "Sports Car",
+        "sportsCarSub": "GT, TCR, prototype",
+        "formulaCar": "Formula Car",
+        "formulaCarSub": "F3, F4, IR-18",
+        "oval": "Oval",
+        "ovalSub": "NASCAR, stock cars",
+        "dirtRoad": "Dirt Road",
+        "dirtRoadSub": "Rallycross, dirt road",
+        "dirtOval": "Dirt Oval",
+        "dirtOvalSub": "Sprint cars, midgets"
+      },
+      "licenseOptions": {
+        "Rookie": "Rookie",
+        "D": "D-klass",
+        "C": "C-klass",
+        "B": "B-klass",
+        "A": "A-klass",
+        "Pro": "Pro",
+        "WC": "WC"
+      }
+    }
+  },
+  "dashboard": {
+    "appShell": {
+      "seasonPlanner": "Säsongsplanerare",
+      "iracingMember": "iRacing-medlem"
+    },
+    "costs": {
+      "widgetTitle": "Kostnader",
+      "tracks": "Banor",
+      "carMissing": "Bil saknas",
+      "allOwned": "Allt content ägt ✓",
+      "fullAnalysis": "Full kostnadsanalys",
+      "series": "{count} serier",
+      "included": "Ingår",
+      "pageTitle": "Kostnadsanalys",
+      "pageSubtitle": "Baserat på {count} valda serier för {season}",
+      "purchasePriority": "Köpprioritet — banor",
+      "allCarOptions": "Alla bilalternativ per serie",
+      "perSeriesNeeds": "Vad varje serie behöver",
+      "cheapest": "Billigast",
+      "seriesNeed": "{count} serier behöver den",
+      "seriesNeedOne": "1 serie behöver den",
+      "missingTracks": "{count} saknade {trackWord}",
+      "track": "bana",
+      "tracks_plural": "banor",
+      "missingCars": "{count} {seriesWord} saknar bil",
+      "seriesWord": "serier",
+      "discountApplied": "{tier}-rabatt {percent}% tillämpad (−${amount})",
+      "backToDashboard": "← Dashboard"
+    },
+    "matrix": {
+      "widgetTitle": "Track Matrix · v{week}",
+      "openFull": "Öppna full matris",
+      "pageTitle": "Track Matrix",
+      "pageSubtitle": "{count} serier · vecka {week} markerad · {season}",
+      "thisWeek": "Denna vecka (v{week})",
+      "legend": {
+        "owned": "Äger",
+        "missing": "Saknas",
+        "included": "Inkl."
+      },
+      "backToDashboard": "← Dashboard"
+    },
+    "mySeries": {
+      "widgetTitle": "Mina serier",
+      "editSeries": "Ändra serieurval",
+      "statusOwned": "Äger",
+      "statusMissing": "Saknar bana",
+      "statusIncluded": "Inkluderad",
+      "categories": {
+        "SPORTS_CAR": "Sports Car",
+        "FORMULA_CAR": "Formula Car",
+        "OVAL": "Oval",
+        "DIRT_ROAD": "Dirt Road",
+        "DIRT_OVAL": "Dirt Oval",
+        "UNRANKED": "Unranked"
+      }
+    },
+    "raceConditions": {
+      "widgetTitle": "Veckans förutsättningar",
+      "allSeries": "Alla serier",
+      "dynamic": "Dynamiskt",
+      "fixedWeather": "Fast väder",
+      "timeOfDay": {
+        "night": "Natt",
+        "dawn": "Gryning",
+        "morning": "Morgon",
+        "afternoon": "Dag",
+        "evening": "Kväll"
+      }
+    }
+  },
+  "settings": {
+    "title": "Inställningar",
+    "comingSoon": "Inställningar kommer här."
+  }
+}

@@ -1,3 +1,4 @@
+import { setRequestLocale } from 'next-intl/server'
 import { WizardShell } from '@/components/wizard/wizard-shell'
 import { getAllSeries, getUniqueTracks, getAllCars, toSeasonScheduleData, CURRENT_SEASON } from '@/lib/iracing/season-data'
 import { getSession } from '@/lib/auth/session'
@@ -9,7 +10,13 @@ import {
 } from '@/lib/db/actions'
 import { redirect } from 'next/navigation'
 
-export default async function SetupPage() {
+export default async function SetupPage({
+  params,
+}: {
+  params: Promise<{ locale: string }>
+}) {
+  const { locale } = await params
+  setRequestLocale(locale)
   const session = await getSession()
   if (!session) redirect('/')
 

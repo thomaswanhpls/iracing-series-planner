@@ -1,4 +1,5 @@
 import { redirect } from 'next/navigation'
+import { setRequestLocale } from 'next-intl/server'
 import { getSession } from '@/lib/auth/session'
 import {
   fetchSelectedSeriesNames,
@@ -12,7 +13,13 @@ import { formatSeasonLabel } from '@/lib/iracing/format-season-label'
 import { getCurrentWeekIndex } from '@/lib/iracing/current-week'
 import { DashboardHub } from '@/components/dashboard/dashboard-hub'
 
-export default async function DashboardPage() {
+export default async function DashboardPage({
+  params,
+}: {
+  params: Promise<{ locale: string }>
+}) {
+  const { locale } = await params
+  setRequestLocale(locale)
   const session = await getSession()
   if (!session) redirect('/')
 
