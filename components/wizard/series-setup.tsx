@@ -255,7 +255,7 @@ export function SeriesSetup({ data, initialSelectedSeriesNames, userLicenseClass
     )
     const unique = new Set<string>()
     for (const s of seriesInActiveCategories) {
-      unique.add(s.className)
+      if (s.className != null) unique.add(s.className)
     }
     return Array.from(unique).sort((a, b) => a.localeCompare(b))
   }, [data.series, selectedCategoryIds])
@@ -268,7 +268,7 @@ export function SeriesSetup({ data, initialSelectedSeriesNames, userLicenseClass
     if (!query) return categoryFilteredSeries
     return categoryFilteredSeries.filter((entry) => {
       if (normalize(entry.title).includes(query)) return true
-      if (normalize(entry.className).includes(query)) return true
+      if (normalize(entry.className ?? '').includes(query)) return true
       if (normalize(entry.cars).includes(query)) return true
       return entry.weeks.some((week) => normalize(week.track).includes(query))
     })
@@ -285,7 +285,7 @@ export function SeriesSetup({ data, initialSelectedSeriesNames, userLicenseClass
       let cmp = 0
       if (sortKey === 'name') cmp = a.title.localeCompare(b.title)
       if (sortKey === 'category') cmp = a.categoryLabel.localeCompare(b.categoryLabel)
-      if (sortKey === 'class') cmp = a.className.localeCompare(b.className)
+      if (sortKey === 'class') cmp = (a.className ?? '').localeCompare(b.className ?? '')
       if (sortKey === 'weeks') cmp = a.weeks.length - b.weeks.length
       return sortAscending ? cmp : -cmp
     })

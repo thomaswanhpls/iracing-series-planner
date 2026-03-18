@@ -175,13 +175,13 @@ export function AppShell({ children, userId, initialOwnedTrackIds }: AppShellPro
           </div>
 
           {/* Logout */}
-          <Link
+          <a
             href="/api/auth/logout"
             className="relative flex h-10 items-center justify-center gap-2 border-t border-white/[0.06] text-text-muted hover:text-text-primary transition-colors px-3"
           >
             <LogOut className="h-4 w-4 shrink-0" />
             {!collapsed && <span className="text-xs">Logga ut</span>}
-          </Link>
+          </a>
 
           {/* Collapse toggle */}
           <button
