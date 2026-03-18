@@ -166,27 +166,40 @@ export async function setOwnedCarNames(userId: string, carNames: string[]): Prom
 
 // ── User profile ─────────────────────────────────────────────────────────────
 
-export async function getUserProfile(
-  userId: string
-): Promise<{ name: string; licenseClass: string } | null> {
+export interface UserProfileData {
+  name: string
+  licenseClass: string
+  licenseSportsCar: string
+  licenseFormulaCar: string
+  licenseOval: string
+  licenseDirtRoad: string
+  licenseDirtOval: string
+}
+
+export async function getUserProfile(userId: string): Promise<UserProfileData | null> {
   const rows = await getDb()
-    .select({ name: userProfile.name, licenseClass: userProfile.licenseClass })
+    .select({
+      name: userProfile.name,
+      licenseClass: userProfile.licenseClass,
+      licenseSportsCar: userProfile.licenseSportsCar,
+      licenseFormulaCar: userProfile.licenseFormulaCar,
+      licenseOval: userProfile.licenseOval,
+      licenseDirtRoad: userProfile.licenseDirtRoad,
+      licenseDirtOval: userProfile.licenseDirtOval,
+    })
     .from(userProfile)
     .where(eq(userProfile.userId, userId))
     .limit(1)
   return rows[0] ?? null
 }
 
-export async function setUserProfile(
-  userId: string,
-  name: string,
-  licenseClass: string
-): Promise<void> {
+export async function setUserProfile(userId: string, data: Omit<UserProfileData, 'licenseClass'>): Promise<void> {
+  const licenseClass = data.licenseSportsCar // keep compat field in sync with sports car license
   await getDb()
     .insert(userProfile)
-    .values({ userId, name, licenseClass })
+    .values({ userId, licenseClass, ...data })
     .onConflictDoUpdate({
       target: userProfile.userId,
-      set: { name, licenseClass },
+      set: { licenseClass, ...data },
     })
 }

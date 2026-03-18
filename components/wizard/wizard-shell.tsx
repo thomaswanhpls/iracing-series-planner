@@ -9,7 +9,7 @@ import {
   saveOwnedTrackKeys,
   saveOwnedCarNames,
 } from '@/lib/db/actions'
-import { ProfileStep } from './profile-step'
+import { ProfileStep, type ProfileData } from './profile-step'
 import { SeriesSetup } from './series-setup'
 import { TracksStep } from './tracks-step'
 import { CarsStep } from './cars-step'
@@ -18,7 +18,7 @@ import { CURRENT_SEASON } from '@/lib/iracing/season-data'
 
 export interface WizardState {
   step: 1 | 2 | 3 | 4
-  profile: { name: string; licenseClass: string }
+  profile: ProfileData
   selectedSeriesNames: string[]
   ownedTrackKeys: string[]
   ownedCarNames: string[]
@@ -44,20 +44,13 @@ function saveToStorage(state: WizardState) {
 
 interface WizardShellProps {
   userId: string
-  /** Full SeasonScheduleData built from JSON for the SeriesSetup component */
   seriesData: SeasonScheduleData
-  /** All unique tracks across all series (for the Tracks step) */
   allTracks: IracingTrack[]
-  /** All cars across all series (for the Cars step) */
   allCars: string[]
-  /** Pre-loaded from DB: previously selected series names */
   initialSeriesNames: string[]
-  /** Pre-loaded from DB: previously owned track keys */
   initialTrackKeys: string[]
-  /** Pre-loaded from DB: previously owned car names */
   initialCarNames: string[]
-  /** Pre-loaded from DB: user profile */
-  initialProfile: { name: string; licenseClass: string }
+  initialProfile: ProfileData
 }
 
 export function WizardShell({
@@ -96,35 +89,41 @@ export function WizardShell({
     })
   }
 
-  // ── Step handlers ──────────────────────────────────────────────────────────
-
-  function handleProfileNext(profile: { name: string; licenseClass: string }) {
+  function handleProfileNext(profile: ProfileData) {
     updateState({ profile, step: 2 })
     startProfileTransition(async () => {
-      await saveUserProfile(userId, profile.name, profile.licenseClass)
-    })
-  }
-
-  function handleSeriesNext(selectedSeriesNames: string[]) {
-    updateState({ selectedSeriesNames, step: 3 })
-    startSeriesTransition(async () => {
-      await saveSelectedSeriesNames(userId, CURRENT_SEASON, selectedSeriesNames)
+      await saveUserProfile(
+        userId,
+        profile.name,
+        profile.licenseSportsCar,
+        profile.licenseFormulaCar,
+        profile.licenseOval,
+        profile.licenseDirtRoad,
+        profile.licenseDirtOval,
+      )
     })
   }
 
   function handleTracksNext(ownedTrackKeys: string[]) {
-    updateState({ ownedTrackKeys, step: 4 })
+    updateState({ ownedTrackKeys, step: 3 })
     startTracksTransition(async () => {
       await saveOwnedTrackKeys(userId, ownedTrackKeys)
     })
   }
 
-  function handleCarsDone(ownedCarNames: string[]) {
-    updateState({ ownedCarNames })
-    setSaveError(null)
+  function handleCarsNext(ownedCarNames: string[]) {
+    updateState({ ownedCarNames, step: 4 })
     startCarsTransition(async () => {
+      await saveOwnedCarNames(userId, ownedCarNames)
+    })
+  }
+
+  function handleSeriesDone(selectedSeriesNames: string[]) {
+    updateState({ selectedSeriesNames })
+    setSaveError(null)
+    startSeriesTransition(async () => {
       try {
-        await saveOwnedCarNames(userId, ownedCarNames)
+        await saveSelectedSeriesNames(userId, CURRENT_SEASON, selectedSeriesNames)
         router.push('/dashboard')
       } catch {
         setSaveError('Något gick fel. Försök igen.')
@@ -139,9 +138,7 @@ export function WizardShell({
     }))
   }
 
-  // ── Step indicator ─────────────────────────────────────────────────────────
-
-  const steps = ['Profil', 'Serier', 'Banor', 'Bilar']
+  const steps = ['Profil', 'Banor', 'Bilar', 'Serier']
 
   return (
     <div className="flex flex-col gap-6">
@@ -189,22 +186,6 @@ export function WizardShell({
         />
       )}
       {state.step === 2 && (
-        <div className="flex flex-col gap-4">
-          <SeriesSetup
-            data={seriesData}
-            initialSelectedSeriesNames={state.selectedSeriesNames}
-            onNext={handleSeriesNext}
-          />
-          <button
-            type="button"
-            onClick={goBack}
-            className="self-start text-sm text-text-muted hover:text-text-primary transition-colors"
-          >
-            ← Tillbaka
-          </button>
-        </div>
-      )}
-      {state.step === 3 && (
         <TracksStep
           allTracks={allTracks}
           initialOwnedTrackKeys={state.ownedTrackKeys}
@@ -213,14 +194,29 @@ export function WizardShell({
           isPending={isTracksPending}
         />
       )}
+      {state.step === 3 && (
+        <CarsStep
+          allCars={allCars}
+          initialOwnedCarNames={state.ownedCarNames}
+          onNext={handleCarsNext}
+          onBack={goBack}
+          isPending={isCarsPending}
+        />
+      )}
       {state.step === 4 && (
         <div className="flex flex-col gap-2">
-          <CarsStep
-            allCars={allCars}
-            initialOwnedCarNames={state.ownedCarNames}
-            onDone={handleCarsDone}
+          <SeriesSetup
+            data={seriesData}
+            initialSelectedSeriesNames={state.selectedSeriesNames}
+            userLicenseClasses={{
+              sportsCar: state.profile.licenseSportsCar,
+              formulaCar: state.profile.licenseFormulaCar,
+              oval: state.profile.licenseOval,
+              dirtRoad: state.profile.licenseDirtRoad,
+              dirtOval: state.profile.licenseDirtOval,
+            }}
+            onNext={handleSeriesDone}
             onBack={goBack}
-            isPending={isCarsPending}
           />
           {saveError && (
             <p className="text-sm text-red-400">{saveError}</p>

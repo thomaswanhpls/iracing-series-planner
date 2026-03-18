@@ -267,7 +267,7 @@ export default async function CostsPage() {
                         className="flex items-center gap-1 rounded-full border border-border-subtle px-2 py-0.5 text-[11px]"
                         style={{
                           borderColor:
-                            price === 0 ? 'rgba(57,217,138,0.3)' : 'rgba(255,140,0,0.35)',
+                            price === 0 ? 'rgba(45,217,168,0.3)' : 'rgba(255,140,0,0.35)',
                           color:
                             price === 0 ? 'var(--color-accent-green)' : 'var(--color-accent-orange)',
                         }}
@@ -283,7 +283,7 @@ export default async function CostsPage() {
                       <span
                         className="flex items-center gap-1 rounded-full border px-2 py-0.5 text-[11px]"
                         style={{
-                          borderColor: 'rgba(255,0,255,0.3)',
+                          borderColor: 'rgba(255,45,138,0.3)',
                           color: 'var(--color-accent-magenta)',
                         }}
                       >

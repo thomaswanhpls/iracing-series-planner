@@ -6,7 +6,13 @@ import { makeTrackKey } from '@/lib/iracing/types'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Checkbox } from '@/components/ui/checkbox'
-import { Badge } from '@/components/ui/badge'
+
+interface VenueGroup {
+  venue: string
+  tracks: IracingTrack[]
+  popularityScore: number
+  configKeys: string[]
+}
 
 interface TracksStepProps {
   allTracks: IracingTrack[]
@@ -20,6 +26,38 @@ function normalize(s: string) {
   return s.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '')
 }
 
+/** Venues that are car-specific variants included with a base venue purchase */
+function resolveBaseVenue(venue: string, venueSet: Set<string>): string {
+  // Check if this venue starts with a known base venue + space
+  // e.g. "Mount Panorama Circuit FIA F4" → "Mount Panorama Circuit"
+  for (const base of venueSet) {
+    if (base !== venue && venue.startsWith(base + ' ')) return base
+  }
+  return venue
+}
+
+function buildVenueGroups(tracks: IracingTrack[]): VenueGroup[] {
+  const venueSet = new Set(tracks.map((t) => t.venue))
+  const map = new Map<string, IracingTrack[]>()
+  for (const t of tracks) {
+    const base = resolveBaseVenue(t.venue, venueSet)
+    const existing = map.get(base)
+    // Store with config = original venue suffix if it was a sub-variant
+    const effectiveTrack: IracingTrack =
+      base !== t.venue
+        ? { ...t, venue: base, config: t.venue.slice(base.length + 1) }
+        : t
+    if (existing) existing.push(effectiveTrack)
+    else map.set(base, [effectiveTrack])
+  }
+  return Array.from(map.entries()).map(([venue, ts]) => ({
+    venue,
+    tracks: ts,
+    popularityScore: Math.max(...ts.map((t) => t.popularityScore)),
+    configKeys: ts.map((t) => makeTrackKey(t.venue, t.config)),
+  }))
+}
+
 export function TracksStep({
   allTracks,
   initialOwnedTrackKeys,
@@ -30,31 +68,42 @@ export function TracksStep({
   const [search, setSearch] = useState('')
   const [owned, setOwned] = useState<Set<string>>(new Set(initialOwnedTrackKeys))
 
-  const filtered = useMemo(() => {
-    if (!search.trim()) return allTracks
-    const q = normalize(search)
-    return allTracks.filter((t) => normalize(t.venue).includes(q))
-  }, [allTracks, search])
+  const venueGroups = useMemo(() => buildVenueGroups(allTracks), [allTracks])
 
-  function toggle(track: IracingTrack) {
-    const key = makeTrackKey(track.venue, track.config)
+  const filtered = useMemo(() => {
+    if (!search.trim()) return venueGroups
+    const q = normalize(search)
+    return venueGroups.filter((g) => normalize(g.venue).includes(q))
+  }, [venueGroups, search])
+
+  const totalVenues = venueGroups.length
+  const ownedVenueCount = venueGroups.filter((g) =>
+    g.configKeys.some((k) => owned.has(k))
+  ).length
+
+  function toggleVenue(group: VenueGroup) {
+    const anyOwned = group.configKeys.some((k) => owned.has(k))
     setOwned((prev) => {
       const next = new Set(prev)
-      if (next.has(key)) next.delete(key)
-      else next.add(key)
+      if (anyOwned) {
+        group.configKeys.forEach((k) => next.delete(k))
+      } else {
+        group.configKeys.forEach((k) => next.add(k))
+      }
       return next
     })
   }
 
   function toggleAll() {
-    const filteredKeys = filtered.map((t) => makeTrackKey(t.venue, t.config))
-    const allChecked = filteredKeys.every((k) => owned.has(k))
+    const allChecked = filtered.every((g) => g.configKeys.some((k) => owned.has(k)))
     setOwned((prev) => {
       const next = new Set(prev)
-      if (allChecked) {
-        filteredKeys.forEach((k) => next.delete(k))
-      } else {
-        filteredKeys.forEach((k) => next.add(k))
+      for (const g of filtered) {
+        if (allChecked) {
+          g.configKeys.forEach((k) => next.delete(k))
+        } else {
+          g.configKeys.forEach((k) => next.add(k))
+        }
       }
       return next
     })
@@ -65,8 +114,7 @@ export function TracksStep({
       <div>
         <h2 className="text-lg font-semibold text-text-primary mb-1">Dina banor</h2>
         <p className="text-sm text-text-secondary">
-          Markera de banor du redan äger. Omarkerade banor räknas som köpbehov i
-          kostnadskalkylerna.
+          Markera de banor du redan äger. Omarkerade banor räknas som köpbehov i kostnadskalkylerna.
         </p>
       </div>
 
@@ -79,18 +127,17 @@ export function TracksStep({
           className="max-w-xs"
         />
         <span className="text-xs text-text-muted">
-          {owned.size} / {allTracks.length} ägda
+          {ownedVenueCount} / {totalVenues} ägda
         </span>
       </div>
 
-      {/* Select all for filtered results */}
       {filtered.length > 0 && (
         <button
           type="button"
           onClick={toggleAll}
           className="self-start text-xs text-accent-cyan/70 hover:text-accent-cyan transition-colors"
         >
-          {filtered.every((t) => owned.has(makeTrackKey(t.venue, t.config)))
+          {filtered.every((g) => g.configKeys.some((k) => owned.has(k)))
             ? 'Avmarkera filtrerade'
             : 'Markera filtrerade'}
         </button>
@@ -103,34 +150,41 @@ export function TracksStep({
         {filtered.length === 0 && (
           <p className="py-4 text-center text-sm text-text-muted">Inga banor hittades.</p>
         )}
-        {filtered.map((track) => {
-          const key = makeTrackKey(track.venue, track.config)
-          const isOwned = owned.has(key)
+        {filtered.map((group) => {
+          const isOwned = group.configKeys.some((k) => owned.has(k))
+          const configs = group.tracks.map((t) => t.config).filter(Boolean) as string[]
           return (
             <div
-              key={key}
+              key={group.venue}
               role="button"
               tabIndex={0}
-              onClick={() => toggle(track)}
+              onClick={() => toggleVenue(group)}
               onKeyDown={(e) => {
                 if (e.key === 'Enter' || e.key === ' ') {
                   e.preventDefault()
-                  toggle(track)
+                  toggleVenue(group)
                 }
               }}
               className={[
-                'flex cursor-pointer items-center gap-3 rounded-md px-3 py-2.5 text-sm transition-colors',
+                'flex cursor-pointer items-start gap-3 rounded-md px-3 py-2.5 text-sm transition-colors',
                 isOwned
                   ? 'border border-[rgba(0,255,255,0.55)] bg-[rgba(0,255,255,0.08)]'
                   : 'border border-transparent hover:bg-white/[0.03]',
               ].join(' ')}
             >
-              <Checkbox checked={isOwned} readOnly aria-hidden />
-              <span className="flex-1 text-text-primary">{track.venue}</span>
-              {track.config && (
-                <Badge variant="default" className="text-xs">
-                  {track.config}
-                </Badge>
+              <Checkbox checked={isOwned} readOnly aria-hidden className="mt-0.5 shrink-0" />
+              <div className="flex-1 min-w-0">
+                <span className="text-text-primary">{group.venue}</span>
+                {configs.length > 0 && (
+                  <div className="text-[11px] text-text-muted mt-0.5 truncate">
+                    {configs.join(' · ')}
+                  </div>
+                )}
+              </div>
+              {group.popularityScore > 0 && (
+                <span className="text-[11px] text-text-muted tabular-nums shrink-0 mt-0.5">
+                  {group.popularityScore}p
+                </span>
               )}
             </div>
           )
@@ -138,16 +192,12 @@ export function TracksStep({
       </div>
 
       <div className="flex items-center gap-3">
+        <Button variant="ghost" onClick={onBack}>
+          ← Tillbaka
+        </Button>
         <Button onClick={() => onNext(Array.from(owned))} disabled={isPending}>
           {isPending ? 'Sparar...' : 'Nästa →'}
         </Button>
-        <button
-          type="button"
-          onClick={onBack}
-          className="text-sm text-text-muted hover:text-text-primary transition-colors"
-        >
-          ← Tillbaka
-        </button>
       </div>
     </div>
   )

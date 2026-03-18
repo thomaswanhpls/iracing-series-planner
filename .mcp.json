@@ -3,6 +3,10 @@
     "nextjs": {
       "command": "npx",
       "args": ["next-devtools-mcp@latest"]
+    },
+    "plugin_chrome-devtools-mcp_chrome-devtools": {
+      "command": "npx",
+      "args": ["chrome-devtools-mcp@latest", "--browserUrl=http://localhost:9222"]
     }
   }
 }

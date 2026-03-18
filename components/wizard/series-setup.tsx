@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { usePathname, useRouter, useSearchParams } from 'next/navigation'
-import { ChevronDown, ChevronUp, Filter } from 'lucide-react'
+import { ChevronDown, ChevronUp, Filter, Info } from 'lucide-react'
 import type { SeasonScheduleData } from '@/lib/season-schedules/types'
 import { splitCars, inferCarBrand } from '@/lib/iracing/cars'
 import { BrandEmblem, CarBadge } from '@/components/car-badges'
@@ -14,12 +14,70 @@ import { Checkbox } from '@/components/ui/checkbox'
 import { Input } from '@/components/ui/input'
 import { cn } from '@/lib/utils'
 
+interface UserLicenseClasses {
+  sportsCar: string
+  formulaCar: string
+  oval: string
+  dirtRoad: string
+  dirtOval: string
+}
+
+/** Maps a license letter (R/D/C/B/A/Pro/WC) to the prefix used in className */
+function licenseLetterToPrefix(cls: string): string {
+  const c = cls.trim().toUpperCase()
+  if (c === 'ROOKIE' || c === 'R') return 'R'
+  if (c === 'D') return 'D'
+  if (c === 'C') return 'C'
+  if (c === 'B') return 'B'
+  if (c === 'A' || c === 'PRO' || c === 'WC') return 'A'
+  return 'R'
+}
+
+const LICENSE_ORDER = ['Rookie', 'D', 'C', 'B', 'A', 'Pro', 'WC']
+
+/** All category IDs selected by default — user narrows manually */
+function buildDefaultCategoryIds(availableCategoryIds: string[]): string[] {
+  return availableCategoryIds
+}
+
+/** Build class names to pre-select: Rookie → user's license level per discipline */
+function buildDefaultClassNames(
+  licenses: UserLicenseClasses,
+  availableClasses: string[]
+): string[] {
+  const disciplines: Array<{ license: string; suffix: string }> = [
+    { license: licenses.sportsCar, suffix: 'SPORTS CAR' },
+    { license: licenses.formulaCar, suffix: 'FORMULA CAR' },
+    { license: licenses.oval, suffix: 'OVAL' },
+    { license: licenses.dirtRoad, suffix: 'DIRT ROAD' },
+    { license: licenses.dirtOval, suffix: 'DIRT OVAL' },
+  ]
+  const result = new Set<string>()
+  for (const { license, suffix } of disciplines) {
+    const maxIdx = LICENSE_ORDER.indexOf(license)
+    if (maxIdx < 0) continue
+    for (let i = 0; i <= maxIdx; i++) {
+      const prefix = licenseLetterToPrefix(LICENSE_ORDER[i])
+      for (const cls of availableClasses) {
+        if (cls.startsWith(`${prefix} Class Series`) && cls.toUpperCase().includes(suffix)) {
+          result.add(cls)
+        }
+      }
+    }
+  }
+  return Array.from(result)
+}
+
 interface SeriesSetupProps {
   data: SeasonScheduleData
   /** Pre-selected series titles (from DB / wizard state) */
   initialSelectedSeriesNames?: string[]
+  /** When provided, pre-selects class filter pills based on per-discipline license */
+  userLicenseClasses?: UserLicenseClasses
   /** When provided, called with selected series titles instead of navigating */
   onNext?: (seriesNames: string[]) => void
+  /** When provided, renders a back button in the header */
+  onBack?: () => void
 }
 
 interface PersistedSetupState {
@@ -139,7 +197,7 @@ function CarIndicator({ cars }: { cars: string }) {
   )
 }
 
-export function SeriesSetup({ data, initialSelectedSeriesNames, onNext: onNextProp }: SeriesSetupProps) {
+export function SeriesSetup({ data, initialSelectedSeriesNames, userLicenseClasses, onNext: onNextProp, onBack }: SeriesSetupProps) {
   const router = useRouter()
   const pathname = usePathname()
   const searchParams = useSearchParams()
@@ -216,10 +274,14 @@ export function SeriesSetup({ data, initialSelectedSeriesNames, onNext: onNextPr
     })
   }, [search, categoryFilteredSeries])
 
-  // Sort
+  // Sort — UNRANKED always last regardless of sort key
   const sortedSeries = useMemo(() => {
     const entries = [...searchFilteredSeries]
     entries.sort((a, b) => {
+      const aUnranked = a.categoryId === 'unranked'
+      const bUnranked = b.categoryId === 'unranked'
+      if (aUnranked && !bUnranked) return 1
+      if (!aUnranked && bUnranked) return -1
       let cmp = 0
       if (sortKey === 'name') cmp = a.title.localeCompare(b.title)
       if (sortKey === 'category') cmp = a.categoryLabel.localeCompare(b.categoryLabel)
@@ -244,6 +306,36 @@ export function SeriesSetup({ data, initialSelectedSeriesNames, onNext: onNextPr
   // --- localStorage hydration ---
   useEffect(() => {
     if (hydratedRef.current) return
+
+    if (userLicenseClasses) {
+      // Wizard mode: always derive category + class defaults from license
+      // (ignore localStorage for filters, user hasn't explicitly set them here)
+      const allCategoryIds = data.categories.map((c) => c.id)
+      const defaultCats = buildDefaultCategoryIds(allCategoryIds)
+      if (defaultCats.length > 0) setSelectedCategoryIds(defaultCats)
+      const defaultClasses = buildDefaultClassNames(userLicenseClasses, availableClasses)
+      if (defaultClasses.length > 0) setSelectedClassNames(defaultClasses)
+      // Still restore saved series selection from localStorage
+      if (initialSelectedSeriesNames === undefined) {
+        try {
+          const raw = localStorage.getItem(storageKey)
+          if (raw) {
+            const parsed = JSON.parse(raw) as Partial<PersistedSetupState>
+            if (Array.isArray(parsed.selectedSeriesIds)) {
+              setSelectedSeriesIds(
+                parsed.selectedSeriesIds.filter(
+                  (id): id is string => typeof id === 'string' && availableSeriesIds.has(id)
+                )
+              )
+            }
+          }
+        } catch { /* ignore */ }
+      }
+      hydratedRef.current = true
+      return
+    }
+
+    // Standalone mode: restore full filter + series state from localStorage
     const raw = localStorage.getItem(storageKey)
     if (!raw) {
       hydratedRef.current = true
@@ -385,11 +477,16 @@ export function SeriesSetup({ data, initialSelectedSeriesNames, onNext: onNextPr
           </p>
         </div>
         <div className="flex items-center gap-3">
+          {onBack && (
+            <Button variant="ghost" onClick={onBack}>
+              ← Tillbaka
+            </Button>
+          )}
           <span className="px-3 py-1.5 rounded-full border border-accent-cyan/30 bg-accent-cyan/10 text-accent-cyan text-xs font-display font-semibold">
             {selectedSeriesIds.length} valda
           </span>
           <Button onClick={handleNext} disabled={selectedSeriesIds.length === 0}>
-            Fortsätt till Banor →
+            {onNextProp ? 'Spara →' : 'Fortsätt till Banor →'}
           </Button>
         </div>
       </div>
@@ -426,16 +523,19 @@ export function SeriesSetup({ data, initialSelectedSeriesNames, onNext: onNextPr
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
               />
-              <select
-                value={sortKey}
-                onChange={(e) => setSortKey(e.target.value as SortKey)}
-                className="w-full rounded-md border border-border bg-bg-elevated px-3 py-2 text-sm text-text-primary focus:border-border-focus focus:outline-none"
-              >
-                <option value="name">Namn</option>
-                <option value="category">Kategori</option>
-                <option value="class">Klass</option>
-                <option value="weeks">Veckor</option>
-              </select>
+              <div className="relative">
+                <select
+                  value={sortKey}
+                  onChange={(e) => setSortKey(e.target.value as SortKey)}
+                  className="w-full appearance-none rounded-sm border border-border bg-bg-elevated pl-4 pr-9 py-[10px] font-display text-[14px] text-text-secondary transition-[border-color,box-shadow] focus:border-border-focus focus:shadow-[0_0_5px_rgba(0,255,255,0.3)] focus:outline-none cursor-pointer [&>option]:bg-bg-elevated [&>option]:text-text-primary"
+                >
+                  <option value="name">Namn</option>
+                  <option value="category">Kategori</option>
+                  <option value="class">Klass</option>
+                  <option value="weeks">Veckor</option>
+                </select>
+                <ChevronDown className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-text-muted" />
+              </div>
               <Button variant="secondary" className="h-10 text-xs" onClick={() => setSortAscending((v) => !v)}>
                 {sortAscending ? 'A-Ö' : 'Ö-A'}
               </Button>
@@ -516,6 +616,16 @@ export function SeriesSetup({ data, initialSelectedSeriesNames, onNext: onNextPr
           </div>
         )}
       </Card>
+
+      {/* Filter info */}
+      {userLicenseClasses && (
+        <div className="flex items-start gap-2 rounded-md border border-border/40 bg-bg-elevated/50 px-3 py-2.5 text-[11px] text-text-muted">
+          <Info className="h-3.5 w-3.5 mt-0.5 shrink-0 text-accent-cyan/60" />
+          <span>
+            Alla kategorier visas. Klassfilter är förinställt från Rookie upp till din licensnivå per disciplin — klicka ur klasser eller kategorier ovan för att smalna av. Unranked-serier hamnar alltid längst ned.
+          </span>
+        </div>
+      )}
 
       {/* Series count + bulk actions */}
       <div className="flex justify-between items-center">

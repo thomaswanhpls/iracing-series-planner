@@ -75,6 +75,14 @@ export async function fetchUserProfile(userId: string) {
   return getUserProfile(userId)
 }
 
-export async function saveUserProfile(userId: string, name: string, licenseClass: string) {
-  await setUserProfile(userId, name, licenseClass)
+export async function saveUserProfile(
+  userId: string,
+  name: string,
+  licenseSportsCar: string,
+  licenseFormulaCar: string,
+  licenseOval: string,
+  licenseDirtRoad: string,
+  licenseDirtOval: string,
+) {
+  await setUserProfile(userId, { name, licenseSportsCar, licenseFormulaCar, licenseOval, licenseDirtRoad, licenseDirtOval })
 }

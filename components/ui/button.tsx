@@ -9,7 +9,7 @@ export interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
 
 const variantStyles: Record<ButtonVariant, string> = {
   primary:
-    'bg-accent-cyan text-bg-base font-display font-bold rounded-sm px-5 py-2.5 text-[13px] shadow-[0_0_18px_rgba(0,255,255,0.35)] hover:shadow-[0_0_24px_rgba(0,255,255,0.5)] active:scale-[0.98]',
+    'bg-[#00ffff] text-[#050614] font-display font-bold rounded-sm px-5 py-2.5 text-[13px] shadow-[0_0_18px_rgba(0,255,255,0.35)] hover:shadow-[0_0_24px_rgba(0,255,255,0.5)] active:scale-[0.98]',
   secondary:
     'border border-border text-text-secondary rounded-sm px-5 py-2.5 text-[13px] hover:bg-bg-hover hover:text-text-primary',
   ghost:

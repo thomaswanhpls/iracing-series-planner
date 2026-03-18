@@ -69,4 +69,9 @@ export const userProfile = sqliteTable('user_profile', {
     .references(() => users.id, { onDelete: 'cascade' }),
   name: text('name').notNull().default(''),
   licenseClass: text('license_class').notNull().default('Rookie'),
+  licenseSportsCar: text('license_sports_car').notNull().default('Rookie'),
+  licenseFormulaCar: text('license_formula_car').notNull().default('Rookie'),
+  licenseOval: text('license_oval').notNull().default('Rookie'),
+  licenseDirtRoad: text('license_dirt_road').notNull().default('Rookie'),
+  licenseDirtOval: text('license_dirt_oval').notNull().default('Rookie'),
 })

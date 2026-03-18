@@ -87,17 +87,26 @@ export interface IracingSeries {
   weeks: IracingWeek[]
 }
 
+export interface IracingTrackPopularity {
+  seriesCount: number
+  weekCount: number
+  popularityScore: number
+}
+
 export interface IracingSeason {
   season: string
   generatedAt: string
   totalSeries: number
   cars: string[]
+  venuePopularity: Record<string, IracingTrackPopularity>
+  trackPopularity: Record<string, IracingTrackPopularity>
   series: IracingSeries[]
 }
 
 export interface IracingTrack {
   venue: string
   config: string | null
+  popularityScore: number
 }
 
 /** Canonical track key: `"${venue}|${config ?? ''}"` */

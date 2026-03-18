@@ -16,9 +16,9 @@ function getStatus(venue: string, config: string | null, ownedSet: Set<string>):
 }
 
 const STATUS_CELL_BG: Record<CellStatus, string> = {
-  owned:   'rgba(0,255,255,0.18)',
-  missing: 'rgba(255,0,255,0.15)',
-  free:    'rgba(57,217,138,0.18)',
+  owned:   'rgba(0,232,224,0.18)',
+  missing: 'rgba(255,45,138,0.15)',
+  free:    'rgba(45,217,168,0.18)',
 }
 
 const STATUS_LABELS: Record<CellStatus, string> = {
@@ -107,9 +107,9 @@ export function MatrixWidget({ selectedSeries, ownedTrackKeys, currentWeekIndex 
         {/* Legend */}
         <div className="mt-4 flex gap-5">
           {[
-            { label: 'Äger',   bg: 'rgba(0,255,255,0.18)',   color: 'var(--color-accent-cyan)' },
-            { label: 'Saknas', bg: 'rgba(255,0,255,0.15)',   color: 'var(--color-accent-magenta)' },
-            { label: 'Inkl.',  bg: 'rgba(57,217,138,0.18)',  color: 'var(--color-accent-green)' },
+            { label: 'Äger',   bg: 'rgba(0,232,224,0.18)',   color: 'var(--color-accent-cyan)' },
+            { label: 'Saknas', bg: 'rgba(255,45,138,0.15)',   color: 'var(--color-accent-magenta)' },
+            { label: 'Inkl.',  bg: 'rgba(45,217,168,0.18)',  color: 'var(--color-accent-green)' },
           ].map(({ label, bg, color }) => (
             <span key={label} className="flex items-center gap-2 text-xs">
               <span className="h-4 w-7 rounded-[3px]" style={{ background: bg }} />

@@ -18,15 +18,19 @@ export function getSeriesByCategory(category: string): IracingSeries[] {
 export function getUniqueTracks(): IracingTrack[] {
   const seen = new Set<string>()
   const tracks: IracingTrack[] = []
+  const popularity = season.trackPopularity ?? {}
   for (const s of season.series) {
     for (const w of s.weeks) {
       const key = makeTrackKey(w.venue, w.config)
       if (!seen.has(key)) {
         seen.add(key)
-        tracks.push({ venue: w.venue, config: w.config })
+        const popularityKey = w.config ? `${w.venue} - ${w.config}` : w.venue
+        const popularityScore = popularity[popularityKey]?.popularityScore ?? 0
+        tracks.push({ venue: w.venue, config: w.config, popularityScore })
       }
     }
   }
+  tracks.sort((a, b) => b.popularityScore - a.popularityScore)
   return tracks
 }
 
@@ -40,7 +44,7 @@ export function getTracksForSeries(seriesNames: string[]): IracingTrack[] {
       const key = makeTrackKey(w.venue, w.config)
       if (!seen.has(key)) {
         seen.add(key)
-        tracks.push({ venue: w.venue, config: w.config })
+        tracks.push({ venue: w.venue, config: w.config, popularityScore: 0 })
       }
     }
   }

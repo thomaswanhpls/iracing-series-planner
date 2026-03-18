@@ -8,7 +8,7 @@ import { Checkbox } from '@/components/ui/checkbox'
 interface CarsStepProps {
   allCars: string[]
   initialOwnedCarNames: string[]
-  onDone: (ownedCarNames: string[]) => void
+  onNext: (ownedCarNames: string[]) => void
   onBack: () => void
   isPending: boolean
 }
@@ -20,7 +20,7 @@ function normalize(s: string) {
 export function CarsStep({
   allCars,
   initialOwnedCarNames,
-  onDone,
+  onNext,
   onBack,
   isPending,
 }: CarsStepProps) {
@@ -125,16 +125,12 @@ export function CarsStep({
       </div>
 
       <div className="flex items-center gap-3">
-        <Button onClick={() => onDone(Array.from(owned))} disabled={isPending}>
-          {isPending ? 'Sparar...' : 'Klar →'}
-        </Button>
-        <button
-          type="button"
-          onClick={onBack}
-          className="text-sm text-text-muted hover:text-text-primary transition-colors"
-        >
+        <Button variant="ghost" onClick={onBack}>
           ← Tillbaka
-        </button>
+        </Button>
+        <Button onClick={() => onNext(Array.from(owned))} disabled={isPending}>
+          {isPending ? 'Sparar...' : 'Nästa →'}
+        </Button>
       </div>
     </div>
   )

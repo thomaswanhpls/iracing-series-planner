@@ -31,12 +31,12 @@ interface DashboardHubProps {
 const PANEL = [
   'relative min-h-0 overflow-hidden rounded-lg',
   'bg-bg-glass backdrop-blur-md',
-  'border border-[rgba(0,255,255,0.1)]',
-  // Subtle neon glow
-  'shadow-[0_0_0_1px_rgba(0,255,255,0.04),inset_0_1px_0_rgba(0,255,255,0.07)]',
-  // Cyan shimmer on top edge (always-on, dimmer than hover state)
+  'border border-[rgba(0,232,224,0.1)]',
+  // Subtle teal glow
+  'shadow-[0_0_0_1px_rgba(0,232,224,0.04),inset_0_1px_0_rgba(0,232,224,0.07)]',
+  // Teal shimmer on top edge
   'before:absolute before:top-0 before:inset-x-0 before:h-px before:content-[""]',
-  'before:bg-[linear-gradient(90deg,transparent_0%,rgba(0,255,255,0.3)_50%,transparent_100%)]',
+  'before:bg-[linear-gradient(90deg,transparent_0%,rgba(0,232,224,0.3)_50%,transparent_100%)]',
 ].join(' ')
 
 export function DashboardHub({
