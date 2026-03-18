@@ -13,11 +13,13 @@
   --color-accent-magenta: #ff00ff;
   --color-accent-orange: #ff8c00;
   --color-accent-blue: #0db9f2;
+  --color-accent-green: #39d98a;   /* included / free / positive recommendation */
+  --color-accent-red: #ff4444;     /* danger / severe weather / blocking risk */
 
   /* Status */
   --color-status-owned: rgba(0, 255, 255, 0.15);
   --color-status-missing: rgba(255, 255, 255, 0.06);
-  --color-status-free: rgba(255, 140, 0, 0.15);
+  --color-status-free: rgba(57, 217, 138, 0.12);  /* green — free = no cost, positive */
   --color-status-alert: rgba(255, 0, 255, 0.15);
 
   /* Text */

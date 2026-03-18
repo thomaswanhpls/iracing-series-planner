@@ -26,7 +26,7 @@ const BADGE_STYLES: Record<TrackStatus, { label: string; color: string; bg: stri
   },
   free: {
     label: 'Inkluderad',
-    color: 'var(--color-accent-orange)',
+    color: 'var(--color-accent-green)',
     bg: 'var(--color-status-free)',
   },
 }

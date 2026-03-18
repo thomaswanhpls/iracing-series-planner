@@ -68,7 +68,7 @@ const TEMP_STYLE: Record<TempTier, { color: string; bg: string; border: string }
   mild:     { color: 'var(--color-text-secondary)', bg: 'rgba(255,255,255,0.04)', border: 'rgba(255,255,255,0.1)' },
   warm:     { color: '#ffd060', bg: 'rgba(255,210,80,0.08)',  border: 'rgba(255,210,80,0.2)'   },
   hot:      { color: 'var(--color-accent-orange)', bg: 'rgba(255,140,0,0.1)',  border: 'rgba(255,140,0,0.25)'  },
-  extreme:  { color: 'var(--color-accent-magenta)', bg: 'rgba(255,0,255,0.08)', border: 'rgba(255,0,255,0.2)'   },
+  extreme:  { color: 'var(--color-accent-red)',     bg: 'rgba(255,68,68,0.1)',  border: 'rgba(255,68,68,0.25)'  },
 }
 
 // ── Widget ────────────────────────────────────────────────────────────────────
@@ -140,9 +140,9 @@ function RainPill({ rainChance }: { rainChance: number }) {
     <Pill
       icon={heavy ? <CloudRain size={11} /> : <Cloud size={11} />}
       label={`${rainChance}%`}
-      color={heavy ? 'var(--color-accent-magenta)' : moderate ? 'var(--color-accent-orange)' : 'var(--color-accent-cyan)'}
-      bg={heavy ? 'rgba(255,0,255,0.08)' : moderate ? 'rgba(255,140,0,0.1)' : 'rgba(0,255,255,0.07)'}
-      border={heavy ? 'rgba(255,0,255,0.2)' : moderate ? 'rgba(255,140,0,0.22)' : 'rgba(0,255,255,0.18)'}
+      color={heavy ? 'var(--color-accent-red)' : moderate ? 'var(--color-accent-orange)' : 'var(--color-accent-cyan)'}
+      bg={heavy ? 'rgba(255,68,68,0.1)' : moderate ? 'rgba(255,140,0,0.1)' : 'rgba(0,255,255,0.07)'}
+      border={heavy ? 'rgba(255,68,68,0.25)' : moderate ? 'rgba(255,140,0,0.22)' : 'rgba(0,255,255,0.18)'}
     />
   )
 }

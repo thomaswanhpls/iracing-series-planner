@@ -223,7 +223,7 @@ export default async function CostsPage() {
                       <div key={car.name} className="flex items-center justify-between gap-4">
                         <span className="text-xs text-text-secondary">
                           {i === 0 && (
-                            <span className="mr-1.5 rounded bg-accent-magenta/10 px-1 py-0.5 text-[10px] font-bold uppercase tracking-wide text-accent-magenta">
+                            <span className="mr-1.5 rounded bg-accent-green/10 px-1 py-0.5 text-[10px] font-bold uppercase tracking-wide text-accent-green">
                               Billigast
                             </span>
                           )}
@@ -233,7 +233,7 @@ export default async function CostsPage() {
                           className="shrink-0 text-xs font-bold tabular-nums"
                           style={{
                             color:
-                              car.price === 0 ? 'var(--color-accent-cyan)' : 'var(--color-accent-magenta)',
+                              car.price === 0 ? 'var(--color-accent-green)' : 'var(--color-accent-orange)',
                           }}
                         >
                           {car.price === 0 ? 'Inkl.' : `$${car.price.toFixed(2)}`}
@@ -267,9 +267,9 @@ export default async function CostsPage() {
                         className="flex items-center gap-1 rounded-full border border-border-subtle px-2 py-0.5 text-[11px]"
                         style={{
                           borderColor:
-                            price === 0 ? 'rgba(255,140,0,0.35)' : 'rgba(255,0,255,0.3)',
+                            price === 0 ? 'rgba(57,217,138,0.3)' : 'rgba(255,140,0,0.35)',
                           color:
-                            price === 0 ? 'var(--color-accent-orange)' : 'var(--color-accent-magenta)',
+                            price === 0 ? 'var(--color-accent-green)' : 'var(--color-accent-orange)',
                         }}
                       >
                         <MapPin size={9} />
