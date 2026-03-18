@@ -3,6 +3,7 @@
 import { useState, useMemo } from 'react'
 import type { IracingTrack } from '@/lib/iracing/types'
 import { makeTrackKey } from '@/lib/iracing/types'
+import { getTrackPrice } from '@/lib/iracing/track-prices'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Checkbox } from '@/components/ui/checkbox'
@@ -65,8 +66,18 @@ export function TracksStep({
   onBack,
   isPending,
 }: TracksStepProps) {
+  const freeTrackKeys = useMemo(
+    () => new Set(allTracks.map((t) => makeTrackKey(t.venue, t.config)).filter((k) => getTrackPrice(k) === 0)),
+    [allTracks]
+  )
+
   const [search, setSearch] = useState('')
-  const [owned, setOwned] = useState<Set<string>>(new Set(initialOwnedTrackKeys))
+  const [owned, setOwned] = useState<Set<string>>(() => {
+    const initial = new Set(initialOwnedTrackKeys)
+    // Auto-include tracks that are free with the iRacing subscription
+    for (const k of freeTrackKeys) initial.add(k)
+    return initial
+  })
 
   const venueGroups = useMemo(() => buildVenueGroups(allTracks), [allTracks])
 
@@ -131,6 +142,10 @@ export function TracksStep({
         </span>
       </div>
 
+      <p className="text-[11px] text-text-muted rounded-md border border-border/40 bg-bg-elevated/50 px-3 py-2">
+        Banor som ingår i iRacing-prenumerationen är förkryssade automatiskt — de behöver inte köpas.
+      </p>
+
       {filtered.length > 0 && (
         <button
           type="button"
@@ -152,6 +167,7 @@ export function TracksStep({
         )}
         {filtered.map((group) => {
           const isOwned = group.configKeys.some((k) => owned.has(k))
+          const isFree = group.configKeys.some((k) => freeTrackKeys.has(k))
           const configs = group.tracks.map((t) => t.config).filter(Boolean) as string[]
           return (
             <div
@@ -167,14 +183,24 @@ export function TracksStep({
               }}
               className={[
                 'flex cursor-pointer items-start gap-3 rounded-md px-3 py-2.5 text-sm transition-colors',
-                isOwned
+                isFree
+                  ? 'border border-[rgba(45,217,168,0.4)] bg-[rgba(45,217,168,0.07)]'
+                  : isOwned
                   ? 'border border-[rgba(0,232,224,0.55)] bg-[rgba(0,232,224,0.08)]'
                   : 'border border-transparent hover:bg-white/[0.03]',
               ].join(' ')}
             >
               <Checkbox checked={isOwned} readOnly aria-hidden className="mt-0.5 shrink-0" />
               <div className="flex-1 min-w-0">
-                <span className="text-text-primary">{group.venue}</span>
+                <div className="flex items-center gap-2">
+                  <span className="text-text-primary">{group.venue}</span>
+                  {isFree && (
+                    <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded-full"
+                      style={{ color: 'var(--color-accent-green)', background: 'rgba(45,217,168,0.12)' }}>
+                      Ingår
+                    </span>
+                  )}
+                </div>
                 {configs.length > 0 && (
                   <div className="text-[11px] text-text-muted mt-0.5 truncate">
                     {configs.join(' · ')}
