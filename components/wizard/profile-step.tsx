@@ -102,7 +102,7 @@ export function ProfileStep({ initialProfile, onNext }: ProfileStepProps) {
                   onChange={(e) =>
                     setLicenses((prev) => ({ ...prev, [key]: e.target.value as LicenseClass }))
                   }
-                  className="w-full appearance-none rounded-sm border border-border bg-bg-base pl-3 pr-8 py-1.5 font-display text-[13px] text-text-secondary transition-[border-color,box-shadow] focus:border-border-focus focus:shadow-[0_0_5px_rgba(0,255,255,0.3)] focus:outline-none cursor-pointer [&>option]:bg-bg-elevated [&>option]:text-text-primary"
+                  className="w-full appearance-none rounded-sm border border-border bg-bg-base pl-3 pr-8 py-1.5 font-display text-[13px] text-text-secondary transition-[border-color,box-shadow] focus:border-border-focus focus:shadow-[0_0_5px_rgba(0,232,224,0.3)] focus:outline-none cursor-pointer [&>option]:bg-bg-elevated [&>option]:text-text-primary"
                 >
                   {LICENSE_OPTIONS.map(({ value, label: optLabel }) => (
                     <option key={value} value={value}>

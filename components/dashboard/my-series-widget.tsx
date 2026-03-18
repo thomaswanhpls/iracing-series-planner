@@ -1,5 +1,6 @@
 // components/dashboard/my-series-widget.tsx
 import Link from 'next/link'
+import { ArrowRight } from 'lucide-react'
 import { makeTrackKey } from '@/lib/iracing/types'
 import { getTrackPrice } from '@/lib/iracing/track-prices'
 import type { IracingSeries } from '@/lib/iracing/types'
@@ -51,14 +52,8 @@ export function MySeriesWidget({ selectedSeries, ownedTrackKeys, currentWeekInde
 
   return (
     <div className="flex h-full flex-col min-h-0">
-      <div className="flex shrink-0 items-center justify-between px-4 pb-2 pt-3">
+      <div className="shrink-0 px-4 pb-2 pt-3">
         <span className="text-xs font-bold uppercase tracking-widest text-text-muted">Mina serier</span>
-        <Link
-          href="/setup"
-          className="text-xs text-accent-cyan/60 transition-colors hover:text-accent-cyan/80"
-        >
-          Ändra urval →
-        </Link>
       </div>
       <div className="flex flex-1 flex-col gap-2 overflow-y-auto px-4 pb-3">
         {selectedSeries.map((s) => {
@@ -94,6 +89,13 @@ export function MySeriesWidget({ selectedSeries, ownedTrackKeys, currentWeekInde
           )
         })}
       </div>
+      <Link
+        href="/setup"
+        className="group shrink-0 flex items-center justify-center gap-2 border-t border-[rgba(0,232,224,0.2)] py-3 text-sm font-medium text-accent-cyan transition-all hover:bg-[rgba(0,232,224,0.07)]"
+      >
+        Ändra serieurval
+        <ArrowRight size={14} className="transition-transform group-hover:translate-x-1" />
+      </Link>
     </div>
   )
 }

@@ -5,17 +5,14 @@ import { usePathname, useRouter, useSearchParams } from 'next/navigation'
 import { Input } from '@/components/ui/input'
 import { Card } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
-import { Button } from '@/components/ui/button'
 import { Table, TBody, Td, Th, THead, Tr } from '@/components/ui/table'
 import { splitCars } from '@/lib/iracing/cars'
 import { CarBadge } from '@/components/car-badges'
 import {
   CalendarDays,
   CloudRain,
-  DollarSign,
   Flag,
   Gauge,
-  MapPin,
   Thermometer,
   Wind,
 } from 'lucide-react'
@@ -410,36 +407,9 @@ export function SeasonScheduleBrowser({ data }: SeasonScheduleBrowserProps) {
 
   return (
     <div className="space-y-6">
-      <div className="space-y-2">
-        <div className="flex items-center gap-2">
-          <h2 className="font-display text-2xl font-bold">Seriescheman 2026 S2</h2>
-          <Badge variant="default">Valfritt steg</Badge>
-        </div>
-        <p className="text-sm text-text-secondary">
-          Valfritt granskningssteg: kontrollera schema och detaljer för dina valda serier. Själva urvalet görs
-          primärt i Setup.
-        </p>
+      <div>
+        <h2 className="font-display text-2xl font-bold">Seriescheman 2026 S2</h2>
       </div>
-
-      <Card className="space-y-3 border-accent-cyan/30 bg-accent-cyan/[0.05] p-4">
-        <div>
-          <h3 className="font-display text-base font-semibold text-text-primary">Rekommenderat flöde</h3>
-          <p className="mt-1 text-sm text-text-secondary">
-            1. Välj serier i Setup. 2. (Valfritt) granska schema här. 3. Markera vilka banor du äger i Banor.
-            4. Gå till kostnadsanalys för att se vad som saknas och vad det kostar.
-          </p>
-        </div>
-        <div className="flex flex-wrap gap-2">
-          <Button variant="secondary" onClick={() => router.push('/tracks')}>
-            <MapPin className="h-4 w-4" />
-            Gå till Banor
-          </Button>
-          <Button onClick={() => router.push(costsHref)}>
-            <DollarSign className="h-4 w-4" />
-            Gå till Kostnadsanalys
-          </Button>
-        </div>
-      </Card>
 
       <div className="grid gap-3 md:grid-cols-4">
         <Card className="p-3">

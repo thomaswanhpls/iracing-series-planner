@@ -527,7 +527,7 @@ export function SeriesSetup({ data, initialSelectedSeriesNames, userLicenseClass
                 <select
                   value={sortKey}
                   onChange={(e) => setSortKey(e.target.value as SortKey)}
-                  className="w-full appearance-none rounded-sm border border-border bg-bg-elevated pl-4 pr-9 py-[10px] font-display text-[14px] text-text-secondary transition-[border-color,box-shadow] focus:border-border-focus focus:shadow-[0_0_5px_rgba(0,255,255,0.3)] focus:outline-none cursor-pointer [&>option]:bg-bg-elevated [&>option]:text-text-primary"
+                  className="w-full appearance-none rounded-sm border border-border bg-bg-elevated pl-4 pr-9 py-[10px] font-display text-[14px] text-text-secondary transition-[border-color,box-shadow] focus:border-border-focus focus:shadow-[0_0_5px_rgba(0,232,224,0.3)] focus:outline-none cursor-pointer [&>option]:bg-bg-elevated [&>option]:text-text-primary"
                 >
                   <option value="name">Namn</option>
                   <option value="category">Kategori</option>
@@ -671,7 +671,7 @@ export function SeriesSetup({ data, initialSelectedSeriesNames, userLicenseClass
                   className={cn(
                     'absolute left-0 right-0 flex h-[100px] cursor-pointer items-start gap-[14px] rounded-lg border p-[14px_16px] text-left transition-all duration-150',
                     selected
-                      ? 'border-[rgba(0,255,255,0.55)] bg-[rgba(0,255,255,0.18)] shadow-[inset_3px_0_0_rgba(0,255,255,0.7)]'
+                      ? 'border-[rgba(0,232,224,0.55)] bg-[rgba(0,232,224,0.18)] shadow-[inset_3px_0_0_rgba(0,232,224,0.7)]'
                       : 'border-transparent hover:border-border hover:bg-white/[0.03]'
                   )}
                   style={{ top: `${top}px` }}

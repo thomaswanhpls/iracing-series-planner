@@ -1,6 +1,6 @@
 // components/dashboard/cost-widget.tsx
 import Link from 'next/link'
-import { Car, MapPin } from 'lucide-react'
+import { ArrowRight, Car, MapPin } from 'lucide-react'
 import type { ContentCostSummary, ContentPurchaseRecommendation, MissingCarForSeries } from '@/lib/analysis/types'
 
 interface CostWidgetProps {
@@ -23,14 +23,8 @@ export function CostWidget({ summary, recommendations, missingCarBySeries }: Cos
 
   return (
     <div className="flex h-full flex-col min-h-0">
-      <div className="flex shrink-0 items-center justify-between px-4 pb-2 pt-3">
+      <div className="shrink-0 px-4 pb-2 pt-3">
         <span className="text-xs font-bold uppercase tracking-widest text-text-muted">Kostnader</span>
-        <Link
-          href="/dashboard/costs"
-          className="text-xs text-accent-cyan/60 transition-colors hover:text-accent-cyan/80"
-        >
-          Full analys →
-        </Link>
       </div>
       <div className="flex-1 overflow-y-auto px-4 pb-3">
         {/* Total */}
@@ -109,6 +103,13 @@ export function CostWidget({ summary, recommendations, missingCarBySeries }: Cos
           <div className="text-sm text-text-muted">Allt content ägt ✓</div>
         )}
       </div>
+      <Link
+        href="/dashboard/costs"
+        className="group shrink-0 flex items-center justify-center gap-2 border-t border-[rgba(0,232,224,0.2)] py-3 text-sm font-medium text-accent-cyan transition-all hover:bg-[rgba(0,232,224,0.07)]"
+      >
+        Full kostnadsanalys
+        <ArrowRight size={14} className="transition-transform group-hover:translate-x-1" />
+      </Link>
     </div>
   )
 }

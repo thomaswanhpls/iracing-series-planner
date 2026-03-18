@@ -113,7 +113,7 @@ export function CarsStep({
               className={[
                 'flex cursor-pointer items-center gap-3 rounded-md px-3 py-2.5 text-sm transition-colors',
                 isOwned
-                  ? 'border border-[rgba(0,255,255,0.55)] bg-[rgba(0,255,255,0.08)]'
+                  ? 'border border-[rgba(0,232,224,0.55)] bg-[rgba(0,232,224,0.08)]'
                   : 'border border-transparent hover:bg-white/[0.03]',
               ].join(' ')}
             >

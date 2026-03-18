@@ -2,6 +2,7 @@
 'use client'
 
 import Link from 'next/link'
+import { ArrowRight } from 'lucide-react'
 import { makeTrackKey } from '@/lib/iracing/types'
 import { getTrackPrice } from '@/lib/iracing/track-prices'
 import type { IracingSeries } from '@/lib/iracing/types'
@@ -39,16 +40,10 @@ export function MatrixWidget({ selectedSeries, ownedTrackKeys, currentWeekIndex 
 
   return (
     <div className="flex h-full flex-col min-h-0">
-      <div className="flex shrink-0 items-center justify-between px-5 pb-2 pt-3">
+      <div className="shrink-0 px-5 pb-2 pt-3">
         <span className="text-xs font-bold uppercase tracking-widest text-text-muted">
           Track Matrix · v{currentWeekIndex + 1}
         </span>
-        <Link
-          href="/dashboard/matrix"
-          className="text-xs text-accent-cyan/60 transition-colors hover:text-accent-cyan/80"
-        >
-          Full matris →
-        </Link>
       </div>
 
       <div className="flex flex-1 flex-col overflow-y-auto px-5 pb-4">
@@ -118,6 +113,13 @@ export function MatrixWidget({ selectedSeries, ownedTrackKeys, currentWeekIndex 
           ))}
         </div>
       </div>
+      <Link
+        href="/dashboard/matrix"
+        className="group shrink-0 flex items-center justify-center gap-2 border-t border-[rgba(0,232,224,0.2)] py-3 text-sm font-medium text-accent-cyan transition-all hover:bg-[rgba(0,232,224,0.07)]"
+      >
+        Öppna full matris
+        <ArrowRight size={14} className="transition-transform group-hover:translate-x-1" />
+      </Link>
     </div>
   )
 }
