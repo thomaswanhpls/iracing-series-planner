@@ -60,9 +60,10 @@ export function CostWidget({ summary, recommendations, missingCarBySeries }: Cos
                   </div>
                   <span
                     className="ml-3 shrink-0 text-sm font-semibold tabular-nums"
-                    style={{ color: rec.item.price === 0 ? 'var(--color-accent-cyan)' : 'var(--color-accent-orange)' }}
+                    title={rec.item.price === 0 ? 'Ingår i iRacing-prenumerationen' : undefined}
+                    style={{ color: rec.item.price === 0 ? 'var(--color-accent-green)' : 'var(--color-accent-orange)' }}
                   >
-                    {rec.item.price === 0 ? 'Inkl.' : `$${rec.item.price.toFixed(2)}`}
+                    {rec.item.price === 0 ? 'Ingår' : `$${rec.item.price.toFixed(2)}`}
                   </span>
                 </div>
               ))}
@@ -89,9 +90,10 @@ export function CostWidget({ summary, recommendations, missingCarBySeries }: Cos
                   </div>
                   <span
                     className="ml-3 shrink-0 text-sm font-semibold tabular-nums"
-                    style={{ color: entry.price === 0 ? 'var(--color-accent-cyan)' : 'var(--color-accent-magenta)' }}
+                    title={entry.price === 0 ? 'Ingår i iRacing-prenumerationen' : undefined}
+                    style={{ color: entry.price === 0 ? 'var(--color-accent-green)' : 'var(--color-accent-magenta)' }}
                   >
-                    {entry.price === 0 ? 'Inkl.' : `$${entry.price.toFixed(2)}`}
+                    {entry.price === 0 ? 'Ingår' : `$${entry.price.toFixed(2)}`}
                   </span>
                 </div>
               ))}
