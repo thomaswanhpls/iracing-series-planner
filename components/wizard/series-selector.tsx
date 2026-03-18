@@ -28,9 +28,10 @@ export function SeriesSelector({
   const { ownedTrackIds } = useOwnership()
   const tracks = getAllTracks()
 
+  const searchLower = search.trim().toLowerCase()
   const filtered = series.filter((s) => {
     if (selectedCategories.length > 0 && !selectedCategories.includes(s.category)) return false
-    if (search && !s.series_name.toLowerCase().includes(search.toLowerCase())) return false
+    if (searchLower && !(s.series_name ?? '').toLowerCase().includes(searchLower)) return false
     return true
   })
 
@@ -73,10 +74,10 @@ export function SeriesSelector({
                   <div className="font-display text-sm font-semibold">{s.series_name}</div>
                   <div className="mt-2 flex flex-wrap gap-1.5">
                     <Badge variant={s.category === 'road' ? 'road' : s.category === 'oval' ? 'oval' : 'default'}>
-                      {s.category.replace('_', ' ')}
+                      {(s.category ?? '').replace('_', ' ')}
                     </Badge>
                     <Badge variant={s.license_group as 'rookie' | 'd' | 'c' | 'b' | 'a' | 'pro'}>
-                      {s.license_group.toUpperCase()}
+                      {(s.license_group ?? '').toUpperCase()}
                     </Badge>
                     {s.fixed_setup && <Badge>Fixed</Badge>}
                   </div>
@@ -104,7 +105,7 @@ export function SeriesSelector({
                           : 'bg-gradient-to-r from-accent-primary to-accent-primary/60'
                       )}
                       style={{
-                        width: `${(accessibleCount / analysis.totalWeeks) * 100}%`,
+                        width: `${analysis.totalWeeks > 0 ? (accessibleCount / analysis.totalWeeks) * 100 : 0}%`,
                       }}
                     />
                   </div>
