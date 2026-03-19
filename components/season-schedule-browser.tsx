@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useMemo, useState } from 'react'
-import { useTranslations } from 'next-intl'
+import { useLocale, useTranslations } from 'next-intl'
 import { usePathname, useRouter, useSearchParams } from 'next/navigation'
 import { Input } from '@/components/ui/input'
 import { Card } from '@/components/ui/card'
@@ -63,7 +63,15 @@ interface WeekSignal {
   icon: React.ComponentType<{ className?: string }>
 }
 
-function parseWeekSignals(notes: string): WeekSignal[] {
+interface SignalLabels {
+  temp: string
+  rain: string
+  wind: string
+  start: string
+  caution: string
+}
+
+function parseWeekSignals(notes: string, labels: SignalLabels): WeekSignal[] {
   if (!notes) return []
 
   const normalized = notes.replace(/\s+/g, ' ').trim()
@@ -78,7 +86,7 @@ function parseWeekSignals(notes: string): WeekSignal[] {
 
   if (tempMatch) {
     signals.push({
-      label: 'Temp',
+      label: labels.temp,
       value: tempMatch[1],
       icon: Thermometer,
     })
@@ -89,7 +97,7 @@ function parseWeekSignals(notes: string): WeekSignal[] {
     const lower = rainValue.toLowerCase()
     const tone = lower === 'none' || lower === '0%' ? 'positive' : 'warning'
     signals.push({
-      label: 'Regn',
+      label: labels.rain,
       value: rainValue,
       tone,
       icon: CloudRain,
@@ -98,7 +106,7 @@ function parseWeekSignals(notes: string): WeekSignal[] {
 
   if (windMatch) {
     signals.push({
-      label: 'Vind',
+      label: labels.wind,
       value: windMatch[1].trim(),
       icon: Wind,
     })
@@ -106,7 +114,7 @@ function parseWeekSignals(notes: string): WeekSignal[] {
 
   if (startMatch) {
     signals.push({
-      label: 'Start',
+      label: labels.start,
       value: startMatch[1],
       icon: Flag,
     })
@@ -115,7 +123,7 @@ function parseWeekSignals(notes: string): WeekSignal[] {
   if (cautionMatch) {
     const value = cautionMatch[1].trim()
     signals.push({
-      label: 'Caution',
+      label: labels.caution,
       value,
       tone: value.toLowerCase().includes('disabled') ? 'positive' : 'default',
       icon: Gauge,
@@ -125,11 +133,11 @@ function parseWeekSignals(notes: string): WeekSignal[] {
   return signals
 }
 
-function formatCompactDate(value: string): string {
+function formatCompactDate(value: string, locale: string): string {
   if (!value) return '-'
   const parsed = new Date(`${value}T12:00:00`)
   if (Number.isNaN(parsed.getTime())) return value
-  return new Intl.DateTimeFormat('sv-SE', {
+  return new Intl.DateTimeFormat(locale, {
     day: 'numeric',
     month: 'short',
   })
@@ -137,14 +145,14 @@ function formatCompactDate(value: string): string {
     .replace('.', '')
 }
 
-function formatCompactReferenceSession(value: string): string {
+function formatCompactReferenceSession(value: string, locale: string): string {
   if (!value) return '-'
 
   const match = value.match(/^(\d{4}-\d{2}-\d{2})(?:\s+(\d{2}:\d{2}))?(?:\s+(.*))?$/)
   if (!match) return value
 
   const [, rawDate, rawTime, rawSuffix] = match
-  const dateLabel = formatCompactDate(rawDate)
+  const dateLabel = formatCompactDate(rawDate, locale)
   const timeLabel = rawTime ? ` ${rawTime}` : ''
   const suffix = rawSuffix ? ` ${rawSuffix}` : ''
   return `${dateLabel}${timeLabel}${suffix}`.trim()
@@ -240,6 +248,7 @@ export function SeasonScheduleBrowser({ data }: SeasonScheduleBrowserProps) {
   const [activeClass, setActiveClass] = useState<string>('all')
   const [selectedSeriesId, setSelectedSeriesId] = useState<string>('')
   const [showPrioritizedOnly, setShowPrioritizedOnly] = useState(false)
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const parsedSearchParams = useMemo(
     () => new URLSearchParams(searchParamsString),
     [searchParamsString]
@@ -408,9 +417,124 @@ export function SeasonScheduleBrowser({ data }: SeasonScheduleBrowserProps) {
     ? `/dashboard/costs?${planningParams.toString()}`
     : '/dashboard/costs'
 
+  const filterControls = (
+    <>
+      <div className="grid gap-3 md:grid-cols-[1fr_220px]">
+        <Input
+          value={search}
+          onChange={(event) => setSearch(event.target.value)}
+          placeholder={t('searchPlaceholder')}
+        />
+        <div className="relative">
+          <select
+            value={activeClass}
+            onChange={(event) => setActiveClass(event.target.value)}
+            className="w-full appearance-none rounded-sm border border-border bg-bg-elevated pl-3 pr-9 py-2 font-display text-sm text-text-secondary transition-[border-color,box-shadow] focus:border-border-focus focus:shadow-[0_0_5px_rgba(0,232,224,0.3)] focus:outline-none cursor-pointer [&>option]:bg-bg-elevated [&>option]:text-text-primary"
+          >
+            <option value="all">{t('allClasses')}</option>
+            {classes.map((className) => (
+              <option key={className} value={className}>
+                {className}
+              </option>
+            ))}
+          </select>
+          <ChevronDown className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-text-muted" />
+        </div>
+      </div>
+
+      <div className="flex flex-wrap gap-2">
+        <button
+          type="button"
+          onClick={() => setActiveCategory('all')}
+          className={`rounded-full border px-3 py-1.5 text-xs transition ${
+            activeCategory === 'all'
+              ? 'border-accent-cyan bg-accent-cyan/10 text-accent-cyan'
+              : 'border-border text-text-secondary hover:text-text-primary'
+          }`}
+        >
+          {t('all')}
+        </button>
+        {data.categories.map((category) => (
+          <button
+            key={category.id}
+            type="button"
+            onClick={() => setActiveCategory(category.id)}
+            className={`rounded-full border px-3 py-1.5 text-xs transition ${
+              activeCategory === category.id
+                ? 'border-accent-cyan/50 bg-accent-cyan/10 text-accent-cyan'
+                : 'border-border text-text-secondary hover:text-text-primary'
+            }`}
+          >
+            {category.label}
+          </button>
+        ))}
+        {prioritizedSeriesIds.length > 0 && (
+          <button
+            type="button"
+            onClick={() => setShowPrioritizedOnly((value) => !value)}
+            className={`rounded-full border px-3 py-1.5 text-xs transition ${
+              showPrioritizedOnly
+                ? 'border-accent-cyan/50 bg-accent-cyan/10 text-accent-cyan'
+                : 'border-border text-text-secondary hover:text-text-primary'
+            }`}
+          >
+            {t('prioritizedOnly')}
+          </button>
+        )}
+        <button
+          type="button"
+          onClick={resetFilters}
+          className="rounded-full border border-border px-3 py-1.5 text-xs text-text-secondary transition hover:text-text-primary"
+        >
+          {t('resetFilters')}
+        </button>
+      </div>
+    </>
+  )
+
+  const seriesList = (
+    <div className="space-y-1">
+      {sortedSeries.map((series) => {
+        const isActive = selectedSeries?.id === series.id
+        const prioritized = prioritizedSeriesIdSet.has(series.id)
+        return (
+          <button
+            key={series.id}
+            type="button"
+            onClick={() => {
+              setSelectedSeriesId(series.id)
+              setMobileMenuOpen(false)
+            }}
+            className={`w-full rounded-lg border p-3 text-left transition ${
+              isActive
+                ? 'border-[rgba(0,255,255,0.55)] bg-[rgba(0,255,255,0.18)]'
+                : 'border-transparent hover:border-border hover:bg-white/[0.03]'
+            }`}
+          >
+            <div className="mb-2 flex flex-wrap items-center gap-2">
+              <Badge variant={categoryBadgeVariants[series.categoryId] ?? 'default'}>
+                {series.categoryLabel}
+              </Badge>
+              <Badge variant="default">{series.className}</Badge>
+              <Badge variant="default">{series.weeks.length} v</Badge>
+              {prioritized && <Badge variant="default">{t('prioritizedBadge')}</Badge>}
+            </div>
+            <div className="text-sm font-medium text-text-primary">{series.title}</div>
+          </button>
+        )
+      })}
+
+      {sortedSeries.length === 0 && (
+        <div className="rounded-lg border border-border p-4 text-sm text-text-secondary">
+          {t('noResults')}
+        </div>
+      )}
+    </div>
+  )
+
   return (
-    <div className="space-y-6">
-      <div>
+    <div className="space-y-4">
+      <div className="flex items-center justify-between">
         <h2 className="font-display text-2xl font-bold">{t('title')}</h2>
       </div>
 
@@ -433,118 +557,32 @@ export function SeasonScheduleBrowser({ data }: SeasonScheduleBrowserProps) {
         </Card>
       </div>
 
-      <Card className="space-y-4 p-4">
-        <div className="grid gap-3 md:grid-cols-[1fr_220px]">
-          <Input
-            value={search}
-            onChange={(event) => setSearch(event.target.value)}
-            placeholder={t('searchPlaceholder')}
-          />
-          <div className="relative">
-            <select
-              value={activeClass}
-              onChange={(event) => setActiveClass(event.target.value)}
-              className="w-full appearance-none rounded-sm border border-border bg-bg-elevated pl-3 pr-9 py-2 font-display text-sm text-text-secondary transition-[border-color,box-shadow] focus:border-border-focus focus:shadow-[0_0_5px_rgba(0,232,224,0.3)] focus:outline-none cursor-pointer [&>option]:bg-bg-elevated [&>option]:text-text-primary"
-            >
-              <option value="all">{t('allClasses')}</option>
-              {classes.map((className) => (
-                <option key={className} value={className}>
-                  {className}
-                </option>
-              ))}
-            </select>
-            <ChevronDown className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-text-muted" />
-          </div>
-        </div>
-
-        <div className="flex flex-wrap gap-2">
-          <button
-            type="button"
-            onClick={() => setActiveCategory('all')}
-            className={`rounded-full border px-3 py-1.5 text-xs transition ${
-              activeCategory === 'all'
-                ? 'border-accent-cyan bg-accent-cyan/10 text-accent-cyan'
-                : 'border-border text-text-secondary hover:text-text-primary'
-            }`}
-          >
-            {t('all')}
-          </button>
-          {data.categories.map((category) => (
-            <button
-              key={category.id}
-              type="button"
-              onClick={() => setActiveCategory(category.id)}
-              className={`rounded-full border px-3 py-1.5 text-xs transition ${
-                activeCategory === category.id
-                  ? 'border-accent-cyan/50 bg-accent-cyan/10 text-accent-cyan'
-                  : 'border-border text-text-secondary hover:text-text-primary'
-              }`}
-            >
-              {category.label}
-            </button>
-          ))}
-          {prioritizedSeriesIds.length > 0 && (
-            <button
-              type="button"
-              onClick={() => setShowPrioritizedOnly((value) => !value)}
-              className={`rounded-full border px-3 py-1.5 text-xs transition ${
-                showPrioritizedOnly
-                  ? 'border-accent-cyan/50 bg-accent-cyan/10 text-accent-cyan'
-                  : 'border-border text-text-secondary hover:text-text-primary'
-              }`}
-            >
-              {t('prioritizedOnly')}
-            </button>
-          )}
-          <button
-            type="button"
-            onClick={resetFilters}
-            className="rounded-full border border-border px-3 py-1.5 text-xs text-text-secondary transition hover:text-text-primary"
-          >
-            {t('resetFilters')}
-          </button>
-        </div>
+      {/* Filter card — desktop only */}
+      <Card className="hidden lg:block space-y-4 p-4">
+        {filterControls}
       </Card>
 
-      <div className="grid gap-4 lg:grid-cols-[360px_1fr]">
-        <Card className="h-[50vh] md:h-[70vh] overflow-y-auto p-2">
-          <div className="space-y-1">
-            {sortedSeries.map((series) => {
-              const isActive = selectedSeries?.id === series.id
-              const prioritized = prioritizedSeriesIdSet.has(series.id)
-              return (
-                <button
-                  key={series.id}
-                  type="button"
-                  onClick={() => setSelectedSeriesId(series.id)}
-                  className={`w-full rounded-lg border p-3 text-left transition ${
-                    isActive
-                      ? 'border-[rgba(0,255,255,0.55)] bg-[rgba(0,255,255,0.18)]'
-                      : 'border-transparent hover:border-border hover:bg-white/[0.03]'
-                  }`}
-                >
-                  <div className="mb-2 flex flex-wrap items-center gap-2">
-                    <Badge variant={categoryBadgeVariants[series.categoryId] ?? 'default'}>
-                      {series.categoryLabel}
-                    </Badge>
-                    <Badge variant="default">{series.className}</Badge>
-                    <Badge variant="default">{series.weeks.length} v</Badge>
-                    {prioritized && <Badge variant="default">{t('prioritizedBadge')}</Badge>}
-                  </div>
-                  <div className="text-sm font-medium text-text-primary">{series.title}</div>
-                </button>
-              )
-            })}
+      {/* Mobile series picker trigger */}
+      <button
+        type="button"
+        onClick={() => setMobileMenuOpen(true)}
+        className="lg:hidden w-full flex items-center justify-between rounded-lg border border-border bg-bg-elevated px-4 py-2.5 text-sm text-left transition hover:border-border-focus"
+      >
+        <span className={selectedSeries ? 'font-medium text-text-primary' : 'text-text-muted'}>
+          {selectedSeries ? selectedSeries.title : t('selectSeriesPrompt')}
+        </span>
+        <ChevronDown className="ml-2 h-4 w-4 shrink-0 text-text-muted" />
+      </button>
 
-            {sortedSeries.length === 0 && (
-              <div className="rounded-lg border border-border p-4 text-sm text-text-secondary">
-                {t('noResults')}
-              </div>
-            )}
-          </div>
+      {/* Split view */}
+      <div className="grid gap-4 lg:grid-cols-[360px_1fr]">
+        {/* Series list — desktop sidebar */}
+        <Card className="hidden lg:block h-[70vh] overflow-y-auto p-2">
+          {seriesList}
         </Card>
 
-        <Card className={`h-[50vh] md:h-[70vh] overflow-y-auto p-0${!selectedSeries ? ' hidden lg:block' : ''}`}>
+        {/* Detail panel — full height on mobile */}
+        <Card className="h-[60vh] lg:h-[70vh] overflow-y-auto p-0">
           {selectedSeries ? (
             <SeriesDetails series={selectedSeries} />
           ) : (
@@ -552,6 +590,34 @@ export function SeasonScheduleBrowser({ data }: SeasonScheduleBrowserProps) {
           )}
         </Card>
       </div>
+
+      {/* Mobile bottom-sheet drawer */}
+      {mobileMenuOpen && (
+        <>
+          <div
+            className="fixed inset-0 z-40 bg-black/60 lg:hidden"
+            onClick={() => setMobileMenuOpen(false)}
+          />
+          <div className="fixed inset-x-0 bottom-0 z-50 flex max-h-[85vh] flex-col rounded-t-2xl border-t border-border bg-bg-elevated lg:hidden">
+            <div className="flex shrink-0 items-center justify-between border-b border-border px-4 py-3">
+              <span className="text-sm font-semibold text-text-primary">{t('title')}</span>
+              <button
+                type="button"
+                onClick={() => setMobileMenuOpen(false)}
+                className="text-text-muted hover:text-text-primary transition-colors"
+              >
+                ✕
+              </button>
+            </div>
+            <div className="shrink-0 space-y-3 border-b border-border px-4 py-3">
+              {filterControls}
+            </div>
+            <div className="flex-1 overflow-y-auto p-2">
+              {seriesList}
+            </div>
+          </div>
+        </>
+      )}
     </div>
   )
 }
@@ -559,9 +625,9 @@ export function SeasonScheduleBrowser({ data }: SeasonScheduleBrowserProps) {
 function WeekSignalBadge({ signal }: { signal: WeekSignal }) {
   return (
     <span
-      className={`inline-flex items-center gap-2 rounded-full border px-3 py-1.5 text-[13px] leading-5 ${getWeekSignalClasses(signal)}`}
+      className={`inline-flex items-center gap-1.5 rounded-full border px-2 py-0.5 text-xs leading-4 ${getWeekSignalClasses(signal)}`}
     >
-      <signal.icon className="h-4 w-4" />
+      <signal.icon className="h-3 w-3" />
       <span className="font-semibold">{signal.label}:</span>
       <span className="font-medium">{signal.value}</span>
     </span>
@@ -570,8 +636,16 @@ function WeekSignalBadge({ signal }: { signal: WeekSignal }) {
 
 function SeriesDetails({ series }: { series: SeasonSeries }) {
   const t = useTranslations('seriesBrowser')
+  const locale = useLocale()
   const cars = splitCars(series.cars)
   const licenseVariant = inferLicenseBadgeVariant(series.license)
+  const signalLabels: SignalLabels = {
+    temp: t('signalTemp'),
+    rain: t('signalRain'),
+    wind: t('signalWind'),
+    start: t('signalStart'),
+    caution: t('signalCaution'),
+  }
 
   return (
     <div className="space-y-4 p-4">
@@ -608,7 +682,6 @@ function SeriesDetails({ series }: { series: SeasonSeries }) {
           <THead>
             <Tr>
               <Th>{t('track')}</Th>
-              <Th className="w-24">{t('length')}</Th>
               <Th className="hidden md:table-cell w-40">{t('reference')}</Th>
             </Tr>
           </THead>
@@ -618,22 +691,25 @@ function SeriesDetails({ series }: { series: SeasonSeries }) {
                 key={`${series.id}-${week.week}-${week.startDate}-${week.track}-${index}`}
                 className="align-top hover:bg-[rgba(26,27,59,0.35)]"
               >
-                <Td className="py-2">
-                  <div className="h-full min-h-[64px] rounded-lg border border-border/60 bg-gradient-to-r from-[rgba(26,27,59,0.85)] via-[rgba(26,27,59,0.65)] to-bg-surface/75 p-2.5">
-                    <div className="mb-2 flex flex-wrap items-center gap-2">
-                      <span className="inline-flex min-w-7 items-center justify-center rounded-md border border-accent-cyan/40 bg-accent-cyan/20 px-1.5 py-0.5 font-display text-sm font-semibold text-text-primary">
+                <Td className="py-1">
+                  <div className="h-full rounded-lg border border-border/60 bg-gradient-to-r from-[rgba(26,27,59,0.85)] via-[rgba(26,27,59,0.65)] to-bg-surface/75 p-2">
+                    <div className="mb-2 flex flex-wrap items-center gap-1.5">
+                      <span className="inline-flex min-w-6 items-center justify-center rounded border border-accent-cyan/40 bg-accent-cyan/20 px-1 py-0 font-display text-xs font-semibold text-text-primary">
                         {t('weekPrefix')}{week.week}
                       </span>
-                      <span className="inline-flex items-center gap-1.5 rounded-md border border-border/70 bg-bg-elevated px-2 py-0.5 text-text-primary">
-                        <CalendarDays className="h-3.5 w-3.5 text-accent-cyan" />
-                        <span className="text-sm font-semibold">{formatCompactDate(week.startDate)}</span>
+                      <span className="inline-flex items-center gap-1 rounded border border-border/70 bg-bg-elevated px-1.5 py-0 text-text-primary">
+                        <CalendarDays className="h-3 w-3 text-accent-cyan" />
+                        <span className="text-xs font-semibold">{formatCompactDate(week.startDate, locale)}</span>
                       </span>
+                      {week.length && (
+                        <span className="text-xs text-text-muted">{week.length}</span>
+                      )}
                     </div>
-                    <div className="text-lg font-semibold leading-normal text-text-primary">{week.track || '-'}</div>
+                    <div className="text-sm font-semibold leading-snug text-text-primary">{week.track || '-'}</div>
                     {week.notes && (
-                      <div className="mt-3">
-                        <div className="flex flex-wrap gap-2.5">
-                          {parseWeekSignals(week.notes).map((signal, signalIndex) => (
+                      <div className="mt-2">
+                        <div className="flex flex-wrap gap-1.5">
+                          {parseWeekSignals(week.notes, signalLabels).map((signal, signalIndex) => (
                             <WeekSignalBadge
                               key={`${series.id}-${index}-${signal.label}-${signalIndex}`}
                               signal={signal}
@@ -644,11 +720,10 @@ function SeriesDetails({ series }: { series: SeasonSeries }) {
                     )}
                   </div>
                 </Td>
-                <Td className="py-2 text-sm font-medium text-text-primary">{week.length || '-'}</Td>
                 <Td className="hidden md:table-cell py-2 text-sm text-text-secondary">
                   <span className="inline-flex items-center gap-1.5 rounded-md border border-border/70 bg-[rgba(26,27,59,0.7)] px-2 py-1">
                     <CalendarDays className="h-3.5 w-3.5 text-accent-cyan" />
-                    {formatCompactReferenceSession(week.referenceSession)}
+                    {formatCompactReferenceSession(week.referenceSession, locale)}
                   </span>
                 </Td>
               </Tr>

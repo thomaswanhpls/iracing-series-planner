@@ -254,7 +254,12 @@
     "reference": "Reference",
     "noLicense": "No license info",
     "noFrequency": "No frequency info",
-    "weekPrefix": "W"
+    "weekPrefix": "W",
+    "signalTemp": "Temp",
+    "signalRain": "Rain",
+    "signalWind": "Wind",
+    "signalStart": "Start",
+    "signalCaution": "Caution"
   },
   "trackCell": {
     "owned": "Owned",

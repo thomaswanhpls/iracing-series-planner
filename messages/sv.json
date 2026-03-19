@@ -254,7 +254,12 @@
     "reference": "Referens",
     "noLicense": "Licens saknas",
     "noFrequency": "Frekvens saknas",
-    "weekPrefix": "V"
+    "weekPrefix": "V",
+    "signalTemp": "Temp",
+    "signalRain": "Regn",
+    "signalWind": "Vind",
+    "signalStart": "Start",
+    "signalCaution": "Caution"
   },
   "trackCell": {
     "owned": "Ägd",
