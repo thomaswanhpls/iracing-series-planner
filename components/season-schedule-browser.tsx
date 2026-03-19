@@ -6,7 +6,6 @@ import { usePathname, useRouter, useSearchParams } from 'next/navigation'
 import { Input } from '@/components/ui/input'
 import { Card } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
-import { Table, TBody, Td, Th, THead, Tr } from '@/components/ui/table'
 import { splitCars } from '@/lib/iracing/cars'
 import { CarBadge } from '@/components/car-badges'
 import {
@@ -145,18 +144,6 @@ function formatCompactDate(value: string, locale: string): string {
     .replace('.', '')
 }
 
-function formatCompactReferenceSession(value: string, locale: string): string {
-  if (!value) return '-'
-
-  const match = value.match(/^(\d{4}-\d{2}-\d{2})(?:\s+(\d{2}:\d{2}))?(?:\s+(.*))?$/)
-  if (!match) return value
-
-  const [, rawDate, rawTime, rawSuffix] = match
-  const dateLabel = formatCompactDate(rawDate, locale)
-  const timeLabel = rawTime ? ` ${rawTime}` : ''
-  const suffix = rawSuffix ? ` ${rawSuffix}` : ''
-  return `${dateLabel}${timeLabel}${suffix}`.trim()
-}
 
 function parseFahrenheit(value: string): number | null {
   const match = value.match(/(\d{2,3})°F/i)
@@ -677,59 +664,37 @@ function SeriesDetails({ series }: { series: SeasonSeries }) {
         </div>
       </div>
 
-      <div className="overflow-x-auto rounded-lg border border-border">
-        <Table>
-          <THead>
-            <Tr>
-              <Th>{t('track')}</Th>
-              <Th className="hidden md:table-cell w-40">{t('reference')}</Th>
-            </Tr>
-          </THead>
-          <TBody>
-            {series.weeks.map((week, index) => (
-              <Tr
-                key={`${series.id}-${week.week}-${week.startDate}-${week.track}-${index}`}
-                className="align-top hover:bg-[rgba(26,27,59,0.35)]"
-              >
-                <Td className="py-1">
-                  <div className="h-full rounded-lg border border-border/60 bg-gradient-to-r from-[rgba(26,27,59,0.85)] via-[rgba(26,27,59,0.65)] to-bg-surface/75 p-2">
-                    <div className="mb-2 flex flex-wrap items-center gap-1.5">
-                      <span className="inline-flex min-w-6 items-center justify-center rounded border border-accent-cyan/40 bg-accent-cyan/20 px-1 py-0 font-display text-xs font-semibold text-text-primary">
-                        {t('weekPrefix')}{week.week}
-                      </span>
-                      <span className="inline-flex items-center gap-1 rounded border border-border/70 bg-bg-elevated px-1.5 py-0 text-text-primary">
-                        <CalendarDays className="h-3 w-3 text-accent-cyan" />
-                        <span className="text-xs font-semibold">{formatCompactDate(week.startDate, locale)}</span>
-                      </span>
-                      {week.length && (
-                        <span className="text-xs text-text-muted">{week.length}</span>
-                      )}
-                    </div>
-                    <div className="text-sm font-semibold leading-snug text-text-primary">{week.track || '-'}</div>
-                    {week.notes && (
-                      <div className="mt-2">
-                        <div className="flex flex-wrap gap-1.5">
-                          {parseWeekSignals(week.notes, signalLabels).map((signal, signalIndex) => (
-                            <WeekSignalBadge
-                              key={`${series.id}-${index}-${signal.label}-${signalIndex}`}
-                              signal={signal}
-                            />
-                          ))}
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                </Td>
-                <Td className="hidden md:table-cell py-2 text-sm text-text-secondary">
-                  <span className="inline-flex items-center gap-1.5 rounded-md border border-border/70 bg-[rgba(26,27,59,0.7)] px-2 py-1">
-                    <CalendarDays className="h-3.5 w-3.5 text-accent-cyan" />
-                    {formatCompactReferenceSession(week.referenceSession, locale)}
-                  </span>
-                </Td>
-              </Tr>
-            ))}
-          </TBody>
-        </Table>
+      <div className="space-y-1.5">
+        {series.weeks.map((week, index) => (
+          <div
+            key={`${series.id}-${week.week}-${week.startDate}-${week.track}-${index}`}
+            className="rounded-lg border border-border/60 bg-gradient-to-r from-[rgba(26,27,59,0.85)] via-[rgba(26,27,59,0.65)] to-bg-surface/75 p-2"
+          >
+            <div className="mb-1 flex flex-wrap items-center gap-1.5">
+              <span className="inline-flex min-w-6 items-center justify-center rounded border border-accent-cyan/40 bg-accent-cyan/20 px-1 py-0 font-display text-xs font-semibold text-text-primary">
+                {t('weekPrefix')}{week.week}
+              </span>
+              <span className="inline-flex items-center gap-1 rounded border border-border/70 bg-bg-elevated px-1.5 py-0 text-text-primary">
+                <CalendarDays className="h-3 w-3 text-accent-cyan" />
+                <span className="text-xs font-semibold">{formatCompactDate(week.startDate, locale)}</span>
+              </span>
+              {week.length && (
+                <span className="text-xs text-text-muted">{week.length}</span>
+              )}
+            </div>
+            <div className="text-sm font-semibold leading-snug text-text-primary">{week.track || '-'}</div>
+            {week.notes && (
+              <div className="mt-1.5 flex flex-wrap gap-1.5">
+                {parseWeekSignals(week.notes, signalLabels).map((signal, signalIndex) => (
+                  <WeekSignalBadge
+                    key={`${series.id}-${index}-${signal.label}-${signalIndex}`}
+                    signal={signal}
+                  />
+                ))}
+              </div>
+            )}
+          </div>
+        ))}
       </div>
     </div>
   )
