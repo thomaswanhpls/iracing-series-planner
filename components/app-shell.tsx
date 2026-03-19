@@ -11,6 +11,7 @@ import {
   ChevronLeft,
   ChevronRight,
   LogOut,
+  Menu,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { OwnershipProvider } from '@/lib/ownership/context'
@@ -54,6 +55,7 @@ export function AppShell({ children, userId, initialOwnedTrackIds }: AppShellPro
   const t = useTranslations('nav')
   const tShell = useTranslations('dashboard.appShell')
   const [collapsed, setCollapsed] = useState(false)
+  const [mobileOpen, setMobileOpen] = useState(false)
   const [seasonBadge, setSeasonBadge] = useState('2026 S2')
   const pathname = usePathname()
   const searchParams = useSearchParams()
@@ -66,6 +68,8 @@ export function AppShell({ children, userId, initialOwnedTrackIds }: AppShellPro
     : { breadcrumb: '', titleKey: '' }
   const pageBreadcrumb = pageBreadcrumbKey ? t(pageBreadcrumbKey as Parameters<typeof t>[0]) : ''
   const pageTitle = pageTitleKey ? t(pageTitleKey as Parameters<typeof t>[0]) : ''
+
+  useEffect(() => { setMobileOpen(false) }, [pathname])
 
   useEffect(() => {
     const querySeason = searchParams.get('season')
@@ -82,11 +86,24 @@ export function AppShell({ children, userId, initialOwnedTrackIds }: AppShellPro
   return (
     <OwnershipProvider userId={userId} initialOwnedTrackIds={initialOwnedTrackIds}>
       <div className="shell flex h-screen overflow-hidden">
+        {/* Mobile backdrop */}
+        {mobileOpen && (
+          <div
+            className="fixed inset-0 z-40 bg-black/60 md:hidden"
+            onClick={() => setMobileOpen(false)}
+          />
+        )}
+
         {/* Sidebar */}
         <aside
           className={cn(
-            'relative flex flex-col border-r border-border transition-[width] duration-300 ease-out',
-            collapsed ? 'w-14' : 'w-[240px]'
+            'flex flex-col border-r border-border transition-[width,transform] duration-300 ease-out',
+            // Desktop: collapsible width, relative positioning
+            'md:relative md:translate-x-0',
+            collapsed ? 'md:w-14' : 'md:w-[240px]',
+            // Mobile: fixed drawer sliding in from left
+            'max-md:fixed max-md:inset-y-0 max-md:left-0 max-md:z-50 max-md:w-[240px]',
+            mobileOpen ? 'max-md:translate-x-0' : 'max-md:-translate-x-full',
           )}
           style={{ background: 'linear-gradient(180deg, #1a1b3b 0%, #121332 100%)' }}
         >
@@ -205,16 +222,25 @@ export function AppShell({ children, userId, initialOwnedTrackIds }: AppShellPro
         {/* Main content */}
         <div className="flex flex-1 flex-col overflow-hidden">
           {/* Topbar */}
-          <header className="relative flex h-16 items-center justify-between border-b border-white/[0.06] px-10">
-            <div className="flex items-baseline gap-2.5">
-              {pageBreadcrumb && (
-                <span className="font-mono text-[11px] text-white/25 uppercase tracking-[0.06em]">
-                  {pageBreadcrumb} /
-                </span>
-              )}
-              {pageTitle && (
-                <span className="text-[16px] font-semibold text-white/90">{pageTitle}</span>
-              )}
+          <header className="relative flex h-16 items-center justify-between border-b border-white/[0.06] px-4 md:px-10">
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => setMobileOpen(true)}
+                className="mr-1 shrink-0 text-text-secondary hover:text-text-primary transition-colors md:hidden"
+                aria-label="Open menu"
+              >
+                <Menu className="h-5 w-5" />
+              </button>
+              <div className="flex items-baseline gap-2.5">
+                {pageBreadcrumb && (
+                  <span className="font-mono text-[11px] text-white/25 uppercase tracking-[0.06em]">
+                    {pageBreadcrumb} /
+                  </span>
+                )}
+                {pageTitle && (
+                  <span className="text-[16px] font-semibold text-white/90">{pageTitle}</span>
+                )}
+              </div>
             </div>
             <div className="flex items-center gap-3">
               <LocaleSwitcher />

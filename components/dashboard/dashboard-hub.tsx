@@ -66,32 +66,27 @@ export function DashboardHub({
         seasonLabel={seasonLabel}
       />
       <div
-        className="grid flex-1 overflow-hidden p-3"
-        style={{
-          gridTemplateColumns: '1fr 1fr 1fr',
-          gridTemplateRows: '2fr 1fr',
-          gap: '10px',
-        }}
+        className="grid flex-1 p-3 gap-[10px] grid-cols-1 overflow-y-auto md:grid-cols-3 md:overflow-hidden md:[grid-template-rows:2fr_1fr]"
       >
         {/* Top row: Cost · My Series · Race Conditions */}
-        <div className={PANEL}>
+        <div className={`min-h-[250px] md:min-h-0 ${PANEL}`}>
           <CostWidget summary={summary} recommendations={recommendations} missingCarBySeries={missingCarBySeries} />
         </div>
-        <div className={PANEL}>
+        <div className={`min-h-[250px] md:min-h-0 ${PANEL}`}>
           <MySeriesWidget
             selectedSeries={selectedSeries}
             ownedTrackKeys={ownedTrackKeys}
             currentWeekIndex={currentWeekIndex}
           />
         </div>
-        <div className={PANEL}>
+        <div className={`min-h-[250px] md:min-h-0 ${PANEL}`}>
           <RaceConditionsWidget
             selectedSeries={selectedSeries}
             currentWeekIndex={currentWeekIndex}
           />
         </div>
-        {/* Bottom row: Matrix spanning full width */}
-        <div className={`col-span-3 ${PANEL}`}>
+        {/* Bottom row: Matrix spanning full width on desktop */}
+        <div className={`min-h-[250px] md:min-h-0 md:col-span-3 ${PANEL}`}>
           <MatrixWidget
             selectedSeries={selectedSeries}
             ownedTrackKeys={ownedTrackKeys}

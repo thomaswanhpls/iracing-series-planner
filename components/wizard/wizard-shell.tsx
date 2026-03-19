@@ -145,13 +145,13 @@ export function WizardShell({
   return (
     <div className="flex flex-col gap-6">
       {/* Step indicator */}
-      <div className="flex items-center gap-2">
+      <div className="flex flex-wrap items-center gap-x-2 gap-y-2">
         {steps.map((label, i) => {
           const stepNum = (i + 1) as WizardState['step']
           const isActive = state.step === stepNum
           const isDone = state.step > stepNum
           return (
-            <div key={label} className="flex items-center gap-2">
+            <div key={label} className="flex shrink-0 items-center gap-2">
               <div
                 className={[
                   'flex h-7 w-7 shrink-0 items-center justify-center rounded-full border text-xs font-bold transition-colors',

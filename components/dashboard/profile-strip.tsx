@@ -40,14 +40,14 @@ export function ProfileStrip({
 
 
   return (
-    <div className="flex h-14 shrink-0 items-center border-b border-border-subtle bg-bg-elevated px-5">
+    <div className="flex min-h-14 h-auto shrink-0 flex-wrap items-center gap-y-1 border-b border-border-subtle bg-bg-elevated px-5 py-2">
       {name && (
         <>
           <span className="text-sm font-semibold text-text-primary">{name}</span>
           <div className="mx-4 h-5 w-px bg-border" />
         </>
       )}
-      <div className="flex items-center gap-5">
+      <div className="flex flex-wrap items-center gap-x-4 gap-y-1">
         {DISCIPLINES.map(({ key, label, color }) => (
           <span key={key} className="flex items-center gap-1.5 text-xs">
             <span className="h-2 w-2 rounded-full shrink-0" style={{ background: color }} />

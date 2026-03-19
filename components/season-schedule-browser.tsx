@@ -507,7 +507,7 @@ export function SeasonScheduleBrowser({ data }: SeasonScheduleBrowserProps) {
       </Card>
 
       <div className="grid gap-4 lg:grid-cols-[360px_1fr]">
-        <Card className="h-[70vh] overflow-y-auto p-2">
+        <Card className="h-[50vh] md:h-[70vh] overflow-y-auto p-2">
           <div className="space-y-1">
             {sortedSeries.map((series) => {
               const isActive = selectedSeries?.id === series.id
@@ -544,7 +544,7 @@ export function SeasonScheduleBrowser({ data }: SeasonScheduleBrowserProps) {
           </div>
         </Card>
 
-        <Card className="h-[70vh] overflow-y-auto p-0">
+        <Card className="h-[50vh] md:h-[70vh] overflow-y-auto p-0">
           {selectedSeries ? (
             <SeriesDetails series={selectedSeries} />
           ) : (
