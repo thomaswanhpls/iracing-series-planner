@@ -16,6 +16,7 @@ import {
   Gauge,
   Thermometer,
   Wind,
+  X,
 } from 'lucide-react'
 import type { SeasonScheduleData, SeasonSeries } from '@/lib/season-schedules/types'
 
@@ -480,43 +481,44 @@ export function SeasonScheduleBrowser({ data }: SeasonScheduleBrowserProps) {
   )
 
   const seriesList = (
-    <div className="space-y-1">
+    <ul className="space-y-1">
       {sortedSeries.map((series) => {
         const isActive = selectedSeries?.id === series.id
         const prioritized = prioritizedSeriesIdSet.has(series.id)
         return (
-          <button
-            key={series.id}
-            type="button"
-            onClick={() => {
-              setSelectedSeriesId(series.id)
-              setMobileMenuOpen(false)
-            }}
-            className={`w-full rounded-lg border p-3 text-left transition ${
-              isActive
-                ? 'border-[rgba(0,255,255,0.55)] bg-[rgba(0,255,255,0.18)]'
-                : 'border-transparent hover:border-border hover:bg-white/[0.03]'
-            }`}
-          >
-            <div className="mb-2 flex flex-wrap items-center gap-2">
-              <Badge variant={categoryBadgeVariants[series.categoryId] ?? 'default'}>
-                {series.categoryLabel}
-              </Badge>
-              <Badge variant="default">{series.className}</Badge>
-              <Badge variant="default">{series.weeks.length} v</Badge>
-              {prioritized && <Badge variant="default">{t('prioritizedBadge')}</Badge>}
-            </div>
-            <div className="text-sm font-medium text-text-primary">{series.title}</div>
-          </button>
+          <li key={series.id}>
+            <button
+              type="button"
+              onClick={() => {
+                setSelectedSeriesId(series.id)
+                setMobileMenuOpen(false)
+              }}
+              className={`w-full rounded-lg border p-3 text-left transition ${
+                isActive
+                  ? 'border-[rgba(0,255,255,0.55)] bg-[rgba(0,255,255,0.18)]'
+                  : 'border-transparent hover:border-border hover:bg-white/[0.03]'
+              }`}
+            >
+              <div className="mb-2 flex flex-wrap items-center gap-2">
+                <Badge variant={categoryBadgeVariants[series.categoryId] ?? 'default'}>
+                  {series.categoryLabel}
+                </Badge>
+                <Badge variant="default">{series.className}</Badge>
+                <Badge variant="default">{series.weeks.length} v</Badge>
+                {prioritized && <Badge variant="default">{t('prioritizedBadge')}</Badge>}
+              </div>
+              <div className="text-sm font-medium text-text-primary">{series.title}</div>
+            </button>
+          </li>
         )
       })}
 
       {sortedSeries.length === 0 && (
-        <div className="rounded-lg border border-border p-4 text-sm text-text-secondary">
+        <li className="rounded-lg border border-border p-4 text-sm text-text-secondary">
           {t('noResults')}
-        </div>
+        </li>
       )}
-    </div>
+    </ul>
   )
 
   return (
@@ -591,9 +593,10 @@ export function SeasonScheduleBrowser({ data }: SeasonScheduleBrowserProps) {
               <button
                 type="button"
                 onClick={() => setMobileMenuOpen(false)}
+                aria-label={t('closeMenu')}
                 className="text-text-muted hover:text-text-primary transition-colors"
               >
-                ✕
+                <X className="h-4 w-4" aria-hidden="true" />
               </button>
             </div>
             <div className="shrink-0 space-y-3 border-b border-border px-4 py-3">
@@ -664,9 +667,9 @@ function SeriesDetails({ series }: { series: SeasonSeries }) {
         </div>
       </div>
 
-      <div className="space-y-1.5">
+      <ul className="space-y-1.5">
         {series.weeks.map((week, index) => (
-          <div
+          <li
             key={`${series.id}-${week.week}-${week.startDate}-${week.track}-${index}`}
             className="rounded-lg border border-border/60 bg-gradient-to-r from-[rgba(26,27,59,0.85)] via-[rgba(26,27,59,0.65)] to-bg-surface/75 p-2"
           >
@@ -693,9 +696,9 @@ function SeriesDetails({ series }: { series: SeasonSeries }) {
                 ))}
               </div>
             )}
-          </div>
+          </li>
         ))}
-      </div>
+      </ul>
     </div>
   )
 }

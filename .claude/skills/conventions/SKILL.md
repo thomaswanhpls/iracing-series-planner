@@ -59,6 +59,44 @@ description: Kodstil, clean code och best practices för iRacing Season Planner.
 4. `@/lib/`
 5. Relativa importer (undvik om möjligt — föredra `@/`-alias)
 
+## Semantisk HTML & Tillgänglighet
+
+- **Använd rätt element för rätt syfte** — semantik är dokumentation för skärmläsare och sökmotorer
+- Listar du items? → `<ul>/<li>` (oordnad) eller `<ol>/<li>` (ordnad) — aldrig en rad av `<div>`
+- Är ett element klickbart? → `<button>` (interaktion) eller `<a href>` (navigation) — aldrig `<div onClick>`
+- Formulärfält ska alltid ha ett associerat `<label>` (via `htmlFor` eller wrapping)
+- Bilder: `alt` med meningsfull text; `alt=""` för dekorativa bilder
+- Ikoner utan synlig text: `aria-label` eller `aria-hidden="true"` + synlig text bredvid
+- Interaktiva element måste vara tangentbordsnavigerbar (`tabIndex`, `onKeyDown` om nödvändigt)
+- Färg får inte vara det enda sättet att förmedla information
+
+### Vanliga mönster
+
+```tsx
+// Lista av cards
+<ul className="space-y-1.5">
+  {items.map((item) => (
+    <li key={item.id}>
+      <div className="rounded-lg border p-2">...</div>
+    </li>
+  ))}
+</ul>
+
+// Lista av klickbara rader
+<ul className="space-y-1">
+  {items.map((item) => (
+    <li key={item.id}>
+      <button type="button" className="w-full text-left ...">...</button>
+    </li>
+  ))}
+</ul>
+
+// Ikon-knapp utan synlig text
+<button type="button" aria-label="Stäng meny">
+  <X className="h-4 w-4" aria-hidden="true" />
+</button>
+```
+
 ## Kommentarer
 
 - Skriv inte kommentarer som beskriver *vad* koden gör — det ska framgå av koden
