@@ -74,7 +74,7 @@ export function WizardShell({
   const [state, setState] = useState<WizardState>(() => {
     const stored = loadFromStorage()
     return {
-      step: (stored.step ?? 1) as WizardState['step'],
+      step: 1,
       profile: stored.profile ?? initialProfile,
       selectedSeriesNames: stored.selectedSeriesNames ?? initialSeriesNames,
       ownedTrackKeys: stored.ownedTrackKeys ?? initialTrackKeys,
