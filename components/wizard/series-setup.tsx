@@ -117,15 +117,13 @@ function inferLicenseBadgeVariant(
   return 'default'
 }
 
-function getLicenseLabel(raw: string): string {
-  if (!raw) return 'N/A'
-  const first = raw.split(',')[0]?.trim() ?? raw
-  // "Class D 4.0 → Pro/WC 4.0" → "D" (color variant already conveys the class)
-  const classMatch = first.match(/^Class\s+([A-Z])\b/)
+/** "C Class Series (SPORTS CAR)" → "C", "Rookie Series (SPORTS CAR)" → "Rookie" */
+function getClassLabel(className: string): string {
+  const classMatch = className.match(/^([A-Z])\s+Class\s+Series/)
   if (classMatch) return classMatch[1]
-  const rookieMatch = first.match(/^(Rookie)\b/)
+  const rookieMatch = className.match(/^Rookie\s+Series/)
   if (rookieMatch) return 'Rookie'
-  return first
+  return className.split(' ')[0] ?? className
 }
 
 function normalize(value: string) {
@@ -727,8 +725,8 @@ export function SeriesSetup({ data, initialSelectedSeriesNames, userLicenseClass
               const absoluteIndex = visibleStartIndex + index
               const top = absoluteIndex * ROW_HEIGHT
               const selected = selectedSeriesIds.includes(entry.id)
-              const licVariant = inferLicenseBadgeVariant(entry.license)
-              const licLabel = getLicenseLabel(entry.license)
+              const licVariant = inferLicenseBadgeVariant(entry.className)
+              const licLabel = getClassLabel(entry.className)
               const catVariant = categoryBadgeVariants[entry.categoryId] ?? 'default'
 
               return (
@@ -754,7 +752,6 @@ export function SeriesSetup({ data, initialSelectedSeriesNames, userLicenseClass
                       <Badge variant={catVariant}>
                         {entry.categoryLabel}
                       </Badge>
-                      <Badge variant="default" className="hidden md:inline-flex">{entry.className}</Badge>
                       <Badge variant={licVariant}>{licLabel}</Badge>
                       <Badge variant="default">{entry.weeks.length}{t('weeksShort')}</Badge>
                     </div>
