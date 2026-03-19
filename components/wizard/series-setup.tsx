@@ -231,7 +231,7 @@ export function SeriesSetup({ data, initialSelectedSeriesNames, userLicenseClass
     (searchParams.get('setup_dir') ?? 'asc') === 'asc'
   )
   const [scrollTop, setScrollTop] = useState(0)
-  const [filtersOpen, setFiltersOpen] = useState(true)
+  const [filtersOpen, setFiltersOpen] = useState(false)
   const [selectedBrands, setSelectedBrands] = useState<string[]>([])
   const [showOnlySelected, setShowOnlySelected] = useState(false)
 
