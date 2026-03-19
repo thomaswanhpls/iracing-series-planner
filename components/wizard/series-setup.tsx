@@ -90,7 +90,7 @@ interface PersistedSetupState {
 
 type SortKey = 'name' | 'category' | 'class'
 
-const ROW_HEIGHT = 120
+const ROW_HEIGHT = 140
 const OVERSCAN_ROWS = 6
 const defaultSeason = '2026-2'
 const storageKey = 'series-setup-state-v1'
@@ -735,7 +735,7 @@ export function SeriesSetup({ data, initialSelectedSeriesNames, userLicenseClass
                   type="button"
                   onClick={() => toggleSeries(entry.id)}
                   className={cn(
-                    'absolute left-0 right-0 flex h-[120px] w-full cursor-pointer items-start gap-[14px] rounded-lg border p-[14px_16px] text-left transition-all duration-150',
+                    'absolute left-0 right-0 flex h-[140px] w-full cursor-pointer items-start gap-[14px] rounded-lg border p-[14px_16px] text-left transition-all duration-150',
                     selected
                       ? 'border-[rgba(0,232,224,0.55)] bg-[rgba(0,232,224,0.18)] shadow-[inset_3px_0_0_rgba(0,232,224,0.7)]'
                       : 'border-transparent hover:border-border hover:bg-white/[0.03]'
@@ -755,7 +755,7 @@ export function SeriesSetup({ data, initialSelectedSeriesNames, userLicenseClass
                       <Badge variant={licVariant}>{licLabel}</Badge>
                       <Badge variant="default">{entry.weeks.length}{t('weeksShort')}</Badge>
                     </div>
-                    <div className="font-display text-[15px] font-semibold text-text-primary tracking-[-0.01em] line-clamp-1">{entry.title}</div>
+                    <div className="font-display text-[15px] font-semibold text-text-primary tracking-[-0.01em]">{entry.title}</div>
                   </div>
                   <CarIndicator cars={entry.cars} />
                 </button>
