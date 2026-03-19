@@ -90,7 +90,7 @@ interface PersistedSetupState {
 
 type SortKey = 'name' | 'category' | 'class'
 
-const ROW_HEIGHT = 100
+const ROW_HEIGHT = 120
 const OVERSCAN_ROWS = 6
 const defaultSeason = '2026-2'
 const storageKey = 'series-setup-state-v1'
@@ -502,12 +502,12 @@ export function SeriesSetup({ data, initialSelectedSeriesNames, userLicenseClass
   return (
     <div className="mx-auto max-w-6xl space-y-5">
       {/* Header */}
-      <div className="flex justify-between items-start">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
         <div>
           <h2 className="font-display text-2xl font-bold text-text-primary">{t('title')}</h2>
           <p className="text-sm text-text-secondary mt-1">{t('subtitle')}</p>
         </div>
-        <div className="flex items-center gap-3">
+        <div className="flex flex-wrap items-center gap-2">
           {onBack && (
             <Button variant="ghost" onClick={onBack}>
               {tCommon('back')}
@@ -548,8 +548,9 @@ export function SeriesSetup({ data, initialSelectedSeriesNames, userLicenseClass
         {filtersOpen && (
           <div className="space-y-3 border-t border-border/50 px-4 pb-4 pt-3">
             {/* Search + sort row */}
-            <div className="grid gap-3 md:grid-cols-[1fr_160px_auto]">
+            <div className="grid gap-3 grid-cols-[1fr_auto] md:grid-cols-[1fr_160px_auto]">
               <Input
+                className="col-span-2 md:col-span-1"
                 placeholder={t('search')}
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
@@ -648,7 +649,7 @@ export function SeriesSetup({ data, initialSelectedSeriesNames, userLicenseClass
             {/* Car brand pills */}
             {availableBrands.length > 0 && (
               <div className="flex flex-wrap gap-2">
-                <span className="self-center text-[10px] font-semibold uppercase tracking-wider text-text-muted mr-1">Bil</span>
+                <span className="self-center text-[10px] font-semibold uppercase tracking-wider text-text-muted mr-1">{t('filter.brands')}</span>
                 {availableBrands.map((brand) => {
                   const active = selectedBrands.includes(brand)
                   return (
@@ -682,9 +683,23 @@ export function SeriesSetup({ data, initialSelectedSeriesNames, userLicenseClass
       )}
 
       {/* Series count + bulk actions */}
-      <div className="flex justify-between items-center">
-        <span className="text-xs text-text-muted">{t('seriesMatch', { count: sortedSeries.length })}</span>
-        <div className="flex gap-3">
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        <div className="flex items-center gap-3">
+          <span className="text-xs text-text-muted">{t('seriesMatch', { count: sortedSeries.length })}</span>
+          <button
+            type="button"
+            onClick={() => setShowOnlySelected((v) => !v)}
+            className={cn(
+              'rounded-full border px-2.5 py-1 text-[11px] font-medium transition-all',
+              showOnlySelected
+                ? 'border-accent-cyan/50 bg-accent-cyan/10 text-accent-cyan'
+                : 'border-border/50 text-text-muted hover:text-text-secondary'
+            )}
+          >
+            {t('showOnlySelected')}
+          </button>
+        </div>
+        <div className="flex gap-2">
           <Button variant="ghost" className="h-7 px-2 text-xs" onClick={() => selectManySeries(allFilteredIds)} disabled={allFilteredIds.length === 0}>
             {t('selectAll')}
           </Button>
@@ -698,7 +713,7 @@ export function SeriesSetup({ data, initialSelectedSeriesNames, userLicenseClass
       <Card className="overflow-hidden p-2">
         <div
           ref={scrollContainerRef}
-          className="max-h-[calc(100vh-340px)] min-h-[400px] overflow-y-auto"
+          className="max-h-[calc(100vh-240px)] min-h-[360px] overflow-y-auto md:max-h-[calc(100vh-340px)]"
           onScroll={(e) => setScrollTop(e.currentTarget.scrollTop)}
         >
           <div className="relative" style={{ height: `${totalHeight}px` }}>
@@ -711,19 +726,12 @@ export function SeriesSetup({ data, initialSelectedSeriesNames, userLicenseClass
               const catVariant = categoryBadgeVariants[entry.categoryId] ?? 'default'
 
               return (
-                <div
+                <button
                   key={entry.id}
-                  role="button"
-                  tabIndex={0}
+                  type="button"
                   onClick={() => toggleSeries(entry.id)}
-                  onKeyDown={(e) => {
-                    if (e.key === 'Enter' || e.key === ' ') {
-                      e.preventDefault()
-                      toggleSeries(entry.id)
-                    }
-                  }}
                   className={cn(
-                    'absolute left-0 right-0 flex h-[100px] cursor-pointer items-start gap-[14px] rounded-lg border p-[14px_16px] text-left transition-all duration-150',
+                    'absolute left-0 right-0 flex h-[120px] w-full cursor-pointer items-start gap-[14px] rounded-lg border p-[14px_16px] text-left transition-all duration-150',
                     selected
                       ? 'border-[rgba(0,232,224,0.55)] bg-[rgba(0,232,224,0.18)] shadow-[inset_3px_0_0_rgba(0,232,224,0.7)]'
                       : 'border-transparent hover:border-border hover:bg-white/[0.03]'
@@ -740,14 +748,14 @@ export function SeriesSetup({ data, initialSelectedSeriesNames, userLicenseClass
                       <Badge variant={catVariant}>
                         {entry.categoryLabel}
                       </Badge>
-                      <Badge variant="default">{entry.className}</Badge>
+                      <Badge variant="default" className="hidden md:inline-flex">{entry.className}</Badge>
                       <Badge variant={licVariant}>{licLabel}</Badge>
-                      <Badge variant="default">{entry.weeks.length} v</Badge>
+                      <Badge variant="default">{entry.weeks.length}{t('weeksShort')}</Badge>
                     </div>
                     <div className="font-display text-[15px] font-semibold text-text-primary tracking-[-0.01em] line-clamp-1">{entry.title}</div>
                   </div>
                   <CarIndicator cars={entry.cars} />
-                </div>
+                </button>
               )
             })}
           </div>
