@@ -1,6 +1,6 @@
 import Link from 'next/link'
 import { redirect } from 'next/navigation'
-import { ArrowLeft } from 'lucide-react'
+import { setRequestLocale, getTranslations } from 'next-intl/server'
 import { getSession } from '@/lib/auth/session'
 import { fetchSelectedSeriesNames, fetchOwnedTrackKeys } from '@/lib/db/actions'
 import { getAllSeries, CURRENT_SEASON } from '@/lib/iracing/season-data'
@@ -23,10 +23,10 @@ const CELL_BG: Record<CellStatus, string> = {
   free:    'rgba(45,217,168,0.18)',
 }
 
-const BADGE_STYLE: Record<CellStatus, { bg: string; color: string; label: string }> = {
-  owned:   { bg: 'rgba(0,232,224,0.15)',   color: 'var(--color-accent-cyan)',    label: 'Äger' },
-  missing: { bg: 'rgba(255,45,138,0.12)',   color: 'var(--color-accent-magenta)', label: 'Saknas' },
-  free:    { bg: 'rgba(45,217,168,0.12)',  color: 'var(--color-accent-green)',   label: 'Ingår' },
+const BADGE_COLORS: Record<CellStatus, { bg: string; color: string }> = {
+  owned:   { bg: 'rgba(0,232,224,0.15)',  color: 'var(--color-accent-cyan)'    },
+  missing: { bg: 'rgba(255,45,138,0.12)', color: 'var(--color-accent-magenta)' },
+  free:    { bg: 'rgba(45,217,168,0.12)', color: 'var(--color-accent-green)'   },
 }
 
 function formatWeekDate(startDate: string): string {
@@ -34,9 +34,16 @@ function formatWeekDate(startDate: string): string {
   return d.toLocaleDateString('sv-SE', { day: 'numeric', month: 'short' })
 }
 
-export default async function MatrixPage() {
+export default async function MatrixPage({
+  params,
+}: {
+  params: Promise<{ locale: string }>
+}) {
+  const { locale } = await params
+  setRequestLocale(locale)
   const session = await getSession()
   if (!session) redirect('/')
+  const t = await getTranslations('dashboard.matrix')
 
   const [selectedSeriesNames, ownedTrackKeys] = await Promise.all([
     fetchSelectedSeriesNames(session.userId, CURRENT_SEASON),
@@ -62,13 +69,9 @@ export default async function MatrixPage() {
     <div className="h-full overflow-auto p-6">
       {/* Header */}
       <div className="mb-6">
-        <Link href="/dashboard" className="mb-3 inline-flex items-center gap-1.5 text-xs text-text-muted hover:text-text-primary transition-colors">
-          <ArrowLeft className="h-3.5 w-3.5" />
-          Dashboard
-        </Link>
-        <h1 className="text-lg font-bold text-text-primary">Track Matrix</h1>
+        <h1 className="text-lg font-bold text-text-primary">{t('pageTitle')}</h1>
         <p className="mt-1 text-sm text-text-secondary">
-          {selectedSeries.length} serier · vecka {currentWeekIndex + 1} markerad · {CURRENT_SEASON}
+          {t('pageSubtitle', { count: selectedSeries.length, week: currentWeekIndex + 1, season: CURRENT_SEASON })}
         </p>
       </div>
 
@@ -76,7 +79,7 @@ export default async function MatrixPage() {
       {selectedSeries.length > 0 && (
         <section className="mb-8">
           <div className="mb-3 text-xs font-bold uppercase tracking-widest text-text-muted">
-            Denna vecka (v{currentWeekIndex + 1})
+            {t('thisWeek', { week: currentWeekIndex + 1 })}
           </div>
           <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
             {selectedSeries.map((s) => {
@@ -84,7 +87,12 @@ export default async function MatrixPage() {
               const week = canonicalDate ? s.weeks.find((w) => w.startDate === canonicalDate) : undefined
               if (!week) return null
               const status = getStatus(week.venue, week.config, ownedSet)
-              const badge = BADGE_STYLE[status]
+              const badge = BADGE_COLORS[status]
+              const badgeLabels: Record<CellStatus, string> = {
+                owned:   t('legend.owned'),
+                missing: t('legend.missing'),
+                free:    t('legend.included'),
+              }
               return (
                 <div
                   key={s.seriesName}
@@ -100,7 +108,7 @@ export default async function MatrixPage() {
                     className="inline-block rounded-full px-2.5 py-0.5 text-[11px] font-bold"
                     style={{ background: badge.bg, color: badge.color }}
                   >
-                    {badge.label}
+                    {badgeLabels[status]}
                   </span>
                 </div>
               )
@@ -177,9 +185,9 @@ export default async function MatrixPage() {
         {/* Legend */}
         <div className="mt-6 flex gap-6">
           {[
-            { label: 'Äger',   bg: 'rgba(0,232,224,0.18)',   color: 'var(--color-accent-cyan)' },
-            { label: 'Saknas', bg: 'rgba(255,45,138,0.15)',   color: 'var(--color-accent-magenta)' },
-            { label: 'Inkl.',  bg: 'rgba(45,217,168,0.18)',  color: 'var(--color-accent-green)' },
+            { label: t('legend.owned'),    bg: 'rgba(0,232,224,0.18)',  color: 'var(--color-accent-cyan)' },
+            { label: t('legend.missing'),  bg: 'rgba(255,45,138,0.15)', color: 'var(--color-accent-magenta)' },
+            { label: t('legend.included'), bg: 'rgba(45,217,168,0.18)', color: 'var(--color-accent-green)' },
           ].map(({ label, bg, color }) => (
             <span key={label} className="flex items-center gap-2 text-sm">
               <span className="h-4 w-8 rounded-sm" style={{ background: bg }} />

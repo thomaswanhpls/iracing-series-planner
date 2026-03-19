@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useTransition } from 'react'
+import { useTranslations } from 'next-intl'
 import type { SeasonScheduleData } from '@/lib/season-schedules/types'
 import { useRouter } from 'next/navigation'
 import {
@@ -63,6 +64,7 @@ export function WizardShell({
   initialCarNames,
   initialProfile,
 }: WizardShellProps) {
+  const t = useTranslations('wizard')
   const router = useRouter()
   const [isProfilePending, startProfileTransition] = useTransition()
   const [isSeriesPending, startSeriesTransition] = useTransition()
@@ -126,7 +128,7 @@ export function WizardShell({
         await saveSelectedSeriesNames(userId, CURRENT_SEASON, selectedSeriesNames)
         router.push('/dashboard')
       } catch {
-        setSaveError('Något gick fel. Försök igen.')
+        setSaveError(t('saveError'))
       }
     })
   }
@@ -138,7 +140,7 @@ export function WizardShell({
     }))
   }
 
-  const steps = ['Profil', 'Banor', 'Bilar', 'Serier']
+  const steps = [t('steps.profile'), t('steps.tracks'), t('steps.cars'), t('steps.series')]
 
   return (
     <div className="flex flex-col gap-6">

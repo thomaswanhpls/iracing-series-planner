@@ -1,5 +1,6 @@
 'use client'
 
+import { useTranslations } from 'next-intl'
 import type { OwnershipStatus } from '@/lib/iracing/types'
 import { Tooltip } from '@/components/ui/tooltip'
 import { Repeat } from 'lucide-react'
@@ -26,6 +27,7 @@ const statusDot: Record<OwnershipStatus, string> = {
 }
 
 export function TrackCell({ trackName, configName, status, price, crossSeriesCount }: TrackCellProps) {
+  const t = useTranslations('trackCell')
   const displayName = configName ? `${trackName} (${configName})` : trackName
 
   const tooltipContent = (
@@ -33,12 +35,12 @@ export function TrackCell({ trackName, configName, status, price, crossSeriesCou
       <div className="font-display font-semibold text-text-primary">{displayName}</div>
       <div className="flex items-center gap-2 text-text-secondary">
         <div className={cn('h-2 w-2 rounded-full', statusDot[status])} />
-        {status === 'owned' && <span>Ägd</span>}
-        {status === 'missing' && <span>Saknas — ${price.toFixed(2)}</span>}
-        {status === 'free' && <span>Gratis med prenumeration</span>}
+        {status === 'owned' && <span>{t('owned')}</span>}
+        {status === 'missing' && <span>{t('missing', { price: price.toFixed(2) })}</span>}
+        {status === 'free' && <span>{t('free')}</span>}
       </div>
       {crossSeriesCount > 1 && (
-        <div className="text-text-muted">Används i {crossSeriesCount} serier</div>
+        <div className="text-text-muted">{t('usedInSeries', { count: crossSeriesCount })}</div>
       )}
     </div>
   )

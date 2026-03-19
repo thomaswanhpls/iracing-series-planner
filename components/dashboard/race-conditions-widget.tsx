@@ -1,4 +1,6 @@
 // components/dashboard/race-conditions-widget.tsx
+'use client'
+
 import Link from 'next/link'
 import {
   ArrowRight,
@@ -11,6 +13,7 @@ import {
   Sunset,
   Thermometer,
 } from 'lucide-react'
+import { useTranslations } from 'next-intl'
 import { parseRaceConditions } from '@/lib/iracing/race-conditions'
 import type { IracingSeries } from '@/lib/iracing/types'
 
@@ -33,12 +36,16 @@ function getTimeOfDay(startTime: string | null): TimeOfDay {
   return 'evening'
 }
 
-const TIME_THEME: Record<TimeOfDay, { bg: string; border: string; label: string; color: string; icon: React.ReactNode }> = {
-  night:     { bg: 'rgba(100,60,200,0.1)',  border: 'rgba(160,80,255,0.22)', label: 'Natt',    color: '#c090ff',                    icon: <Moon size={11} /> },
-  dawn:      { bg: 'rgba(255,160,60,0.08)', border: 'rgba(255,180,80,0.22)', label: 'Gryning', color: '#ffb84a',                    icon: <Sunrise size={11} /> },
-  morning:   { bg: 'rgba(255,230,100,0.07)',border: 'rgba(255,220,80,0.2)',  label: 'Morgon',  color: '#ffd84a',                    icon: <Sun size={11} /> },
-  afternoon: { bg: 'rgba(255,255,255,0.04)',border: 'rgba(255,255,255,0.1)', label: 'Dag',     color: 'var(--color-text-secondary)', icon: <CloudSun size={11} /> },
-  evening:   { bg: 'rgba(255,90,30,0.08)',  border: 'rgba(255,110,40,0.22)', label: 'Kväll',   color: '#ff7040',                    icon: <Sunset size={11} /> },
+type TimeThemeEntry = { bg: string; border: string; label: string; color: string; icon: React.ReactNode }
+
+function buildTimeTheme(labels: Record<TimeOfDay, string>): Record<TimeOfDay, TimeThemeEntry> {
+  return {
+    night:     { bg: 'rgba(100,60,200,0.1)',  border: 'rgba(160,80,255,0.22)', label: labels.night,     color: '#c090ff',                    icon: <Moon size={11} /> },
+    dawn:      { bg: 'rgba(255,160,60,0.08)', border: 'rgba(255,180,80,0.22)', label: labels.dawn,      color: '#ffb84a',                    icon: <Sunrise size={11} /> },
+    morning:   { bg: 'rgba(255,230,100,0.07)',border: 'rgba(255,220,80,0.2)',  label: labels.morning,   color: '#ffd84a',                    icon: <Sun size={11} /> },
+    afternoon: { bg: 'rgba(255,255,255,0.04)',border: 'rgba(255,255,255,0.1)', label: labels.afternoon, color: 'var(--color-text-secondary)', icon: <CloudSun size={11} /> },
+    evening:   { bg: 'rgba(255,90,30,0.08)',  border: 'rgba(255,110,40,0.22)', label: labels.evening,   color: '#ff7040',                    icon: <Sunset size={11} /> },
+  }
 }
 
 // Card accent per time of day — subtle tint on the series block
@@ -75,11 +82,21 @@ const TEMP_STYLE: Record<TempTier, { color: string; bg: string; border: string }
 // ── Widget ────────────────────────────────────────────────────────────────────
 
 export function RaceConditionsWidget({ selectedSeries, currentWeekIndex }: RaceConditionsWidgetProps) {
+  const t = useTranslations('dashboard.raceConditions')
+
+  const timeTheme = buildTimeTheme({
+    night:     t('timeOfDay.night'),
+    dawn:      t('timeOfDay.dawn'),
+    morning:   t('timeOfDay.morning'),
+    afternoon: t('timeOfDay.afternoon'),
+    evening:   t('timeOfDay.evening'),
+  })
+
   return (
     <div className="flex h-full flex-col min-h-0">
       <div className="shrink-0 px-4 pb-2 pt-3">
         <span className="text-xs font-bold uppercase tracking-widest text-text-muted">
-          Veckans förutsättningar
+          {t('widgetTitle')}
         </span>
       </div>
       <div className="flex flex-1 flex-col gap-2 overflow-y-auto px-4 pb-3">
@@ -101,10 +118,10 @@ export function RaceConditionsWidget({ selectedSeries, currentWeekIndex }: RaceC
                 <span className="shrink-0 truncate text-xs text-text-secondary">{week.track}</span>
               </div>
               <div className="flex flex-wrap gap-1.5">
-                <WeatherPill isDynamic={cond.isDynamic} />
+                <WeatherPill isDynamic={cond.isDynamic} dynamicLabel={t('dynamic')} fixedLabel={t('fixedWeather')} />
                 {cond.tempC !== null && <TempPill tempC={cond.tempC} />}
                 {cond.rainChance !== null && <RainPill rainChance={cond.rainChance} />}
-                {cond.startTime && <TimePill startTime={cond.startTime} tod={tod} />}
+                {cond.startTime && <TimePill startTime={cond.startTime} tod={tod} timeTheme={timeTheme} />}
               </div>
             </div>
           )
@@ -114,7 +131,7 @@ export function RaceConditionsWidget({ selectedSeries, currentWeekIndex }: RaceC
         href="/series"
         className="group shrink-0 flex items-center justify-center gap-2 border-t border-[rgba(0,232,224,0.2)] py-3 text-sm font-medium text-accent-cyan transition-all hover:bg-[rgba(0,232,224,0.07)]"
       >
-        Alla serier
+        {t('allSeries')}
         <ArrowRight size={14} className="transition-transform group-hover:translate-x-1" />
       </Link>
     </div>
@@ -123,11 +140,11 @@ export function RaceConditionsWidget({ selectedSeries, currentWeekIndex }: RaceC
 
 // ── Pills ─────────────────────────────────────────────────────────────────────
 
-function WeatherPill({ isDynamic }: { isDynamic: boolean }) {
+function WeatherPill({ isDynamic, dynamicLabel, fixedLabel }: { isDynamic: boolean; dynamicLabel: string; fixedLabel: string }) {
   if (isDynamic) {
-    return <Pill icon={<CloudRain size={11} />} label="Dynamiskt" color="var(--color-accent-cyan)" bg="rgba(0,232,224,0.08)" border="rgba(0,232,224,0.2)" />
+    return <Pill icon={<CloudRain size={11} />} label={dynamicLabel} color="var(--color-accent-cyan)" bg="rgba(0,232,224,0.08)" border="rgba(0,232,224,0.2)" />
   }
-  return <Pill icon={<Sun size={11} />} label="Fast väder" color="var(--color-text-secondary)" bg="rgba(255,255,255,0.04)" border="rgba(255,255,255,0.1)" />
+  return <Pill icon={<Sun size={11} />} label={fixedLabel} color="var(--color-text-secondary)" bg="rgba(255,255,255,0.04)" border="rgba(255,255,255,0.1)" />
 }
 
 function TempPill({ tempC }: { tempC: number }) {
@@ -149,9 +166,9 @@ function RainPill({ rainChance }: { rainChance: number }) {
   )
 }
 
-function TimePill({ startTime, tod }: { startTime: string; tod: TimeOfDay }) {
-  const t = TIME_THEME[tod]
-  return <Pill icon={t.icon} label={startTime} color={t.color} bg={t.bg} border={t.border} />
+function TimePill({ startTime, tod, timeTheme }: { startTime: string; tod: TimeOfDay; timeTheme: Record<TimeOfDay, TimeThemeEntry> }) {
+  const theme = timeTheme[tod]
+  return <Pill icon={theme.icon} label={startTime} color={theme.color} bg={theme.bg} border={theme.border} />
 }
 
 function Pill({ icon, label, color, bg, border }: {

@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from 'react'
 import Link from 'next/link'
+import { useTranslations } from 'next-intl'
 import { useSearchParams } from 'next/navigation'
 import { getAllTracks, getFreeTracks } from '@/lib/iracing/data-provider'
 import { useOwnership } from '@/lib/ownership/context'
@@ -43,6 +44,7 @@ function normalizeVenueName(value: string): string {
 }
 
 export default function Tracks() {
+  const t = useTranslations('tracks')
   const searchParams = useSearchParams()
   const [search, setSearch] = useState('')
   const [categoryFilter, setCategoryFilter] = useState<'all' | Category>('all')
@@ -158,46 +160,46 @@ export default function Tracks() {
     <div className="h-full overflow-auto p-6">
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h2 className="font-display text-xl font-bold">Banor</h2>
+        <h2 className="font-display text-xl font-bold">{t('title')}</h2>
         <div className="flex gap-2">
           <Button variant="secondary" onClick={handleMarkAllFree} className="text-xs">
-            Markera alla gratis
+            {t('markAllFree')}
           </Button>
           <Button variant="ghost" onClick={clearAll} className="text-xs">
-            Rensa alla
+            {t('clearAll')}
           </Button>
         </div>
       </div>
 
       <Input
-        placeholder="Sök banor..."
+        placeholder={t('title')}
         value={search}
         onChange={(e) => setSearch(e.target.value)}
       />
 
       <div className="text-sm text-text-secondary">
-        {ownedPaidTrackCount} köpta banor markerade som ägda • {freeTracks.length} ingår med medlemskap
+        {t('ownedStats', { owned: ownedPaidTrackCount, free: freeTracks.length })}
       </div>
 
       <div className="rounded-lg border border-border bg-bg-surface/40 p-3">
-        <div className="mb-2 text-xs uppercase tracking-wider text-text-muted">Nyligen ändrat</div>
+        <div className="mb-2 text-xs uppercase tracking-wider text-text-muted">{t('recentChanges')}</div>
         {recentChanges.length > 0 ? (
           <div className="flex flex-wrap gap-1.5">
             {recentChanges.map((entry) => (
               <Badge key={`change-${entry.venueKey}`} variant="default">
-                {entry.action === 'owned' ? 'Lagd till' : 'Borttagen'}: {entry.venueName}
+                {entry.action === 'owned' ? t('added') : t('removed')}: {entry.venueName}
               </Badge>
             ))}
           </div>
         ) : (
           <div className="text-xs text-text-muted">
-            Inga ändringar ännu i denna session.
+            {t('noRecentChanges')}
           </div>
         )}
       </div>
 
       <div className="rounded-lg border border-border bg-bg-surface/40 p-3">
-        <div className="mb-2 text-xs uppercase tracking-wider text-text-muted">Review: Dina köpta banor</div>
+        <div className="mb-2 text-xs uppercase tracking-wider text-text-muted">{t('reviewOwned')}</div>
         {ownedMergedVenues.length > 0 ? (
           <div className="flex flex-wrap gap-1.5">
             {ownedMergedVenues
@@ -210,18 +212,18 @@ export default function Tracks() {
               ))}
           </div>
         ) : (
-          <div className="text-xs text-text-muted">Inga köpta banor markerade ännu.</div>
+          <div className="text-xs text-text-muted">{t('noOwnedTracks')}</div>
         )}
       </div>
 
       <div className="flex flex-wrap items-center gap-2 rounded-lg border border-border bg-bg-surface/40 p-3">
-        <span className="text-xs text-text-muted">Kategori:</span>
+        <span className="text-xs text-text-muted">{t('categoryLabel')}</span>
         <Button
           variant={categoryFilter === 'all' ? 'secondary' : 'ghost'}
           className="h-7 px-2 text-xs"
           onClick={() => setCategoryFilter('all')}
         >
-          Alla
+          {t('filterAll')}
         </Button>
         {(Object.keys(categoryLabels) as Category[]).map((category) => (
           <Button
@@ -233,13 +235,13 @@ export default function Tracks() {
             {categoryLabels[category]}
           </Button>
         ))}
-        <span className="ml-2 text-xs text-text-muted">Status:</span>
+        <span className="ml-2 text-xs text-text-muted">{t('statusLabel')}</span>
         {(
           [
-            ['all', 'Alla'],
-            ['owned', 'Ägda'],
-            ['missing', 'Saknas'],
-            ['free', 'Gratis'],
+            ['all',     t('filterAll')],
+            ['owned',   t('filterOwned')],
+            ['missing', t('filterMissing')],
+            ['free',    t('filterFree')],
           ] as Array<[OwnershipFilter, string]>
         ).map(([value, label]) => (
           <Button
@@ -256,11 +258,11 @@ export default function Tracks() {
       <div className="flex flex-wrap items-center gap-2 rounded-lg border border-border bg-bg-surface/40 p-3">
         <Link href={seriesHref}>
           <Button variant="ghost" className="text-xs">
-            Valfritt: Granska Seriescheman
+            {t('viewSeriesSchedules')}
           </Button>
         </Link>
         <Link href={costsHref}>
-          <Button className="text-xs">Fortsätt till Kostnader</Button>
+          <Button className="text-xs">{t('continueToCosts')}</Button>
         </Link>
       </div>
 
@@ -306,16 +308,16 @@ export default function Tracks() {
                   </span>
                   {isPartial && (
                     <Badge variant="default">
-                      Delvis ägd ({ownedPaidConfigs}/{track.paidTrackIds.length})
+                      {t('partiallyOwned', { owned: ownedPaidConfigs, total: track.paidTrackIds.length })}
                     </Badge>
                   )}
                   {!isFree && isOwned && (
-                    <Badge variant="default">Ägd</Badge>
+                    <Badge variant="default">{t('filterOwned')}</Badge>
                   )}
                   {isFree ? (
-                    <Badge variant="default">Gratis</Badge>
+                    <Badge variant="default">{t('filterFree')}</Badge>
                   ) : (
-                    <span className="text-xs text-text-muted">fr. ${track.minPrice.toFixed(2)}</span>
+                    <span className="text-xs text-text-muted">{t('fromPrice', { price: track.minPrice.toFixed(2) })}</span>
                   )}
                 </label>
               )
@@ -325,7 +327,7 @@ export default function Tracks() {
       ))}
       {filtered.length === 0 && (
         <div className="rounded-lg border border-border p-4 text-sm text-text-secondary">
-          Inga banor matchar dina filter.
+          {t('noResults')}
         </div>
       )}
     </div>

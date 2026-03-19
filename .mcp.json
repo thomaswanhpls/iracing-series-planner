@@ -6,7 +6,7 @@
     },
     "plugin_chrome-devtools-mcp_chrome-devtools": {
       "command": "npx",
-      "args": ["chrome-devtools-mcp@latest", "--browserUrl=http://localhost:9222"]
+      "args": ["chrome-devtools-mcp@latest", "--browserUrl=http://10.255.255.254:9222"]
     }
   }
 }

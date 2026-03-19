@@ -1,0 +1,270 @@
+{
+  "common": {
+    "back": "← Back",
+    "next": "Next →",
+    "saving": "Saving...",
+    "loading": "Loading...",
+    "search": "Search",
+    "owned": "owned",
+    "included": "Included",
+    "missing": "Missing",
+    "selectFiltered": "Select filtered",
+    "deselectFiltered": "Deselect filtered",
+    "notFound": "No results found.",
+    "allContent": "All content owned ✓",
+    "changeProfile": "Change profile"
+  },
+  "nav": {
+    "setup": "Setup",
+    "dashboard": "Dashboard",
+    "settings": "Settings",
+    "logout": "Log out",
+    "planGroup": "Planning"
+  },
+  "landing": {
+    "seasonBadge": "2026 SEASON 2 — BETA",
+    "title": "iRacing Season Planner",
+    "subtitle": "Plan your season. Optimize your purchases.",
+    "subtitleAccent": "Race more, pay less.",
+    "cta": "Get started",
+    "ctaSecondary": "Dashboard",
+    "footer": "Built for iRacing enthusiasts who want to maximize their time on track",
+    "features": {
+      "series": {
+        "title": "Series planning",
+        "description": "Pick your series and instantly see which tracks you need to hit the 8/12 threshold."
+      },
+      "costs": {
+        "title": "Cost analysis",
+        "description": "Optimized purchase list that maximizes value with volume discounts."
+      },
+      "tracks": {
+        "title": "Track overview",
+        "description": "Complete track library with ownership status and cross-references between series."
+      },
+      "smart": {
+        "title": "Smart optimization",
+        "description": "Greedy set-cover algorithm finds the minimum purchases for maximum participation."
+      }
+    }
+  },
+  "wizard": {
+    "steps": {
+      "profile": "Profile",
+      "tracks": "Tracks",
+      "cars": "Cars",
+      "series": "Series"
+    },
+    "saveError": "Something went wrong. Try again.",
+    "series": {
+      "title": "Your series",
+      "subtitle": "Select the series you want to race this season.",
+      "search": "Search series...",
+      "sort": {
+        "label": "Sort",
+        "name": "Name",
+        "category": "Category",
+        "class": "Class",
+        "weeks": "Weeks"
+      },
+      "filter": {
+        "allCategories": "All",
+        "allClasses": "All classes",
+        "allBrands": "All brands",
+        "resetFilters": "Reset filters",
+        "brands": "Brands"
+      },
+      "selected": "{count} selected",
+      "showOnlySelected": "Show only selected",
+      "noResults": "No series found.",
+      "weeksShort": "w",
+      "weeksCount": "{count} wk",
+      "filterActive": "Active",
+      "sortAsc": "A-Z",
+      "sortDesc": "Z-A",
+      "seriesMatch": "{count} series match",
+      "selectAll": "Select all",
+      "clear": "Clear",
+      "save": "Save →",
+      "continueToTracks": "Continue to Tracks →",
+      "filterInfo": "All categories shown. Class filter pre-set from Rookie up to your license level per discipline — click to narrow. Unranked series always shown last.",
+      "carsLabel": "{count, plural, one {Car} other {Cars}} ({count})"
+    },
+    "tracks": {
+      "title": "Your tracks",
+      "subtitle": "Mark the tracks you already own. Unmarked tracks count as purchase needs in cost calculations.",
+      "search": "Search track...",
+      "ownedCount": "{owned} / {total} owned",
+      "freeTracksNote": "Tracks included with the iRacing subscription are pre-checked — they don't need to be purchased.",
+      "includedBadge": "Included",
+      "noResults": "No tracks found."
+    },
+    "cars": {
+      "title": "Your cars",
+      "subtitle": "Mark the cars you already own. Unmarked cars may affect cost calculations.",
+      "search": "Search car...",
+      "ownedCount": "{owned} / {total} owned",
+      "noResults": "No cars found."
+    },
+    "profile": {
+      "title": "Your profile",
+      "subtitle": "What's your name, and what license class do you hold per discipline?",
+      "name": "Name",
+      "nameOptional": "(optional)",
+      "namePlaceholder": "e.g. Max Verstappen",
+      "licensePerDiscipline": "License class per discipline",
+      "disciplines": {
+        "sportsCar": "Sports Car",
+        "sportsCarSub": "GT, TCR, prototype",
+        "formulaCar": "Formula Car",
+        "formulaCarSub": "F3, F4, IR-18",
+        "oval": "Oval",
+        "ovalSub": "NASCAR, stock cars",
+        "dirtRoad": "Dirt Road",
+        "dirtRoadSub": "Rallycross, dirt road",
+        "dirtOval": "Dirt Oval",
+        "dirtOvalSub": "Sprint cars, midgets"
+      },
+      "licenseOptions": {
+        "Rookie": "Rookie",
+        "D": "D class",
+        "C": "C class",
+        "B": "B class",
+        "A": "A class",
+        "Pro": "Pro",
+        "WC": "WC"
+      }
+    }
+  },
+  "dashboard": {
+    "appShell": {
+      "seasonPlanner": "Season Planner",
+      "iracingMember": "iRacing Member"
+    },
+    "costs": {
+      "widgetTitle": "Costs",
+      "tracks": "Tracks",
+      "carMissing": "Missing car",
+      "allOwned": "All content owned ✓",
+      "fullAnalysis": "Full cost analysis",
+      "series": "{count} series",
+      "included": "Incl.",
+      "pageTitle": "Cost Analysis",
+      "pageSubtitle": "Based on {count} selected series for {season}",
+      "purchasePriority": "Purchase priority — tracks",
+      "allCarOptions": "All car options per series",
+      "perSeriesNeeds": "What each series needs",
+      "cheapest": "Cheapest",
+      "seriesNeed": "{count} series need it",
+      "seriesNeedOne": "1 series needs it",
+      "missingTracks": "{count} missing {trackWord}",
+      "track": "track",
+      "tracks_plural": "tracks",
+      "missingCars": "{count} {seriesWord} missing a car",
+      "seriesWord": "series",
+      "discountApplied": "{tier}-discount {percent}% applied (−${amount})",
+      "backToDashboard": "← Dashboard"
+    },
+    "matrix": {
+      "widgetTitle": "Track Matrix · w{week}",
+      "openFull": "Open full matrix",
+      "pageTitle": "Track Matrix",
+      "pageSubtitle": "{count} series · week {week} highlighted · {season}",
+      "thisWeek": "This week (w{week})",
+      "legend": {
+        "owned": "Owned",
+        "missing": "Missing",
+        "included": "Incl."
+      },
+      "backToDashboard": "← Dashboard"
+    },
+    "mySeries": {
+      "widgetTitle": "My Series",
+      "editSeries": "Edit series selection",
+      "statusOwned": "Owned",
+      "statusMissing": "Missing track",
+      "statusIncluded": "Included",
+      "categories": {
+        "SPORTS_CAR": "Sports Car",
+        "FORMULA_CAR": "Formula Car",
+        "OVAL": "Oval",
+        "DIRT_ROAD": "Dirt Road",
+        "DIRT_OVAL": "Dirt Oval",
+        "UNRANKED": "Unranked"
+      }
+    },
+    "raceConditions": {
+      "widgetTitle": "This week's conditions",
+      "allSeries": "All series",
+      "dynamic": "Dynamic",
+      "fixedWeather": "Fixed weather",
+      "timeOfDay": {
+        "night": "Night",
+        "dawn": "Dawn",
+        "morning": "Morning",
+        "afternoon": "Afternoon",
+        "evening": "Evening"
+      }
+    }
+  },
+  "settings": {
+    "title": "Settings",
+    "comingSoon": "Settings coming soon."
+  },
+  "tracks": {
+    "title": "Tracks",
+    "markAllFree": "Mark all free",
+    "clearAll": "Clear all",
+    "ownedStats": "{owned} purchased tracks marked as owned • {free} included with membership",
+    "recentChanges": "Recently changed",
+    "noRecentChanges": "No changes in this session.",
+    "added": "Added",
+    "removed": "Removed",
+    "reviewOwned": "Review: Your purchased tracks",
+    "noOwnedTracks": "No purchased tracks marked yet.",
+    "categoryLabel": "Category:",
+    "statusLabel": "Status:",
+    "filterAll": "All",
+    "filterOwned": "Owned",
+    "filterMissing": "Missing",
+    "filterFree": "Free",
+    "viewSeriesSchedules": "Optional: Review Series Schedules",
+    "continueToCosts": "Continue to Costs",
+    "partiallyOwned": "Partially owned ({owned}/{total})",
+    "noResults": "No tracks match your filters.",
+    "fromPrice": "fr. ${price}"
+  },
+  "seriesBrowser": {
+    "title": "Series Schedules",
+    "categories": "Categories",
+    "series": "Series",
+    "showing": "Showing",
+    "prioritized": "Prioritized",
+    "searchPlaceholder": "Search series or track...",
+    "allClasses": "All classes",
+    "all": "All",
+    "prioritizedOnly": "Prioritized only",
+    "resetFilters": "Reset filters",
+    "prioritizedBadge": "Prioritized",
+    "noResults": "No series matched the filter.",
+    "selectSeriesPrompt": "Select a series from the list.",
+    "car": "Car(s)",
+    "track": "Track",
+    "length": "Length",
+    "reference": "Reference",
+    "noLicense": "No license info",
+    "noFrequency": "No frequency info",
+    "weekPrefix": "W"
+  },
+  "trackCell": {
+    "owned": "Owned",
+    "missing": "Missing — ${price}",
+    "free": "Included with subscription",
+    "usedInSeries": "Used in {count} series"
+  },
+  "notFound": {
+    "title": "Page not found",
+    "description": "Check the address or go back to the home page.",
+    "backToHome": "Back to home"
+  }
+}

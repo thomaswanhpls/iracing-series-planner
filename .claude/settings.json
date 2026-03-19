@@ -1,11 +1,21 @@
 {
+  "permissions": {
+    "allow": [
+      "Bash(git add:*)",
+      "Bash(grep -n \"accent-\\\\|rgba\\(\\\\|#[0-9a-fA-F]\\\\{3,6\\\\}\" /home/thomas/repos/iracing-series-planner/components/wizard/series-setup.tsx /home/thomas/repos/iracing-series-planner/components/wizard/tracks-step.tsx /home/thomas/repos/iracing-series-planner/components/wizard/profile-step.tsx)",
+      "Bash(ls /home/thomas/repos/iracing-series-planner/app/favicon* /home/thomas/repos/iracing-series-planner/public/)",
+      "Bash(git push:*)",
+      "Bash(vercel --version)",
+      "Bash(vercel whoami:*)",
+      "Bash(pnpm setup:*)",
+      "Bash(source ~/.zshrc)",
+      "mcp__plugin_chrome-devtools-mcp_chrome-devtools__navigate_page",
+      "Bash(curl -s http://localhost:9222/json/version)",
+      "Bash(sudo apt-get:*)"
+    ]
+  },
   "enabledPlugins": {
     "frontend-design@claude-plugins-official": true,
     "superpowers@claude-plugins-official": true
-  },
-  "permissions": {
-    "allow": [
-      "Bash(git add:*)"
-    ]
   }
 }

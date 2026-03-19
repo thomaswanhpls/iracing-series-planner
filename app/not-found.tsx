@@ -7,17 +7,17 @@ export default function NotFound() {
       <div className="text-center">
         <h1 className="font-display text-7xl font-bold text-accent-cyan">404</h1>
         <p className="mt-4 font-display text-xl text-text-secondary">
-          Sidan kunde inte hittas
+          Page not found
         </p>
         <p className="mt-2 text-sm text-text-muted">
-          Kontrollera adressen eller gå tillbaka till startsidan.
+          Check the address or go back to the home page.
         </p>
         <Link
           href="/"
           className="mt-8 inline-flex items-center gap-2 rounded-lg bg-bg-surface px-6 py-3 font-display text-sm font-medium text-text-secondary transition-colors hover:bg-bg-elevated hover:text-text-primary"
         >
           <ArrowLeft className="h-4 w-4" />
-          Tillbaka till start
+          Back to home
         </Link>
       </div>
     </main>
