@@ -88,7 +88,7 @@ interface PersistedSetupState {
   selectedSeriesIds: string[]
 }
 
-type SortKey = 'name' | 'category' | 'class' | 'weeks'
+type SortKey = 'name' | 'category' | 'class'
 
 const ROW_HEIGHT = 100
 const OVERSCAN_ROWS = 6
@@ -229,6 +229,8 @@ export function SeriesSetup({ data, initialSelectedSeriesNames, userLicenseClass
   )
   const [scrollTop, setScrollTop] = useState(0)
   const [filtersOpen, setFiltersOpen] = useState(true)
+  const [selectedBrands, setSelectedBrands] = useState<string[]>([])
+  const [showOnlySelected, setShowOnlySelected] = useState(false)
 
   // --- Derived data ---
   const availableCategoryIds = useMemo(
@@ -266,17 +268,38 @@ export function SeriesSetup({ data, initialSelectedSeriesNames, userLicenseClass
 
   const availableClassNames = useMemo(() => new Set(availableClasses), [availableClasses])
 
-  // Apply search filter on top of category/class filtering
+  // Available car brands from category-filtered series
+  const availableBrands = useMemo(() => {
+    const unique = new Set<string>()
+    for (const s of categoryFilteredSeries) {
+      for (const car of splitCars(s.cars)) unique.add(inferCarBrand(car))
+    }
+    return Array.from(unique).sort()
+  }, [categoryFilteredSeries])
+
+  // Brand-filtered series
+  const brandFilteredSeries = useMemo(() => {
+    if (selectedBrands.length === 0) return categoryFilteredSeries
+    return categoryFilteredSeries.filter((s) => {
+      const brands = splitCars(s.cars).map(inferCarBrand)
+      return selectedBrands.some((b) => brands.includes(b))
+    })
+  }, [categoryFilteredSeries, selectedBrands])
+
+  // Apply search filter on top of category/class/brand filtering
   const searchFilteredSeries = useMemo(() => {
     const query = normalize(search)
-    if (!query) return categoryFilteredSeries
-    return categoryFilteredSeries.filter((entry) => {
+    const base = showOnlySelected
+      ? brandFilteredSeries.filter((s) => selectedSeriesIds.includes(s.id))
+      : brandFilteredSeries
+    if (!query) return base
+    return base.filter((entry) => {
       if (normalize(entry.title).includes(query)) return true
       if (normalize(entry.className ?? '').includes(query)) return true
       if (normalize(entry.cars).includes(query)) return true
       return entry.weeks.some((week) => normalize(week.track).includes(query))
     })
-  }, [search, categoryFilteredSeries])
+  }, [search, brandFilteredSeries, showOnlySelected, selectedSeriesIds])
 
   // Sort — UNRANKED always last regardless of sort key
   const sortedSeries = useMemo(() => {
@@ -290,7 +313,6 @@ export function SeriesSetup({ data, initialSelectedSeriesNames, userLicenseClass
       if (sortKey === 'name') cmp = a.title.localeCompare(b.title)
       if (sortKey === 'category') cmp = a.categoryLabel.localeCompare(b.categoryLabel)
       if (sortKey === 'class') cmp = (a.className ?? '').localeCompare(b.className ?? '')
-      if (sortKey === 'weeks') cmp = a.weeks.length - b.weeks.length
       return sortAscending ? cmp : -cmp
     })
     return entries
@@ -445,13 +467,20 @@ export function SeriesSetup({ data, initialSelectedSeriesNames, userLicenseClass
     setSelectedSeriesIds((prev) => prev.filter((id) => !toClear.has(id)))
   }
 
+  const toggleBrand = (brand: string) => {
+    setSelectedBrands((prev) =>
+      prev.includes(brand) ? prev.filter((b) => b !== brand) : [...prev, brand]
+    )
+  }
+
   const resetFilters = () => {
     setSearch('')
     setSelectedCategoryIds(data.categories.map((c) => c.id))
     setSelectedClassNames([])
+    setSelectedBrands([])
   }
 
-  const hasActiveFilters = !allCategoriesSelected || selectedClassNames.length > 0 || search.length > 0
+  const hasActiveFilters = !allCategoriesSelected || selectedClassNames.length > 0 || selectedBrands.length > 0 || search.length > 0
 
   // Navigate to tracks (or call onNextProp when used inside wizard)
   const handleNext = () => {
@@ -610,6 +639,31 @@ export function SeriesSetup({ data, initialSelectedSeriesNames, userLicenseClass
                       )}
                     >
                       {cls}
+                    </button>
+                  )
+                })}
+              </div>
+            )}
+
+            {/* Car brand pills */}
+            {availableBrands.length > 0 && (
+              <div className="flex flex-wrap gap-2">
+                <span className="self-center text-[10px] font-semibold uppercase tracking-wider text-text-muted mr-1">Bil</span>
+                {availableBrands.map((brand) => {
+                  const active = selectedBrands.includes(brand)
+                  return (
+                    <button
+                      key={brand}
+                      type="button"
+                      onClick={() => toggleBrand(brand)}
+                      className={cn(
+                        'cursor-pointer rounded-full border px-2.5 py-1 text-[11px] font-medium transition-all',
+                        active
+                          ? 'border-accent-magenta/50 bg-accent-magenta/10 text-accent-magenta'
+                          : 'border-border/50 bg-[rgba(26,27,59,0.3)] text-text-muted hover:border-border hover:text-text-secondary'
+                      )}
+                    >
+                      {brand}
                     </button>
                   )
                 })}
