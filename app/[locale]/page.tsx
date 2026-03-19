@@ -1,30 +1,20 @@
 import Link from 'next/link'
 import { Trophy, BarChart3, MapPin, Zap } from 'lucide-react'
+import { getTranslations, setRequestLocale } from 'next-intl/server'
+import { LocaleSwitcher } from '@/components/locale-switcher'
 
-const features = [
-  {
-    icon: Trophy,
-    title: 'Serieplanering',
-    description: 'Välj serier och se direkt vilka banor du behöver för att nå 8/12-tröskeln.',
-  },
-  {
-    icon: BarChart3,
-    title: 'Kostnadsanalys',
-    description: 'Optimerad inköpslista som maximerar värde med volymrabatter.',
-  },
-  {
-    icon: MapPin,
-    title: 'Banöversikt',
-    description: 'Komplett banbibliotek med ägandestatus och korsreferenser mellan serier.',
-  },
-  {
-    icon: Zap,
-    title: 'Smart optimering',
-    description: 'Greedy set cover-algoritm hittar minimala inköp för maximal deltagan.',
-  },
-]
+export default async function Home({
+  params,
+}: {
+  params: Promise<{ locale: string }>
+}) {
+  const { locale } = await params
+  setRequestLocale(locale)
+  const t = await getTranslations('landing')
 
-export default function Home() {
+  const featureKeys = ['series', 'costs', 'tracks', 'smart'] as const
+  const featureIcons = [Trophy, BarChart3, MapPin, Zap]
+
   return (
     <main className="relative flex min-h-screen flex-col items-center justify-center overflow-hidden">
       {/* Background — deep space with rose + teal bleed */}
@@ -42,11 +32,16 @@ export default function Home() {
         />
       </div>
 
+      {/* Locale switcher — top right */}
+      <div className="absolute right-6 top-6 z-20">
+        <LocaleSwitcher />
+      </div>
+
       {/* Content */}
       <div className="relative z-10 flex flex-col items-center px-6 text-center">
         {/* Season badge */}
         <div className="mb-8 animate-fade-in rounded-full border border-[rgba(255,45,138,0.3)] bg-[rgba(255,45,138,0.07)] px-4 py-1.5 font-display text-xs tracking-wider text-[#ff2d8a] backdrop-blur-sm">
-          2026 SEASON 2 — BETA
+          {t('seasonBadge')}
         </div>
 
         {/* Title */}
@@ -62,9 +57,9 @@ export default function Home() {
 
         {/* Subtitle */}
         <p className="mt-6 max-w-lg animate-slide-up text-lg text-text-secondary [animation-delay:100ms]">
-          Planera din säsong. Optimera dina inköp.
+          {t('subtitle')}
           <br />
-          <span className="text-text-primary">Kör mer, betala mindre.</span>
+          <span className="text-text-primary">{t('subtitleAccent')}</span>
         </p>
 
         {/* CTA */}
@@ -73,7 +68,7 @@ export default function Home() {
             href="/api/auth/login"
             className="group relative inline-flex items-center gap-2 overflow-hidden rounded-lg bg-[#ff2d8a] px-8 py-3.5 font-display text-sm font-semibold text-white transition-all hover:shadow-[0_0_30px_rgba(255,45,138,0.4)] hover:scale-[1.02] active:scale-[0.98]"
           >
-            <span className="relative z-10">Kom igång</span>
+            <span className="relative z-10">{t('cta')}</span>
             <Zap className="relative z-10 h-4 w-4 transition-transform group-hover:rotate-12" />
             <div className="absolute inset-0 -translate-x-full animate-shimmer bg-gradient-to-r from-transparent via-white/10 to-transparent" />
           </Link>
@@ -81,33 +76,36 @@ export default function Home() {
             href="/api/auth/login"
             className="inline-flex items-center gap-2 rounded-lg border border-border bg-bg-surface/50 px-6 py-3.5 font-display text-sm font-medium text-text-secondary backdrop-blur-sm transition-all hover:border-[rgba(0,232,224,0.3)] hover:text-text-primary hover:bg-bg-surface"
           >
-            Dashboard
+            {t('ctaSecondary')}
           </Link>
         </div>
 
         {/* Feature cards */}
         <div className="mt-24 grid max-w-4xl grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4 stagger-children">
-          {features.map((feature) => (
-            <div
-              key={feature.title}
-              className="group relative rounded-xl border border-border bg-bg-surface/50 p-6 text-left backdrop-blur-sm transition-all duration-300 hover:border-[rgba(0,232,224,0.2)] hover:bg-bg-surface/80 hover:shadow-[0_0_40px_rgba(0,232,224,0.05)]"
-            >
-              <div className="mb-4 inline-flex rounded-lg bg-[rgba(0,232,224,0.08)] p-2.5 text-accent-cyan transition-colors group-hover:bg-[rgba(0,232,224,0.13)]">
-                <feature.icon className="h-5 w-5" />
+          {featureKeys.map((key, i) => {
+            const Icon = featureIcons[i]
+            return (
+              <div
+                key={key}
+                className="group relative rounded-xl border border-border bg-bg-surface/50 p-6 text-left backdrop-blur-sm transition-all duration-300 hover:border-[rgba(0,232,224,0.2)] hover:bg-bg-surface/80 hover:shadow-[0_0_40px_rgba(0,232,224,0.05)]"
+              >
+                <div className="mb-4 inline-flex rounded-lg bg-[rgba(0,232,224,0.08)] p-2.5 text-accent-cyan transition-colors group-hover:bg-[rgba(0,232,224,0.13)]">
+                  <Icon className="h-5 w-5" />
+                </div>
+                <h3 className="font-display text-sm font-semibold text-text-primary">
+                  {t(`features.${key}.title`)}
+                </h3>
+                <p className="mt-2 text-xs leading-relaxed text-text-muted">
+                  {t(`features.${key}.description`)}
+                </p>
               </div>
-              <h3 className="font-display text-sm font-semibold text-text-primary">
-                {feature.title}
-              </h3>
-              <p className="mt-2 text-xs leading-relaxed text-text-muted">
-                {feature.description}
-              </p>
-            </div>
-          ))}
+            )
+          })}
         </div>
 
         {/* Footer */}
         <div className="mt-16 text-xs text-text-muted animate-fade-in [animation-delay:500ms]">
-          Byggd för iRacing-entusiaster som vill maximera sin tid på banan
+          {t('footer')}
         </div>
       </div>
     </main>

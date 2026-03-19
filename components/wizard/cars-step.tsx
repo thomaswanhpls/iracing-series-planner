@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useMemo } from 'react'
+import { useTranslations } from 'next-intl'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Checkbox } from '@/components/ui/checkbox'
@@ -24,6 +25,8 @@ export function CarsStep({
   onBack,
   isPending,
 }: CarsStepProps) {
+  const t = useTranslations('wizard.cars')
+  const tCommon = useTranslations('common')
   const [search, setSearch] = useState('')
   const [owned, setOwned] = useState<Set<string>>(new Set(initialOwnedCarNames))
 
@@ -58,22 +61,20 @@ export function CarsStep({
   return (
     <div className="flex flex-col gap-4">
       <div>
-        <h2 className="text-lg font-semibold text-text-primary mb-1">Dina bilar</h2>
-        <p className="text-sm text-text-secondary">
-          Markera de bilar du redan äger. Omarkerade bilar kan påverka kostnadskalkylerna.
-        </p>
+        <h2 className="text-lg font-semibold text-text-primary mb-1">{t('title')}</h2>
+        <p className="text-sm text-text-secondary">{t('subtitle')}</p>
       </div>
 
       <div className="flex items-center gap-3">
         <Input
           type="text"
-          placeholder="Sök bil..."
+          placeholder={t('search')}
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           className="max-w-xs"
         />
         <span className="text-xs text-text-muted">
-          {owned.size} / {allCars.length} ägda
+          {t('ownedCount', { owned: owned.size, total: allCars.length })}
         </span>
       </div>
 
@@ -84,8 +85,8 @@ export function CarsStep({
           className="self-start text-xs text-accent-cyan/70 hover:text-accent-cyan transition-colors"
         >
           {filtered.every((c) => owned.has(c))
-            ? 'Avmarkera filtrerade'
-            : 'Markera filtrerade'}
+            ? tCommon('deselectFiltered')
+            : tCommon('selectFiltered')}
         </button>
       )}
 
@@ -94,7 +95,7 @@ export function CarsStep({
         style={{ maxHeight: '50vh' }}
       >
         {filtered.length === 0 && (
-          <p className="py-4 text-center text-sm text-text-muted">Inga bilar hittades.</p>
+          <p className="py-4 text-center text-sm text-text-muted">{t('noResults')}</p>
         )}
         {filtered.map((carName) => {
           const isOwned = owned.has(carName)
@@ -126,10 +127,10 @@ export function CarsStep({
 
       <div className="flex items-center gap-3">
         <Button variant="ghost" onClick={onBack}>
-          ← Tillbaka
+          {tCommon('back')}
         </Button>
         <Button onClick={() => onNext(Array.from(owned))} disabled={isPending}>
-          {isPending ? 'Sparar...' : 'Nästa →'}
+          {isPending ? tCommon('saving') : tCommon('next')}
         </Button>
       </div>
     </div>

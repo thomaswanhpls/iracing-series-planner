@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useMemo, useState } from 'react'
+import { useTranslations } from 'next-intl'
 import { usePathname, useRouter, useSearchParams } from 'next/navigation'
 import { Input } from '@/components/ui/input'
 import { Card } from '@/components/ui/card'
@@ -10,6 +11,7 @@ import { splitCars } from '@/lib/iracing/cars'
 import { CarBadge } from '@/components/car-badges'
 import {
   CalendarDays,
+  ChevronDown,
   CloudRain,
   Flag,
   Gauge,
@@ -227,6 +229,7 @@ function getWeekSignalClasses(signal: WeekSignal): string {
 }
 
 export function SeasonScheduleBrowser({ data }: SeasonScheduleBrowserProps) {
+  const t = useTranslations('seriesBrowser')
   const router = useRouter()
   const pathname = usePathname()
   const searchParams = useSearchParams()
@@ -408,24 +411,24 @@ export function SeasonScheduleBrowser({ data }: SeasonScheduleBrowserProps) {
   return (
     <div className="space-y-6">
       <div>
-        <h2 className="font-display text-2xl font-bold">Seriescheman 2026 S2</h2>
+        <h2 className="font-display text-2xl font-bold">{t('title')}</h2>
       </div>
 
       <div className="grid gap-3 md:grid-cols-4">
         <Card className="p-3">
-          <div className="text-xs uppercase tracking-wider text-text-muted">Kategorier</div>
+          <div className="text-xs uppercase tracking-wider text-text-muted">{t('categories')}</div>
           <div className="mt-1 font-display text-2xl font-bold">{data.categories.length}</div>
         </Card>
         <Card className="p-3">
-          <div className="text-xs uppercase tracking-wider text-text-muted">Serier</div>
+          <div className="text-xs uppercase tracking-wider text-text-muted">{t('series')}</div>
           <div className="mt-1 font-display text-2xl font-bold">{data.series.length}</div>
         </Card>
         <Card className="p-3">
-          <div className="text-xs uppercase tracking-wider text-text-muted">Visar</div>
+          <div className="text-xs uppercase tracking-wider text-text-muted">{t('showing')}</div>
           <div className="mt-1 font-display text-2xl font-bold">{sortedSeries.length}</div>
         </Card>
         <Card className="p-3">
-          <div className="text-xs uppercase tracking-wider text-text-muted">Prioriterade</div>
+          <div className="text-xs uppercase tracking-wider text-text-muted">{t('prioritized')}</div>
           <div className="mt-1 font-display text-2xl font-bold">{prioritizedSeriesIds.length}</div>
         </Card>
       </div>
@@ -435,20 +438,23 @@ export function SeasonScheduleBrowser({ data }: SeasonScheduleBrowserProps) {
           <Input
             value={search}
             onChange={(event) => setSearch(event.target.value)}
-            placeholder="Sok serie eller bana..."
+            placeholder={t('searchPlaceholder')}
           />
-          <select
-            value={activeClass}
-            onChange={(event) => setActiveClass(event.target.value)}
-            className="w-full rounded-sm border border-border bg-white/[0.04] px-3 py-2 font-display text-sm text-text-secondary placeholder:text-text-muted focus:border-border-focus focus:shadow-[0_0_5px_rgba(0,255,255,0.3)] focus:outline-none"
-          >
-            <option value="all">Alla klasser</option>
-            {classes.map((className) => (
-              <option key={className} value={className}>
-                {className}
-              </option>
-            ))}
-          </select>
+          <div className="relative">
+            <select
+              value={activeClass}
+              onChange={(event) => setActiveClass(event.target.value)}
+              className="w-full appearance-none rounded-sm border border-border bg-bg-elevated pl-3 pr-9 py-2 font-display text-sm text-text-secondary transition-[border-color,box-shadow] focus:border-border-focus focus:shadow-[0_0_5px_rgba(0,232,224,0.3)] focus:outline-none cursor-pointer [&>option]:bg-bg-elevated [&>option]:text-text-primary"
+            >
+              <option value="all">{t('allClasses')}</option>
+              {classes.map((className) => (
+                <option key={className} value={className}>
+                  {className}
+                </option>
+              ))}
+            </select>
+            <ChevronDown className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-text-muted" />
+          </div>
         </div>
 
         <div className="flex flex-wrap gap-2">
@@ -461,7 +467,7 @@ export function SeasonScheduleBrowser({ data }: SeasonScheduleBrowserProps) {
                 : 'border-border text-text-secondary hover:text-text-primary'
             }`}
           >
-            Alla
+            {t('all')}
           </button>
           {data.categories.map((category) => (
             <button
@@ -487,7 +493,7 @@ export function SeasonScheduleBrowser({ data }: SeasonScheduleBrowserProps) {
                   : 'border-border text-text-secondary hover:text-text-primary'
               }`}
             >
-              Endast prioriterade
+              {t('prioritizedOnly')}
             </button>
           )}
           <button
@@ -495,7 +501,7 @@ export function SeasonScheduleBrowser({ data }: SeasonScheduleBrowserProps) {
             onClick={resetFilters}
             className="rounded-full border border-border px-3 py-1.5 text-xs text-text-secondary transition hover:text-text-primary"
           >
-            Rensa filter
+            {t('resetFilters')}
           </button>
         </div>
       </Card>
@@ -523,7 +529,7 @@ export function SeasonScheduleBrowser({ data }: SeasonScheduleBrowserProps) {
                     </Badge>
                     <Badge variant="default">{series.className}</Badge>
                     <Badge variant="default">{series.weeks.length} v</Badge>
-                    {prioritized && <Badge variant="default">Prioriterad</Badge>}
+                    {prioritized && <Badge variant="default">{t('prioritizedBadge')}</Badge>}
                   </div>
                   <div className="text-sm font-medium text-text-primary">{series.title}</div>
                 </button>
@@ -532,7 +538,7 @@ export function SeasonScheduleBrowser({ data }: SeasonScheduleBrowserProps) {
 
             {sortedSeries.length === 0 && (
               <div className="rounded-lg border border-border p-4 text-sm text-text-secondary">
-                Ingen serie matchade filtret.
+                {t('noResults')}
               </div>
             )}
           </div>
@@ -542,7 +548,7 @@ export function SeasonScheduleBrowser({ data }: SeasonScheduleBrowserProps) {
           {selectedSeries ? (
             <SeriesDetails series={selectedSeries} />
           ) : (
-            <div className="p-6 text-sm text-text-secondary">Valj en serie i listan till vanster.</div>
+            <div className="p-6 text-sm text-text-secondary">{t('selectSeriesPrompt')}</div>
           )}
         </Card>
       </div>
@@ -563,6 +569,7 @@ function WeekSignalBadge({ signal }: { signal: WeekSignal }) {
 }
 
 function SeriesDetails({ series }: { series: SeasonSeries }) {
+  const t = useTranslations('seriesBrowser')
   const cars = splitCars(series.cars)
   const licenseVariant = inferLicenseBadgeVariant(series.license)
 
@@ -574,16 +581,16 @@ function SeriesDetails({ series }: { series: SeasonSeries }) {
             {series.categoryLabel}
           </Badge>
           <Badge className="bg-accent-cyan/20 text-accent-cyan">{series.className}</Badge>
-          <Badge variant={licenseVariant}>{series.license || 'Licens saknas'}</Badge>
-          <Badge className="bg-bg-elevated text-text-primary">{series.frequency || 'Frekvens saknas'}</Badge>
-          <Badge variant="default">PDF sida {series.pdfPage || '-'}</Badge>
+          <Badge variant={licenseVariant}>{series.license || t('noLicense')}</Badge>
+          <Badge className="bg-bg-elevated text-text-primary">{series.frequency || t('noFrequency')}</Badge>
+          <Badge variant="default">PDF p. {series.pdfPage || '-'}</Badge>
         </div>
         <h3 className="font-display text-lg font-bold text-text-primary">{series.title}</h3>
       </div>
 
       <div className="space-y-2">
         <div className="grid gap-2 rounded-lg border border-border/70 bg-[rgba(26,27,59,0.3)] p-3">
-          <div className="text-xs uppercase tracking-wider text-text-muted">Bil(ar)</div>
+          <div className="text-xs uppercase tracking-wider text-text-muted">{t('car')}</div>
           {cars.length > 0 ? (
             <div className="flex flex-wrap gap-2">
               {cars.map((carModel, index) => (
@@ -600,9 +607,9 @@ function SeriesDetails({ series }: { series: SeasonSeries }) {
         <Table>
           <THead>
             <Tr>
-              <Th>Bana</Th>
-              <Th className="w-24">Langd</Th>
-              <Th className="w-40">Referens</Th>
+              <Th>{t('track')}</Th>
+              <Th className="w-24">{t('length')}</Th>
+              <Th className="w-40">{t('reference')}</Th>
             </Tr>
           </THead>
           <TBody>
@@ -615,7 +622,7 @@ function SeriesDetails({ series }: { series: SeasonSeries }) {
                   <div className="h-full min-h-[64px] rounded-lg border border-border/60 bg-gradient-to-r from-[rgba(26,27,59,0.85)] via-[rgba(26,27,59,0.65)] to-bg-surface/75 p-2.5">
                     <div className="mb-2 flex flex-wrap items-center gap-2">
                       <span className="inline-flex min-w-7 items-center justify-center rounded-md border border-accent-cyan/40 bg-accent-cyan/20 px-1.5 py-0.5 font-display text-sm font-semibold text-text-primary">
-                        V{week.week}
+                        {t('weekPrefix')}{week.week}
                       </span>
                       <span className="inline-flex items-center gap-1.5 rounded-md border border-border/70 bg-bg-elevated px-2 py-0.5 text-text-primary">
                         <CalendarDays className="h-3.5 w-3.5 text-accent-cyan" />

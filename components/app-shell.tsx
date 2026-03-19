@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { usePathname, useSearchParams } from 'next/navigation'
+import { useTranslations } from 'next-intl'
 import {
   LayoutDashboard,
   Compass,
@@ -13,6 +14,7 @@ import {
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { OwnershipProvider } from '@/lib/ownership/context'
+import { LocaleSwitcher } from '@/components/locale-switcher'
 
 
 interface AppShellProps {
@@ -29,19 +31,19 @@ interface NavItem {
 }
 
 const navItems: NavItem[] = [
-  { href: '/setup',     label: 'Setup',         icon: Compass,         group: 'planering' },
-  { href: '/dashboard', label: 'Dashboard',      icon: LayoutDashboard, group: 'planering' },
-  { href: '/settings',  label: 'Inställningar',  icon: Settings,        group: 'planering' },
+  { href: '/setup',     label: 'setup',     icon: Compass,         group: 'planering' },
+  { href: '/dashboard', label: 'dashboard', icon: LayoutDashboard, group: 'planering' },
+  { href: '/settings',  label: 'settings',  icon: Settings,        group: 'planering' },
 ]
 
 const navGroups: { key: 'planering' | 'analys'; label: string }[] = [
-  { key: 'planering', label: 'Planering' },
+  { key: 'planering', label: 'planGroup' },
 ]
 
-const pageMeta: Record<string, { breadcrumb: string; title: string }> = {
-  '/setup':     { breadcrumb: 'Planering', title: 'Välj serier' },
-  '/dashboard': { breadcrumb: 'Planering', title: 'Dashboard' },
-  '/settings':  { breadcrumb: 'Planering', title: 'Inställningar' },
+const pageMeta: Record<string, { breadcrumb: string; titleKey: string }> = {
+  '/setup':     { breadcrumb: 'planGroup', titleKey: 'setup' },
+  '/dashboard': { breadcrumb: 'planGroup', titleKey: 'dashboard' },
+  '/settings':  { breadcrumb: 'planGroup', titleKey: 'settings' },
 }
 
 function getInitials(userId: string): string {
@@ -49,6 +51,8 @@ function getInitials(userId: string): string {
 }
 
 export function AppShell({ children, userId, initialOwnedTrackIds }: AppShellProps) {
+  const t = useTranslations('nav')
+  const tShell = useTranslations('dashboard.appShell')
   const [collapsed, setCollapsed] = useState(false)
   const [seasonBadge, setSeasonBadge] = useState('2026 S2')
   const pathname = usePathname()
@@ -57,9 +61,11 @@ export function AppShell({ children, userId, initialOwnedTrackIds }: AppShellPro
   const currentPage = Object.keys(pageMeta)
     .sort((a, b) => b.length - a.length)
     .find((key) => pathname.startsWith(key))
-  const { breadcrumb: pageBreadcrumb, title: pageTitle } = currentPage
+  const { breadcrumb: pageBreadcrumbKey, titleKey: pageTitleKey } = currentPage
     ? pageMeta[currentPage]
-    : { breadcrumb: '', title: '' }
+    : { breadcrumb: '', titleKey: '' }
+  const pageBreadcrumb = pageBreadcrumbKey ? t(pageBreadcrumbKey as Parameters<typeof t>[0]) : ''
+  const pageTitle = pageTitleKey ? t(pageTitleKey as Parameters<typeof t>[0]) : ''
 
   useEffect(() => {
     const querySeason = searchParams.get('season')
@@ -97,7 +103,7 @@ export function AppShell({ children, userId, initialOwnedTrackIds }: AppShellPro
                   iRacing <span className="text-accent-cyan">SP</span>
                 </div>
                 <div className="font-mono text-[10px] text-text-muted uppercase tracking-widest mt-1.5">
-                  {seasonBadge} · Säsongsplanerare
+                  {seasonBadge} · {tShell('seasonPlanner')}
                 </div>
               </>
             )}
@@ -111,7 +117,7 @@ export function AppShell({ children, userId, initialOwnedTrackIds }: AppShellPro
                 <div key={key}>
                   {!collapsed && (
                     <div className="font-mono text-[9px] uppercase tracking-[0.12em] text-white/20 px-6 pt-4 pb-2">
-                      {label}
+                      {t(label as Parameters<typeof t>[0])}
                     </div>
                   )}
                   {groupItems.map(({ href, label: itemLabel, icon: Icon }) => {
@@ -143,7 +149,7 @@ export function AppShell({ children, userId, initialOwnedTrackIds }: AppShellPro
                             active ? 'opacity-100 text-accent-cyan' : 'opacity-55'
                           )}
                         />
-                        {!collapsed && <span>{itemLabel}</span>}
+                        {!collapsed && <span>{t(itemLabel as Parameters<typeof t>[0])}</span>}
                       </Link>
                     )
                   })}
@@ -168,7 +174,7 @@ export function AppShell({ children, userId, initialOwnedTrackIds }: AppShellPro
                 </div>
                 <div className="min-w-0">
                   <div className="text-[13px] font-semibold text-white/80 truncate">{userId}</div>
-                  <div className="font-mono text-[10px] text-white/25 uppercase tracking-[0.04em] mt-0.5">iRacing Member</div>
+                  <div className="font-mono text-[10px] text-white/25 uppercase tracking-[0.04em] mt-0.5">{tShell('iracingMember')}</div>
                 </div>
               </div>
             )}
@@ -180,7 +186,7 @@ export function AppShell({ children, userId, initialOwnedTrackIds }: AppShellPro
             className="relative flex h-10 items-center justify-center gap-2 border-t border-white/[0.06] text-text-muted hover:text-text-primary transition-colors px-3"
           >
             <LogOut className="h-4 w-4 shrink-0" />
-            {!collapsed && <span className="text-xs">Logga ut</span>}
+            {!collapsed && <span className="text-xs">{t('logout')}</span>}
           </a>
 
           {/* Collapse toggle */}
@@ -211,6 +217,7 @@ export function AppShell({ children, userId, initialOwnedTrackIds }: AppShellPro
               )}
             </div>
             <div className="flex items-center gap-3">
+              <LocaleSwitcher />
             </div>
           </header>
 
