@@ -53,11 +53,17 @@ export default async function MatrixPage({
   const allSeries = getAllSeries()
   const selectedSeries = allSeries.filter((s) => selectedSeriesNames.includes(s.seriesName))
   const ownedSet = new Set(ownedTrackKeys)
-  const currentWeekIndex = selectedSeries[0]
-    ? getCurrentWeekIndex(selectedSeries[0].weeks)
-    : 0
 
-  const allWeekIndices = (selectedSeries[0]?.weeks ?? []).map((_, i) => i)
+  // Use a canonical standard 12-week S2 series as the column reference.
+  // This avoids non-consecutive dates from endurance/special series (e.g. Nurburgring
+  // which races biweekly, causing the matrix to show Apr 4 → Apr 25 as weeks 2→3).
+  const canonicalSeries =
+    allSeries.find((s) => s.weeks.length === 12 && s.weeks[0]?.startDate === '2026-03-17') ??
+    selectedSeries[0]
+  const canonicalWeeks = canonicalSeries?.weeks ?? []
+  const currentWeekIndex = canonicalWeeks.length > 0 ? getCurrentWeekIndex(canonicalWeeks) : 0
+
+  const allWeekIndices = canonicalWeeks.map((_, i) => i)
 
   return (
     <div className="h-full overflow-auto p-6">
@@ -77,7 +83,8 @@ export default async function MatrixPage({
           </div>
           <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
             {selectedSeries.map((s) => {
-              const week = s.weeks[currentWeekIndex]
+              const canonicalDate = canonicalWeeks[currentWeekIndex]?.startDate
+              const week = canonicalDate ? s.weeks.find((w) => w.startDate === canonicalDate) : undefined
               if (!week) return null
               const status = getStatus(week.venue, week.config, ownedSet)
               const badge = BADGE_COLORS[status]
@@ -115,7 +122,7 @@ export default async function MatrixPage({
         {/* Week column headers with dates */}
         <div className="mb-2 flex pl-[220px] pr-1">
           {allWeekIndices.map((wi) => {
-            const week = selectedSeries[0]?.weeks[wi]
+            const canonicalDate = canonicalWeeks[wi]?.startDate
             const isCurrent = wi === currentWeekIndex
             return (
               <div
@@ -124,9 +131,9 @@ export default async function MatrixPage({
                 style={{ color: isCurrent ? 'var(--color-accent-cyan)' : 'var(--color-text-muted)' }}
               >
                 <span className="text-xs font-medium">{wi + 1}</span>
-                {week?.startDate && (
+                {canonicalDate && (
                   <span className="mt-0.5 text-[9px] leading-none opacity-70">
-                    {formatWeekDate(week.startDate)}
+                    {formatWeekDate(canonicalDate)}
                   </span>
                 )}
               </div>
@@ -143,7 +150,8 @@ export default async function MatrixPage({
               </span>
               <div className="flex flex-1 gap-0.5 pr-1">
                 {allWeekIndices.map((wi) => {
-                  const week = s.weeks[wi]
+                  const canonicalDate = canonicalWeeks[wi]?.startDate
+                  const week = canonicalDate ? s.weeks.find((w) => w.startDate === canonicalDate) : undefined
                   if (!week) return (
                     <div
                       key={wi}

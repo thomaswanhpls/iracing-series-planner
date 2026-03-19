@@ -10,3 +10,4 @@ dist
 .playwright-cli/
 AGENTS.md
 .superpowers/
+.vercel
