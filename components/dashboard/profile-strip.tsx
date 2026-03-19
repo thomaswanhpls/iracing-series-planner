@@ -1,4 +1,5 @@
 // components/dashboard/profile-strip.tsx
+import { useTranslations } from 'next-intl'
 import Link from 'next/link'
 
 interface ProfileStripProps {
@@ -35,6 +36,8 @@ export function ProfileStrip({
     licenseDirtRoad,
     licenseDirtOval,
   }
+ const t = useTranslations('common')
+
 
   return (
     <div className="flex h-14 shrink-0 items-center border-b border-border-subtle bg-bg-elevated px-5">
@@ -56,7 +59,7 @@ export function ProfileStrip({
       <div className="ml-auto flex items-center gap-4">
         <span className="text-xs text-text-muted">{seasonLabel}</span>
         <Link href="/setup" className="text-xs text-accent-cyan/60 transition-colors hover:text-accent-cyan/80">
-          Ändra profil →
+          {t('changeProfile')} →
         </Link>
       </div>
     </div>
