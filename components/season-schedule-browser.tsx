@@ -414,7 +414,7 @@ export function SeasonScheduleBrowser({ data }: SeasonScheduleBrowserProps) {
         <h2 className="font-display text-2xl font-bold">{t('title')}</h2>
       </div>
 
-      <div className="grid gap-3 md:grid-cols-4">
+      <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
         <Card className="p-3">
           <div className="text-xs uppercase tracking-wider text-text-muted">{t('categories')}</div>
           <div className="mt-1 font-display text-2xl font-bold">{data.categories.length}</div>
@@ -544,7 +544,7 @@ export function SeasonScheduleBrowser({ data }: SeasonScheduleBrowserProps) {
           </div>
         </Card>
 
-        <Card className="h-[50vh] md:h-[70vh] overflow-y-auto p-0">
+        <Card className={`h-[50vh] md:h-[70vh] overflow-y-auto p-0${!selectedSeries ? ' hidden lg:block' : ''}`}>
           {selectedSeries ? (
             <SeriesDetails series={selectedSeries} />
           ) : (
