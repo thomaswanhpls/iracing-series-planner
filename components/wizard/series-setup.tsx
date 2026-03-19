@@ -4,14 +4,13 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import { useTranslations } from 'next-intl'
 import { createPortal } from 'react-dom'
 import { usePathname, useRouter, useSearchParams } from 'next/navigation'
-import { ChevronDown, ChevronUp, Filter, Info } from 'lucide-react'
+import { Check, ChevronDown, ChevronUp, Filter, Info } from 'lucide-react'
 import type { SeasonScheduleData } from '@/lib/season-schedules/types'
 import { splitCars, inferCarBrand } from '@/lib/iracing/cars'
 import { BrandEmblem, CarBadge } from '@/components/car-badges'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
-import { Checkbox } from '@/components/ui/checkbox'
 import { Input } from '@/components/ui/input'
 import { cn } from '@/lib/utils'
 
@@ -733,6 +732,7 @@ export function SeriesSetup({ data, initialSelectedSeriesNames, userLicenseClass
                 <button
                   key={entry.id}
                   type="button"
+                  aria-pressed={selected}
                   onClick={() => toggleSeries(entry.id)}
                   className={cn(
                     'absolute left-0 right-0 flex h-[140px] w-full cursor-pointer items-start gap-[14px] rounded-lg border p-[14px_16px] text-left transition-all duration-150',
@@ -742,11 +742,18 @@ export function SeriesSetup({ data, initialSelectedSeriesNames, userLicenseClass
                   )}
                   style={{ top: `${top}px` }}
                 >
-                  <Checkbox
-                    checked={selected}
-                    readOnly
-                    className="mt-1 shrink-0"
-                  />
+                  {/* Decorative check indicator — cannot use <Checkbox> (renders <button>) inside a <button> */}
+                  <span
+                    aria-hidden="true"
+                    className={cn(
+                      'mt-1 inline-flex h-[18px] w-[18px] shrink-0 items-center justify-center rounded-sm border transition-all duration-150',
+                      selected
+                        ? 'border-accent-cyan bg-[rgba(0,255,255,0.15)] shadow-[0_0_8px_rgba(0,255,255,0.35)]'
+                        : 'border-white/25 bg-white/[0.03]'
+                    )}
+                  >
+                    {selected && <Check className="h-3.5 w-3.5 stroke-[2.5]" style={{ color: '#00ffff' }} />}
+                  </span>
                   <div className="flex-1 min-w-0">
                     <div className="mb-1.5 flex flex-wrap items-center gap-1.5">
                       <Badge variant={catVariant}>
