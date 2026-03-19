@@ -41,7 +41,7 @@ describe('computeSeriesCost', () => {
   })
 
   it('returns total price of missing paid tracks for a series', () => {
-    // Use a track that has a price > 0. Suzuka is $11.99 in track-prices.
+    // Use a track that has a price > 0. Suzuka is $14.95 (default track price).
     const series = makeSeries('TCR', [{ venue: 'Suzuka International Raceway', config: 'Full' }])
     const result = computeSeriesCost([series], [])
     expect(result.get('TCR')).toBeGreaterThan(0)

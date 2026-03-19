@@ -3,8 +3,12 @@
  * Key format: "venue|config" (config = "" if null) — matches makeTrackKey().
  * Price in USD. 0 = free with subscription.
  *
+ * iRacing pricing (as of 2026):
+ *   Standard tracks: $14.95
+ *   Legacy tracks:   $4.95
+ *   Free tracks:     $0
+ *
  * NOTE: This is a manually maintained list. Update when iRacing changes prices.
- * Most tracks are $11.99. Free (base content) tracks are listed explicitly as 0.
  */
 export const TRACK_PRICES: Record<string, number> = {
   // Free tracks (included with subscription)
@@ -26,14 +30,24 @@ export const TRACK_PRICES: Record<string, number> = {
   'Summit Point Motorsports Park|Jefferson Circuit': 0,
   'Summit Point Motorsports Park|Shenandoah Circuit': 0,
 
-  // Paid tracks — $11.99 each
-  // Add entries here as needed. Default price for unlisted tracks is $11.99 (see getTrackPrice).
+  // Add explicit overrides here as needed.
+  // Default price for unlisted tracks is determined by isLegacyTrack() (see getTrackPrice).
 }
 
-/** Default price for any track not explicitly listed above */
-export const DEFAULT_TRACK_PRICE = 11.99
+/** Standard track price */
+export const DEFAULT_TRACK_PRICE = 14.95
+
+/** Legacy track price — tracks prefixed with "[Legacy]" */
+export const LEGACY_TRACK_PRICE = 4.95
+
+/** Returns true if the track key refers to a legacy track (venue starts with "[Legacy]") */
+function isLegacyTrack(trackKey: string): boolean {
+  const venue = trackKey.split('|')[0]
+  return venue.startsWith('[Legacy]')
+}
 
 export function getTrackPrice(trackKey: string): number {
   if (trackKey in TRACK_PRICES) return TRACK_PRICES[trackKey]
+  if (isLegacyTrack(trackKey)) return LEGACY_TRACK_PRICE
   return DEFAULT_TRACK_PRICE
 }
