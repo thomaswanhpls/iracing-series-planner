@@ -10,6 +10,8 @@ import {
   ChevronLeft,
   ChevronRight,
   LogOut,
+  CalendarDays,
+  MapPin,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { OwnershipProvider } from '@/lib/ownership/context'
@@ -30,6 +32,8 @@ interface NavItem {
 
 const navItems: NavItem[] = [
   { href: '/setup',     label: 'Setup',         icon: Compass,         group: 'planering' },
+  { href: '/series',    label: 'Serier',         icon: CalendarDays,    group: 'planering' },
+  { href: '/tracks',    label: 'Banor',          icon: MapPin,          group: 'planering' },
   { href: '/dashboard', label: 'Dashboard',      icon: LayoutDashboard, group: 'planering' },
   { href: '/settings',  label: 'Inställningar',  icon: Settings,        group: 'planering' },
 ]
@@ -39,9 +43,13 @@ const navGroups: { key: 'planering' | 'analys'; label: string }[] = [
 ]
 
 const pageMeta: Record<string, { breadcrumb: string; title: string }> = {
-  '/setup':     { breadcrumb: 'Planering', title: 'Välj serier' },
-  '/dashboard': { breadcrumb: 'Planering', title: 'Dashboard' },
-  '/settings':  { breadcrumb: 'Planering', title: 'Inställningar' },
+  '/setup':              { breadcrumb: 'Planering', title: 'Välj serier' },
+  '/series':             { breadcrumb: 'Planering', title: 'Serieöversikt' },
+  '/tracks':             { breadcrumb: 'Planering', title: 'Banor' },
+  '/dashboard/costs':    { breadcrumb: 'Dashboard',  title: 'Kostnadsanalys' },
+  '/dashboard/matrix':   { breadcrumb: 'Dashboard',  title: 'Spårmatris' },
+  '/dashboard':          { breadcrumb: 'Planering', title: 'Dashboard' },
+  '/settings':           { breadcrumb: 'Planering', title: 'Inställningar' },
 }
 
 function getInitials(userId: string): string {
