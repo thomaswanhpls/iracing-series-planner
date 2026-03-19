@@ -119,7 +119,13 @@ function inferLicenseBadgeVariant(
 
 function getLicenseLabel(raw: string): string {
   if (!raw) return 'N/A'
-  return raw.split(',')[0]?.trim() ?? raw
+  const first = raw.split(',')[0]?.trim() ?? raw
+  // "Class D 4.0 → Pro/WC 4.0" → "D" (color variant already conveys the class)
+  const classMatch = first.match(/^Class\s+([A-Z])\b/)
+  if (classMatch) return classMatch[1]
+  const rookieMatch = first.match(/^(Rookie)\b/)
+  if (rookieMatch) return 'Rookie'
+  return first
 }
 
 function normalize(value: string) {
