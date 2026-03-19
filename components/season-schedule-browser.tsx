@@ -609,7 +609,7 @@ function SeriesDetails({ series }: { series: SeasonSeries }) {
             <Tr>
               <Th>{t('track')}</Th>
               <Th className="w-24">{t('length')}</Th>
-              <Th className="w-40">{t('reference')}</Th>
+              <Th className="hidden md:table-cell w-40">{t('reference')}</Th>
             </Tr>
           </THead>
           <TBody>
@@ -645,7 +645,7 @@ function SeriesDetails({ series }: { series: SeasonSeries }) {
                   </div>
                 </Td>
                 <Td className="py-2 text-sm font-medium text-text-primary">{week.length || '-'}</Td>
-                <Td className="py-2 text-sm text-text-secondary">
+                <Td className="hidden md:table-cell py-2 text-sm text-text-secondary">
                   <span className="inline-flex items-center gap-1.5 rounded-md border border-border/70 bg-[rgba(26,27,59,0.7)] px-2 py-1">
                     <CalendarDays className="h-3.5 w-3.5 text-accent-cyan" />
                     {formatCompactReferenceSession(week.referenceSession)}
