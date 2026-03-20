@@ -95,6 +95,7 @@
       "subtitle": "Mark the tracks you already own. Unmarked tracks count as purchase needs in cost calculations.",
       "search": "Search track...",
       "ownedCount": "{owned} / {total} owned",
+      "showOnlyOwned": "Show only owned",
       "freeTracksNote": "Tracks included with the iRacing subscription are pre-checked — they don't need to be purchased.",
       "includedBadge": "Included",
       "noResults": "No tracks found."
@@ -104,6 +105,7 @@
       "subtitle": "Mark the cars you already own. Unmarked cars may affect cost calculations.",
       "search": "Search car...",
       "ownedCount": "{owned} / {total} owned",
+      "showOnlyOwned": "Show only owned",
       "noResults": "No cars found."
     },
     "profile": {

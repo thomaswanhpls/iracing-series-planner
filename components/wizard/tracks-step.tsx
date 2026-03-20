@@ -1,13 +1,15 @@
 'use client'
 
 import { useState, useMemo } from 'react'
+import { Check } from 'lucide-react'
 import { useTranslations } from 'next-intl'
 import type { IracingTrack } from '@/lib/iracing/types'
 import { makeTrackKey } from '@/lib/iracing/types'
 import { getTrackPrice } from '@/lib/iracing/track-prices'
 import { Button } from '@/components/ui/button'
+import { Card } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
-import { Checkbox } from '@/components/ui/checkbox'
+import { cn } from '@/lib/utils'
 
 interface VenueGroup {
   venue: string
@@ -30,8 +32,6 @@ function normalize(s: string) {
 
 /** Venues that are car-specific variants included with a base venue purchase */
 function resolveBaseVenue(venue: string, venueSet: Set<string>): string {
-  // Check if this venue starts with a known base venue + space
-  // e.g. "Mount Panorama Circuit FIA F4" → "Mount Panorama Circuit"
   for (const base of venueSet) {
     if (base !== venue && venue.startsWith(base + ' ')) return base
   }
@@ -44,7 +44,6 @@ function buildVenueGroups(tracks: IracingTrack[]): VenueGroup[] {
   for (const t of tracks) {
     const base = resolveBaseVenue(t.venue, venueSet)
     const existing = map.get(base)
-    // Store with config = original venue suffix if it was a sub-variant
     const effectiveTrack: IracingTrack =
       base !== t.venue
         ? { ...t, venue: base, config: t.venue.slice(base.length + 1) }
@@ -75,9 +74,9 @@ export function TracksStep({
   )
 
   const [search, setSearch] = useState('')
+  const [showOnlyOwned, setShowOnlyOwned] = useState(false)
   const [owned, setOwned] = useState<Set<string>>(() => {
     const initial = new Set(initialOwnedTrackKeys)
-    // Auto-include tracks that are free with the iRacing subscription
     for (const k of freeTrackKeys) initial.add(k)
     return initial
   })
@@ -85,10 +84,13 @@ export function TracksStep({
   const venueGroups = useMemo(() => buildVenueGroups(allTracks), [allTracks])
 
   const filtered = useMemo(() => {
-    if (!search.trim()) return venueGroups
+    const base = showOnlyOwned
+      ? venueGroups.filter((g) => g.configKeys.some((k) => owned.has(k)))
+      : venueGroups
+    if (!search.trim()) return base
     const q = normalize(search)
-    return venueGroups.filter((g) => normalize(g.venue).includes(q))
-  }, [venueGroups, search])
+    return base.filter((g) => normalize(g.venue).includes(q))
+  }, [venueGroups, search, showOnlyOwned, owned])
 
   const totalVenues = venueGroups.length
   const ownedVenueCount = venueGroups.filter((g) =>
@@ -124,7 +126,8 @@ export function TracksStep({
   }
 
   return (
-    <div className="flex flex-col gap-4">
+    <div className="flex flex-col flex-1">
+      <div className="flex flex-col gap-4">
       <div>
         <h2 className="text-lg font-semibold text-text-primary mb-1">{t('title')}</h2>
         <p className="text-sm text-text-secondary">{t('subtitle')}</p>
@@ -141,6 +144,18 @@ export function TracksStep({
         <span className="text-xs text-text-muted">
           {t('ownedCount', { owned: ownedVenueCount, total: totalVenues })}
         </span>
+        <button
+          type="button"
+          onClick={() => setShowOnlyOwned((v) => !v)}
+          className={cn(
+            'rounded-full border px-2.5 py-1 text-[11px] font-medium transition-all',
+            showOnlyOwned
+              ? 'border-accent-cyan/50 bg-accent-cyan/10 text-accent-cyan'
+              : 'border-border/50 text-text-muted hover:text-text-secondary'
+          )}
+        >
+          {t('showOnlyOwned')}
+        </button>
       </div>
 
       <p className="text-[11px] text-text-muted rounded-md border border-border/40 bg-bg-elevated/50 px-3 py-2">
@@ -159,69 +174,71 @@ export function TracksStep({
         </button>
       )}
 
-      <div
-        className="flex flex-col gap-1 overflow-y-auto rounded-md border border-border-subtle bg-bg-glass p-2"
-        style={{ maxHeight: '50vh' }}
-      >
+      <Card className="overflow-hidden p-2">
+        <ul className="flex flex-col gap-1">
         {filtered.length === 0 && (
-          <p className="py-4 text-center text-sm text-text-muted">{t('noResults')}</p>
+          <li className="py-4 text-center text-sm text-text-muted">{t('noResults')}</li>
         )}
         {filtered.map((group) => {
           const isOwned = group.configKeys.some((k) => owned.has(k))
           const isFree = group.configKeys.some((k) => freeTrackKeys.has(k))
           const configs = group.tracks.map((t) => t.config).filter(Boolean) as string[]
           return (
-            <div
-              key={group.venue}
-              role="button"
-              tabIndex={0}
-              onClick={() => toggleVenue(group)}
-              onKeyDown={(e) => {
-                if (e.key === 'Enter' || e.key === ' ') {
-                  e.preventDefault()
-                  toggleVenue(group)
-                }
-              }}
-              className={[
-                'flex cursor-pointer items-start gap-3 rounded-md px-3 py-2.5 text-sm transition-colors',
-                isFree
-                  ? 'border border-[rgba(45,217,168,0.4)] bg-[rgba(45,217,168,0.07)]'
-                  : isOwned
-                  ? 'border border-[rgba(0,232,224,0.55)] bg-[rgba(0,232,224,0.08)]'
-                  : 'border border-transparent hover:bg-white/[0.03]',
-              ].join(' ')}
-            >
-              <Checkbox checked={isOwned} readOnly aria-hidden className="mt-0.5 shrink-0" />
-              <div className="flex-1 min-w-0">
-                <div className="flex items-center gap-2">
-                  <span className="text-text-primary">{group.venue}</span>
-                  {isFree && (
-                    <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded-full"
-                      style={{ color: 'var(--color-accent-green)', background: 'rgba(45,217,168,0.12)' }}>
-                      {t('includedBadge')}
-                    </span>
+            <li key={group.venue}>
+              <button
+                type="button"
+                onClick={() => toggleVenue(group)}
+                className={cn(
+                  'flex w-full cursor-pointer items-start gap-3 rounded-lg px-3 py-2.5 text-sm transition-colors text-left',
+                  isFree
+                    ? 'border border-[rgba(45,217,168,0.4)] bg-[rgba(45,217,168,0.07)]'
+                    : isOwned
+                    ? 'border border-[rgba(0,232,224,0.55)] bg-[rgba(0,232,224,0.18)] shadow-[inset_3px_0_0_rgba(0,232,224,0.7)]'
+                    : 'border border-transparent hover:bg-white/[0.03]',
+                )}
+              >
+                <span
+                  aria-hidden="true"
+                  className={cn(
+                    'mt-0.5 inline-flex h-[18px] w-[18px] shrink-0 items-center justify-center rounded-sm border transition-all duration-150',
+                    isOwned
+                      ? 'border-accent-cyan bg-[rgba(0,255,255,0.15)] shadow-[0_0_8px_rgba(0,255,255,0.35)]'
+                      : 'border-white/25 bg-white/[0.03]'
+                  )}
+                >
+                  {isOwned && <Check className="h-3.5 w-3.5 stroke-[2.5]" style={{ color: '#00ffff' }} />}
+                </span>
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2">
+                    <span className="text-text-primary">{group.venue}</span>
+                    {isFree && (
+                      <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded-full"
+                        style={{ color: 'var(--color-accent-green)', background: 'rgba(45,217,168,0.12)' }}>
+                        {t('includedBadge')}
+                      </span>
+                    )}
+                  </div>
+                  {configs.length > 0 && (
+                    <div className="text-[11px] text-text-muted mt-0.5 truncate">
+                      {configs.join(' · ')}
+                    </div>
                   )}
                 </div>
-                {configs.length > 0 && (
-                  <div className="text-[11px] text-text-muted mt-0.5 truncate">
-                    {configs.join(' · ')}
-                  </div>
+                {group.popularityScore > 0 && (
+                  <span className="text-[11px] text-text-muted tabular-nums shrink-0 mt-0.5">
+                    {group.popularityScore}p
+                  </span>
                 )}
-              </div>
-              {group.popularityScore > 0 && (
-                <span className="text-[11px] text-text-muted tabular-nums shrink-0 mt-0.5">
-                  {group.popularityScore}p
-                </span>
-              )}
-            </div>
+              </button>
+            </li>
           )
         })}
-      </div>
+        </ul>
+      </Card>
 
-      <div className="flex items-center gap-3">
-        <Button variant="ghost" onClick={onBack}>
-          {tCommon('back')}
-        </Button>
+      </div>
+      <div className="mt-auto sticky -bottom-[1px] -mx-3 md:-mx-6 flex items-center justify-between border-t border-border/30 bg-bg-base px-3 py-3 md:px-6">
+        <Button variant="ghost" onClick={onBack}>{tCommon('back')}</Button>
         <Button onClick={() => onNext(Array.from(owned))} disabled={isPending}>
           {isPending ? tCommon('saving') : tCommon('next')}
         </Button>

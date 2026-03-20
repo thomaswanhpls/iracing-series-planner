@@ -95,6 +95,7 @@
       "subtitle": "Markera de banor du redan äger. Omarkerade banor räknas som köpbehov i kostnadskalkylerna.",
       "search": "Sök bana...",
       "ownedCount": "{owned} / {total} ägda",
+      "showOnlyOwned": "Visa endast ägda",
       "freeTracksNote": "Banor som ingår i iRacing-prenumerationen är förkryssade automatiskt — de behöver inte köpas.",
       "includedBadge": "Ingår",
       "noResults": "Inga banor hittades."
@@ -104,6 +105,7 @@
       "subtitle": "Markera de bilar du redan äger. Omarkerade bilar kan påverka kostnadskalkylerna.",
       "search": "Sök bil...",
       "ownedCount": "{owned} / {total} ägda",
+      "showOnlyOwned": "Visa endast ägda",
       "noResults": "Inga bilar hittades."
     },
     "profile": {

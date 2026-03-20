@@ -89,8 +89,6 @@ interface PersistedSetupState {
 
 type SortKey = 'name' | 'category' | 'class'
 
-const ROW_HEIGHT = 140
-const OVERSCAN_ROWS = 6
 const defaultSeason = '2026-2'
 const storageKey = 'series-setup-state-v1'
 
@@ -209,7 +207,6 @@ export function SeriesSetup({ data, initialSelectedSeriesNames, userLicenseClass
   const pathname = usePathname()
   const searchParams = useSearchParams()
   const hydratedRef = useRef(false)
-  const scrollContainerRef = useRef<HTMLDivElement>(null)
 
   // --- State ---
   const [selectedCategoryIds, setSelectedCategoryIds] = useState<string[]>(
@@ -230,7 +227,6 @@ export function SeriesSetup({ data, initialSelectedSeriesNames, userLicenseClass
   const [sortAscending, setSortAscending] = useState(
     (searchParams.get('setup_dir') ?? 'asc') === 'asc'
   )
-  const [scrollTop, setScrollTop] = useState(0)
   const [filtersOpen, setFiltersOpen] = useState(false)
   const [selectedBrands, setSelectedBrands] = useState<string[]>([])
   const [showOnlySelected, setShowOnlySelected] = useState(false)
@@ -321,16 +317,7 @@ export function SeriesSetup({ data, initialSelectedSeriesNames, userLicenseClass
     return entries
   }, [searchFilteredSeries, sortAscending, sortKey])
 
-  // Virtualization
   const allFilteredIds = useMemo(() => sortedSeries.map((s) => s.id), [sortedSeries])
-  const totalHeight = sortedSeries.length * ROW_HEIGHT
-  const containerHeight = scrollContainerRef.current?.clientHeight ?? 800
-  const visibleStartIndex = Math.max(0, Math.floor(scrollTop / ROW_HEIGHT) - OVERSCAN_ROWS)
-  const visibleEndIndex = Math.min(
-    sortedSeries.length,
-    Math.ceil((scrollTop + containerHeight) / ROW_HEIGHT) + OVERSCAN_ROWS
-  )
-  const visibleSeries = sortedSeries.slice(visibleStartIndex, visibleEndIndex)
 
   // --- localStorage hydration ---
   useEffect(() => {
@@ -503,26 +490,12 @@ export function SeriesSetup({ data, initialSelectedSeriesNames, userLicenseClass
   }
 
   return (
-    <div className="mx-auto max-w-6xl space-y-5">
+    <div className="flex flex-col flex-1">
+      <div className="flex flex-col gap-5">
       {/* Header */}
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-        <div>
-          <h2 className="font-display text-2xl font-bold text-text-primary">{t('title')}</h2>
-          <p className="text-sm text-text-secondary mt-1">{t('subtitle')}</p>
-        </div>
-        <div className="flex flex-wrap items-center gap-2">
-          {onBack && (
-            <Button variant="ghost" onClick={onBack}>
-              {tCommon('back')}
-            </Button>
-          )}
-          <span className="px-3 py-1.5 rounded-full border border-accent-cyan/30 bg-accent-cyan/10 text-accent-cyan text-xs font-display font-semibold">
-            {t('selected', { count: selectedSeriesIds.length })}
-          </span>
-          <Button onClick={handleNext} disabled={selectedSeriesIds.length === 0}>
-            {onNextProp ? t('save') : t('continueToTracks')}
-          </Button>
-        </div>
+      <div>
+        <h2 className="font-display text-2xl font-bold text-text-primary">{t('title')}</h2>
+        <p className="text-sm text-text-secondary mt-1">{t('subtitle')}</p>
       </div>
 
       {/* Collapsible filter Card */}
@@ -712,41 +685,34 @@ export function SeriesSetup({ data, initialSelectedSeriesNames, userLicenseClass
         </div>
       </div>
 
-      {/* Virtualized list */}
+      {/* Series list */}
       <Card className="overflow-hidden p-2">
-        <div
-          ref={scrollContainerRef}
-          className="max-h-[calc(100vh-240px)] min-h-[360px] overflow-y-auto md:max-h-[calc(100vh-340px)]"
-          onScroll={(e) => setScrollTop(e.currentTarget.scrollTop)}
-        >
-          <div className="relative" style={{ height: `${totalHeight}px` }}>
-            {visibleSeries.map((entry, index) => {
-              const absoluteIndex = visibleStartIndex + index
-              const top = absoluteIndex * ROW_HEIGHT
-              const selected = selectedSeriesIds.includes(entry.id)
-              const licVariant = inferLicenseBadgeVariant(entry.className)
-              const licLabel = getClassLabel(entry.className)
-              const catVariant = categoryBadgeVariants[entry.categoryId] ?? 'default'
-
-              return (
+        <ul className="flex flex-col gap-1">
+          {sortedSeries.length === 0 && (
+            <li className="py-4 text-center text-sm text-text-muted">{t('noResults')}</li>
+          )}
+          {sortedSeries.map((entry) => {
+            const selected = selectedSeriesIds.includes(entry.id)
+            const licVariant = inferLicenseBadgeVariant(entry.className)
+            const licLabel = getClassLabel(entry.className)
+            const catVariant = categoryBadgeVariants[entry.categoryId] ?? 'default'
+            return (
+              <li key={entry.id}>
                 <button
-                  key={entry.id}
                   type="button"
                   aria-pressed={selected}
                   onClick={() => toggleSeries(entry.id)}
                   className={cn(
-                    'absolute left-0 right-0 flex h-[140px] w-full cursor-pointer items-start gap-[14px] rounded-lg border p-[14px_16px] text-left transition-all duration-150',
+                    'flex w-full cursor-pointer items-start gap-3 rounded-lg border px-3 py-2.5 text-left transition-all duration-150',
                     selected
                       ? 'border-[rgba(0,232,224,0.55)] bg-[rgba(0,232,224,0.18)] shadow-[inset_3px_0_0_rgba(0,232,224,0.7)]'
                       : 'border-transparent hover:border-border hover:bg-white/[0.03]'
                   )}
-                  style={{ top: `${top}px` }}
                 >
-                  {/* Decorative check indicator — cannot use <Checkbox> (renders <button>) inside a <button> */}
                   <span
                     aria-hidden="true"
                     className={cn(
-                      'mt-1 inline-flex h-[18px] w-[18px] shrink-0 items-center justify-center rounded-sm border transition-all duration-150',
+                      'mt-0.5 inline-flex h-[18px] w-[18px] shrink-0 items-center justify-center rounded-sm border transition-all duration-150',
                       selected
                         ? 'border-accent-cyan bg-[rgba(0,255,255,0.15)] shadow-[0_0_8px_rgba(0,255,255,0.35)]'
                         : 'border-white/25 bg-white/[0.03]'
@@ -756,9 +722,7 @@ export function SeriesSetup({ data, initialSelectedSeriesNames, userLicenseClass
                   </span>
                   <div className="flex-1 min-w-0">
                     <div className="mb-1.5 flex flex-wrap items-center gap-1.5">
-                      <Badge variant={catVariant}>
-                        {entry.categoryLabel}
-                      </Badge>
+                      <Badge variant={catVariant}>{entry.categoryLabel}</Badge>
                       <Badge variant={licVariant}>{licLabel}</Badge>
                       <Badge variant="default">{entry.weeks.length}{t('weeksShort')}</Badge>
                     </div>
@@ -766,18 +730,27 @@ export function SeriesSetup({ data, initialSelectedSeriesNames, userLicenseClass
                   </div>
                   <CarIndicator cars={entry.cars} />
                 </button>
-              )
-            })}
-          </div>
-        </div>
+              </li>
+            )
+          })}
+        </ul>
       </Card>
 
-      {/* Empty state */}
-      {sortedSeries.length === 0 && (
-        <Card className="p-4 text-sm text-text-secondary">
-          {t('noResults')}
-        </Card>
-      )}
+      </div>
+      {/* Sticky bottom button bar */}
+      <div className="mt-auto sticky bottom-0 md:-mx-6 flex items-center justify-between border-t border-border/30 bg-bg-base px-3 py-3 md:px-6">
+        {onBack ? (
+          <Button variant="ghost" onClick={onBack}>{tCommon('back')}</Button>
+        ) : <span />}
+        <div className="flex items-center gap-3">
+          <span className="px-3 py-1.5 rounded-full border border-accent-cyan/30 bg-accent-cyan/10 text-accent-cyan text-xs font-display font-semibold">
+            {t('selected', { count: selectedSeriesIds.length })}
+          </span>
+          <Button onClick={handleNext} disabled={selectedSeriesIds.length === 0}>
+            {onNextProp ? t('save') : t('continueToTracks')}
+          </Button>
+        </div>
+      </div>
     </div>
   )
 }

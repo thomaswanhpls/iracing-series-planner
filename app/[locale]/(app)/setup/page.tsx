@@ -33,7 +33,7 @@ export default async function SetupPage({
   ])
 
   return (
-    <div className="h-full overflow-auto p-3 md:p-6">
+    <div className="h-full overflow-auto pt-3 px-3 pb-0 md:pt-6 md:px-6 md:pb-0">
       <WizardShell
         userId={session.userId}
         seriesData={seriesData}

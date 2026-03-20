@@ -74,7 +74,7 @@ export function WizardShell({
   const [state, setState] = useState<WizardState>(() => {
     const stored = loadFromStorage()
     return {
-      step: 1,
+      step: stored.step ?? 1,
       profile: stored.profile ?? initialProfile,
       selectedSeriesNames: stored.selectedSeriesNames ?? initialSeriesNames,
       ownedTrackKeys: stored.ownedTrackKeys ?? initialTrackKeys,
@@ -143,7 +143,7 @@ export function WizardShell({
   const steps = [t('steps.profile'), t('steps.tracks'), t('steps.cars'), t('steps.series')]
 
   return (
-    <div className="flex flex-col gap-6">
+    <div className="flex flex-col gap-6 min-h-full">
       {/* Step indicator */}
       <div className="flex flex-wrap items-center gap-x-2 gap-y-2">
         {steps.map((label, i) => {
@@ -206,7 +206,7 @@ export function WizardShell({
         />
       )}
       {state.step === 4 && (
-        <div className="flex flex-col gap-2">
+        <div className="flex flex-col gap-2 flex-1">
           <SeriesSetup
             data={seriesData}
             initialSelectedSeriesNames={state.selectedSeriesNames}
