@@ -15,11 +15,19 @@ import {
 } from 'lucide-react'
 import { useTranslations } from 'next-intl'
 import { parseRaceConditions } from '@/lib/iracing/race-conditions'
+import { makeTrackKey } from '@/lib/iracing/types'
 import type { IracingSeries } from '@/lib/iracing/types'
+
+type FocusState =
+  | { kind: 'track'; key: string }
+  | { kind: 'series'; name: string }
+  | null
 
 interface RaceConditionsWidgetProps {
   selectedSeries: IracingSeries[]
   currentWeekIndex: number
+  focus: FocusState
+  onFocusSeries: (name: string) => void
 }
 
 // ── Time of day ───────────────────────────────────────────────────────────────
@@ -81,7 +89,7 @@ const TEMP_STYLE: Record<TempTier, { color: string; bg: string; border: string }
 
 // ── Widget ────────────────────────────────────────────────────────────────────
 
-export function RaceConditionsWidget({ selectedSeries, currentWeekIndex }: RaceConditionsWidgetProps) {
+export function RaceConditionsWidget({ selectedSeries, currentWeekIndex, focus, onFocusSeries }: RaceConditionsWidgetProps) {
   const t = useTranslations('dashboard.raceConditions')
 
   const timeTheme = buildTimeTheme({
@@ -106,12 +114,24 @@ export function RaceConditionsWidget({ selectedSeries, currentWeekIndex }: RaceC
           const cond = parseRaceConditions(week.notes, week.referenceSession)
           const tod = getTimeOfDay(cond.startTime)
           const accent = CARD_ACCENT[tod]
+          const isFocused = focus?.kind === 'series' && focus.name === s.seriesName
+          const hasTrack = focus?.kind === 'track' && !!week && makeTrackKey(week.venue, week.config) === focus.key
+          const dimmed = focus !== null && !isFocused && !hasTrack
 
           return (
-            <div
+            <button
               key={s.seriesName}
-              className="shrink-0 rounded-lg px-3 py-2.5"
-              style={{ background: accent.bg, border: `1px solid ${accent.border}` }}
+              type="button"
+              onClick={() => onFocusSeries(s.seriesName)}
+              className="shrink-0 rounded-lg px-3 py-2.5 w-full text-left cursor-pointer"
+              style={{
+                background: accent.bg,
+                border: `1px solid ${accent.border}`,
+                outline: isFocused ? '2px solid rgba(0,232,224,0.5)' : hasTrack ? '2px solid rgba(255,140,0,0.5)' : undefined,
+                outlineOffset: isFocused || hasTrack ? '-2px' : undefined,
+                opacity: dimmed ? 0.35 : 1,
+                transition: 'opacity 0.15s',
+              }}
             >
               <div className="mb-2 flex items-baseline justify-between gap-2">
                 <span className="truncate text-sm font-semibold text-text-primary">{s.seriesName}</span>
@@ -123,7 +143,7 @@ export function RaceConditionsWidget({ selectedSeries, currentWeekIndex }: RaceC
                 {cond.rainChance !== null && <RainPill rainChance={cond.rainChance} />}
                 {cond.startTime && <TimePill startTime={cond.startTime} tod={tod} timeTheme={timeTheme} />}
               </div>
-            </div>
+            </button>
           )
         })}
       </div>

@@ -23,13 +23,20 @@ const BADGE_COLORS: Record<TrackStatus, { color: string; bg: string }> = {
   free:    { color: 'var(--color-accent-green)',   bg: 'var(--color-status-free)'  },
 }
 
+type FocusState =
+  | { kind: 'track'; key: string }
+  | { kind: 'series'; name: string }
+  | null
+
 interface MySeriesWidgetProps {
   selectedSeries: IracingSeries[]
   ownedTrackKeys: string[]
   currentWeekIndex: number
+  focus: FocusState
+  onFocusSeries: (name: string) => void
 }
 
-export function MySeriesWidget({ selectedSeries, ownedTrackKeys, currentWeekIndex }: MySeriesWidgetProps) {
+export function MySeriesWidget({ selectedSeries, ownedTrackKeys, currentWeekIndex, focus, onFocusSeries }: MySeriesWidgetProps) {
   const t = useTranslations('dashboard.mySeries')
   const ownedSet = new Set(ownedTrackKeys)
 
@@ -49,10 +56,20 @@ export function MySeriesWidget({ selectedSeries, ownedTrackKeys, currentWeekInde
           const week = s.weeks[currentWeekIndex]
           const status = week ? getTrackStatus(week.venue, week.config, ownedSet) : 'owned'
           const colors = BADGE_COLORS[status]
+          const isFocusedSeries = focus?.kind === 'series' && focus.name === s.seriesName
+          const hasTrack = focus?.kind === 'track' && s.weeks.some(w => w && makeTrackKey(w.venue, w.config) === focus.key)
+          const dimmed = focus !== null && !isFocusedSeries && !hasTrack
           return (
-            <div
+            <button
               key={s.seriesName}
-              className="shrink-0 rounded-md border border-border-subtle px-3 py-2.5"
+              type="button"
+              onClick={() => onFocusSeries(s.seriesName)}
+              className={[
+                'shrink-0 rounded-md border border-border-subtle px-3 py-2.5 transition-all text-left w-full',
+                isFocusedSeries ? 'ring-1 ring-accent-cyan/70 bg-[rgba(0,232,224,0.06)]' : '',
+                hasTrack ? 'ring-1 ring-accent-orange/60 bg-[rgba(255,140,0,0.05)]' : '',
+                dimmed ? 'opacity-40' : '',
+              ].join(' ')}
             >
               <div className="mb-2 flex items-start justify-between gap-2">
                 <span className="text-sm font-semibold leading-snug text-text-primary">{s.seriesName}</span>
@@ -74,7 +91,7 @@ export function MySeriesWidget({ selectedSeries, ownedTrackKeys, currentWeekInde
               {week && (
                 <div className="truncate text-xs text-text-secondary">{week.track}</div>
               )}
-            </div>
+            </button>
           )
         })}
       </div>

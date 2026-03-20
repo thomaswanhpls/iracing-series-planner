@@ -24,13 +24,21 @@ const STATUS_CELL_BG: Record<CellStatus, string> = {
 }
 
 
+type FocusState =
+  | { kind: 'track'; key: string }
+  | { kind: 'series'; name: string }
+  | null
+
 interface MatrixWidgetProps {
   selectedSeries: IracingSeries[]
   ownedTrackKeys: string[]
   currentWeekIndex: number
+  focus: FocusState
+  onFocusSeries: (name: string) => void
+  onFocusTrack: (key: string) => void
 }
 
-export function MatrixWidget({ selectedSeries, ownedTrackKeys, currentWeekIndex }: MatrixWidgetProps) {
+export function MatrixWidget({ selectedSeries, ownedTrackKeys, currentWeekIndex, focus, onFocusSeries, onFocusTrack }: MatrixWidgetProps) {
   const t = useTranslations('dashboard.matrix')
   const ownedSet = new Set(ownedTrackKeys)
   const statusLabels: Record<CellStatus, string> = {
@@ -66,39 +74,53 @@ export function MatrixWidget({ selectedSeries, ownedTrackKeys, currentWeekIndex 
 
         {/* Series rows */}
         <div className="flex flex-col gap-1">
-          {selectedSeries.map((s) => (
-            <div key={s.seriesName} className="flex items-center">
-              <span className="w-[180px] shrink-0 truncate pr-3 text-sm text-text-primary">
-                {s.seriesName}
-              </span>
-              <div className="flex flex-1 gap-0.5 pr-1">
-                {allWeekIndices.map((wi) => {
-                  const week = s.weeks[wi]
-                  const isCurrent = wi === currentWeekIndex
-                  if (!week) return (
-                    <div
-                      key={wi}
-                      className="h-5 flex-1 rounded-[3px]"
-                      style={{ background: 'rgba(255,255,255,0.04)' }}
-                    />
-                  )
-                  const status = getStatus(week.venue, week.config, ownedSet)
-                  return (
-                    <div
-                      key={wi}
-                      className="h-5 flex-1 rounded-[3px]"
-                      style={{
-                        background: STATUS_CELL_BG[status],
-                        outline: isCurrent ? '2px solid var(--color-accent-cyan)' : undefined,
-                        outlineOffset: isCurrent ? '-1px' : undefined,
-                      }}
-                      title={`v${wi + 1} · ${week.track} — ${statusLabels[status]}`}
-                    />
-                  )
-                })}
+          {selectedSeries.map((s) => {
+            const isFocusedSeriesRow = focus?.kind === 'series' && focus.name === s.seriesName
+            const rowDimmed = focus !== null && !isFocusedSeriesRow && !(focus.kind === 'track' && s.weeks.some(w => w && makeTrackKey(w.venue, w.config) === focus.key))
+            return (
+              <div
+                key={s.seriesName}
+                className="flex items-center"
+                style={{ opacity: rowDimmed ? 0.3 : 1, transition: 'opacity 0.15s' }}
+              >
+                <button
+                  type="button"
+                  onClick={() => onFocusSeries(s.seriesName)}
+                  className="w-[180px] shrink-0 pr-3 text-sm text-text-primary hover:text-accent-cyan transition-colors cursor-pointer text-left truncate"
+                >
+                  {s.seriesName}
+                </button>
+                <div className="flex flex-1 gap-0.5 pr-1">
+                  {allWeekIndices.map((wi) => {
+                    const week = s.weeks[wi]
+                    const isCurrent = wi === currentWeekIndex
+                    if (!week) return (
+                      <div
+                        key={wi}
+                        className="h-5 flex-1 rounded-[3px]"
+                        style={{ background: 'rgba(255,255,255,0.04)' }}
+                      />
+                    )
+                    const status = getStatus(week.venue, week.config, ownedSet)
+                    const isFocusedTrack = focus?.kind === 'track' && makeTrackKey(week.venue, week.config) === focus.key
+                    return (
+                      <div
+                        key={wi}
+                        className="h-5 flex-1 rounded-[3px] cursor-pointer"
+                        onClick={() => onFocusTrack(makeTrackKey(week.venue, week.config))}
+                        style={{
+                          background: STATUS_CELL_BG[status],
+                          outline: isFocusedTrack ? '2px solid var(--color-accent-orange)' : isCurrent ? '2px solid var(--color-accent-cyan)' : undefined,
+                          outlineOffset: isFocusedTrack || isCurrent ? '-1px' : undefined,
+                        }}
+                        title={`v${wi + 1} · ${week.track} — ${statusLabels[status]}`}
+                      />
+                    )
+                  })}
+                </div>
               </div>
-            </div>
-          ))}
+            )
+          })}
         </div>
 
         {/* Legend */}

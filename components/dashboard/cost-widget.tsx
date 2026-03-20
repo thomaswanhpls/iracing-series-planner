@@ -6,10 +6,18 @@ import { ArrowRight, Car, MapPin } from 'lucide-react'
 import { useTranslations } from 'next-intl'
 import type { ContentCostSummary, ContentPurchaseRecommendation, MissingCarForSeries } from '@/lib/analysis/types'
 
+type FocusState =
+  | { kind: 'track'; key: string }
+  | { kind: 'series'; name: string }
+  | null
+
 interface CostWidgetProps {
   summary: ContentCostSummary
   recommendations: ContentPurchaseRecommendation[]
   missingCarBySeries: MissingCarForSeries[]
+  focus: FocusState
+  onFocusTrack: (key: string) => void
+  onFocusSeries: (name: string) => void
 }
 
 /** "Spa|Grand Prix" → "Spa — Grand Prix", "Spa|" → "Spa" */
@@ -21,7 +29,7 @@ function formatTrackKey(key: string): string {
   return config ? `${venue} — ${config}` : venue
 }
 
-export function CostWidget({ summary, recommendations, missingCarBySeries }: CostWidgetProps) {
+export function CostWidget({ summary, recommendations, missingCarBySeries, focus, onFocusTrack, onFocusSeries }: CostWidgetProps) {
   const t = useTranslations('dashboard.costs')
   const tracks = recommendations.filter((r) => r.item.type === 'track')
 
@@ -50,9 +58,16 @@ export function CostWidget({ summary, recommendations, missingCarBySeries }: Cos
             </div>
             <div className="flex flex-col gap-1">
               {tracks.map((rec) => (
-                <div
+                <button
                   key={rec.item.name}
-                  className="flex items-center justify-between rounded-md border border-border-subtle px-3 py-2"
+                  type="button"
+                  onClick={() => onFocusTrack(rec.item.name)}
+                  className={[
+                    'flex items-center justify-between rounded-md border border-border-subtle px-3 py-2 cursor-pointer text-left w-full',
+                    focus?.kind === 'track' && focus.key === rec.item.name
+                      ? 'ring-1 ring-accent-cyan/60 bg-[rgba(0,232,224,0.07)]'
+                      : '',
+                  ].join(' ')}
                 >
                   <div className="min-w-0">
                     <div className="truncate text-sm text-text-primary">
@@ -69,7 +84,7 @@ export function CostWidget({ summary, recommendations, missingCarBySeries }: Cos
                   >
                     {rec.item.price === 0 ? t('included') : `$${rec.item.price.toFixed(2)}`}
                   </span>
-                </div>
+                </button>
               ))}
             </div>
           </div>
@@ -84,9 +99,16 @@ export function CostWidget({ summary, recommendations, missingCarBySeries }: Cos
             </div>
             <div className="flex flex-col gap-1">
               {missingCarBySeries.map((entry) => (
-                <div
+                <button
                   key={entry.seriesName}
-                  className="flex items-center justify-between rounded-md border border-border-subtle px-3 py-2"
+                  type="button"
+                  onClick={() => onFocusSeries(entry.seriesName)}
+                  className={[
+                    'flex items-center justify-between rounded-md border border-border-subtle px-3 py-2 cursor-pointer text-left w-full',
+                    focus?.kind === 'series' && focus.name === entry.seriesName
+                      ? 'ring-1 ring-accent-cyan/60 bg-[rgba(0,232,224,0.07)]'
+                      : '',
+                  ].join(' ')}
                 >
                   <div className="min-w-0">
                     <div className="truncate text-sm text-text-primary">{entry.seriesName}</div>
@@ -99,7 +121,7 @@ export function CostWidget({ summary, recommendations, missingCarBySeries }: Cos
                   >
                     {entry.price === 0 ? t('included') : `$${entry.price.toFixed(2)}`}
                   </span>
-                </div>
+                </button>
               ))}
             </div>
           </div>
