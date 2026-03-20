@@ -27,14 +27,22 @@ interface DashboardHubProps {
   currentWeekIndex: number
 }
 
-// Shared widget panel styling — glass card matching the app's design system
-const PANEL = [
+// Desktop panel: fixed-height grid cell, widget scrolls internally
+const PANEL_DESKTOP = [
   'relative min-h-0 overflow-hidden rounded-lg',
   'bg-bg-glass backdrop-blur-md',
   'border border-[rgba(0,232,224,0.1)]',
-  // Subtle teal glow
   'shadow-[0_0_0_1px_rgba(0,232,224,0.04),inset_0_1px_0_rgba(0,232,224,0.07)]',
-  // Teal shimmer on top edge
+  'before:absolute before:top-0 before:inset-x-0 before:h-px before:content-[""]',
+  'before:bg-[linear-gradient(90deg,transparent_0%,rgba(0,232,224,0.3)_50%,transparent_100%)]',
+].join(' ')
+
+// Mobile panel: auto height, no overflow clip so widget can grow freely
+const PANEL_MOBILE = [
+  'relative rounded-lg overflow-visible',
+  'bg-bg-glass backdrop-blur-md',
+  'border border-[rgba(0,232,224,0.1)]',
+  'shadow-[0_0_0_1px_rgba(0,232,224,0.04),inset_0_1px_0_rgba(0,232,224,0.07)]',
   'before:absolute before:top-0 before:inset-x-0 before:h-px before:content-[""]',
   'before:bg-[linear-gradient(90deg,transparent_0%,rgba(0,232,224,0.3)_50%,transparent_100%)]',
 ].join(' ')
@@ -65,33 +73,36 @@ export function DashboardHub({
         licenseDirtOval={licenseDirtOval}
         seasonLabel={seasonLabel}
       />
-      <div
-        className="grid flex-1 p-3 gap-[10px] grid-cols-1 overflow-y-auto md:grid-cols-3 md:overflow-hidden md:[grid-template-rows:2fr_1fr]"
-      >
-        {/* Top row: Cost · My Series · Race Conditions */}
-        <div className={`min-h-[250px] md:min-h-0 ${PANEL}`}>
+
+      {/* ── Mobile layout: simple scrollable column, widgets expand to content height ── */}
+      <div className="flex flex-1 flex-col gap-[10px] overflow-y-auto p-3 md:hidden">
+        <div className={PANEL_MOBILE}>
           <CostWidget summary={summary} recommendations={recommendations} missingCarBySeries={missingCarBySeries} />
         </div>
-        <div className={`min-h-[250px] md:min-h-0 ${PANEL}`}>
-          <MySeriesWidget
-            selectedSeries={selectedSeries}
-            ownedTrackKeys={ownedTrackKeys}
-            currentWeekIndex={currentWeekIndex}
-          />
+        <div className={PANEL_MOBILE}>
+          <MySeriesWidget selectedSeries={selectedSeries} ownedTrackKeys={ownedTrackKeys} currentWeekIndex={currentWeekIndex} />
         </div>
-        <div className={`min-h-[250px] md:min-h-0 ${PANEL}`}>
-          <RaceConditionsWidget
-            selectedSeries={selectedSeries}
-            currentWeekIndex={currentWeekIndex}
-          />
+        <div className={PANEL_MOBILE}>
+          <RaceConditionsWidget selectedSeries={selectedSeries} currentWeekIndex={currentWeekIndex} />
         </div>
-        {/* Bottom row: Matrix spanning full width on desktop */}
-        <div className={`min-h-[250px] md:min-h-0 md:col-span-3 ${PANEL}`}>
-          <MatrixWidget
-            selectedSeries={selectedSeries}
-            ownedTrackKeys={ownedTrackKeys}
-            currentWeekIndex={currentWeekIndex}
-          />
+        <div className={PANEL_MOBILE}>
+          <MatrixWidget selectedSeries={selectedSeries} ownedTrackKeys={ownedTrackKeys} currentWeekIndex={currentWeekIndex} />
+        </div>
+      </div>
+
+      {/* ── Desktop layout: fixed 3-col grid, widgets scroll internally ── */}
+      <div className="hidden md:grid md:flex-1 md:grid-cols-3 md:overflow-hidden md:p-3 md:gap-[10px] md:[grid-template-rows:2fr_1fr]">
+        <div className={PANEL_DESKTOP}>
+          <CostWidget summary={summary} recommendations={recommendations} missingCarBySeries={missingCarBySeries} />
+        </div>
+        <div className={PANEL_DESKTOP}>
+          <MySeriesWidget selectedSeries={selectedSeries} ownedTrackKeys={ownedTrackKeys} currentWeekIndex={currentWeekIndex} />
+        </div>
+        <div className={PANEL_DESKTOP}>
+          <RaceConditionsWidget selectedSeries={selectedSeries} currentWeekIndex={currentWeekIndex} />
+        </div>
+        <div className={`col-span-3 ${PANEL_DESKTOP}`}>
+          <MatrixWidget selectedSeries={selectedSeries} ownedTrackKeys={ownedTrackKeys} currentWeekIndex={currentWeekIndex} />
         </div>
       </div>
     </div>

@@ -40,11 +40,11 @@ export function MySeriesWidget({ selectedSeries, ownedTrackKeys, currentWeekInde
   }
 
   return (
-    <div className="flex h-full flex-col min-h-0">
+    <div className="flex h-full flex-col min-h-0 max-md:h-auto">
       <div className="shrink-0 px-4 pb-2 pt-3">
         <span className="text-xs font-bold uppercase tracking-widest text-text-muted">{t('widgetTitle')}</span>
       </div>
-      <div className="flex flex-1 flex-col gap-2 overflow-y-auto px-4 pb-3">
+      <div className="flex flex-1 flex-col gap-2 overflow-y-auto px-4 pb-3 max-md:flex-none max-md:overflow-visible">
         {selectedSeries.map((s) => {
           const week = s.weeks[currentWeekIndex]
           const status = week ? getTrackStatus(week.venue, week.config, ownedSet) : 'owned'

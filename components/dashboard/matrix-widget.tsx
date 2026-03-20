@@ -41,14 +41,14 @@ export function MatrixWidget({ selectedSeries, ownedTrackKeys, currentWeekIndex 
   const allWeekIndices = (selectedSeries[0]?.weeks ?? []).map((_, i) => i)
 
   return (
-    <div className="flex h-full flex-col min-h-0">
+    <div className="flex h-full flex-col min-h-0 max-md:h-auto">
       <div className="shrink-0 px-5 pb-2 pt-3">
         <span className="text-xs font-bold uppercase tracking-widest text-text-muted">
           {t('widgetTitle', { week: currentWeekIndex + 1 })}
         </span>
       </div>
 
-      <div className="flex flex-1 flex-col overflow-y-auto px-5 pb-4">
+      <div className="flex flex-1 flex-col overflow-y-auto px-5 pb-4 max-md:flex-none max-md:overflow-visible">
         {/* Week column headers */}
         <div className="mb-1.5 flex pl-[180px] pr-1">
           {allWeekIndices.map((wi) => (

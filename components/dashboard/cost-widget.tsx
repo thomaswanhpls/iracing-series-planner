@@ -26,11 +26,11 @@ export function CostWidget({ summary, recommendations, missingCarBySeries }: Cos
   const tracks = recommendations.filter((r) => r.item.type === 'track')
 
   return (
-    <div className="flex h-full flex-col min-h-0">
+    <div className="flex h-full flex-col min-h-0 max-md:h-auto">
       <div className="shrink-0 px-4 pb-2 pt-3">
         <span className="text-xs font-bold uppercase tracking-widest text-text-muted">{t('widgetTitle')}</span>
       </div>
-      <div className="flex-1 overflow-y-auto px-4 pb-3">
+      <div className="flex-1 overflow-y-auto px-4 pb-3 max-md:flex-none max-md:overflow-visible">
         {/* Total */}
         <div className="mb-4">
           <div className="text-3xl font-bold leading-none tabular-nums text-accent-orange">
