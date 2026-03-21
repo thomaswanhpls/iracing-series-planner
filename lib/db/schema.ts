@@ -75,3 +75,13 @@ export const userProfile = sqliteTable('user_profile', {
   licenseDirtRoad: text('license_dirt_road').notNull().default('Rookie'),
   licenseDirtOval: text('license_dirt_oval').notNull().default('Rookie'),
 })
+
+export const userTokens = sqliteTable('user_tokens', {
+  userId: text('user_id')
+    .primaryKey()
+    .references(() => users.id, { onDelete: 'cascade' }),
+  accessToken: text('access_token').notNull(),
+  refreshToken: text('refresh_token').notNull(),
+  expiresAt: integer('expires_at', { mode: 'timestamp' }).notNull(),
+  updatedAt: integer('updated_at', { mode: 'timestamp' }).notNull(),
+})

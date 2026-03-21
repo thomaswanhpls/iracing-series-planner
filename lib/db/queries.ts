@@ -8,6 +8,7 @@ import {
   userSelectedSeriesKeys,
   userOwnedCars,
   userProfile,
+  userTokens,
 } from './schema'
 
 // --- Users ---
@@ -202,4 +203,40 @@ export async function setUserProfile(userId: string, data: Omit<UserProfileData,
       target: userProfile.userId,
       set: { licenseClass, ...data },
     })
+}
+
+// ── User tokens (iRacing OAuth) ───────────────────────────────────────────────
+
+export interface UserTokensData {
+  accessToken: string
+  refreshToken: string
+  expiresAt: Date
+}
+
+export async function saveUserTokens(userId: string, data: UserTokensData): Promise<void> {
+  const updatedAt = new Date()
+  await getDb()
+    .insert(userTokens)
+    .values({ userId, updatedAt, ...data })
+    .onConflictDoUpdate({
+      target: userTokens.userId,
+      set: { updatedAt, ...data },
+    })
+}
+
+export async function getUserTokens(userId: string): Promise<UserTokensData | null> {
+  const rows = await getDb()
+    .select({
+      accessToken: userTokens.accessToken,
+      refreshToken: userTokens.refreshToken,
+      expiresAt: userTokens.expiresAt,
+    })
+    .from(userTokens)
+    .where(eq(userTokens.userId, userId))
+    .limit(1)
+  return rows[0] ?? null
+}
+
+export async function deleteUserTokens(userId: string): Promise<void> {
+  await getDb().delete(userTokens).where(eq(userTokens.userId, userId))
 }
