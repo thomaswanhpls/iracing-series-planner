@@ -1,7 +1,13 @@
+import type { Metadata } from 'next'
 import Link from 'next/link'
 import { redirect } from 'next/navigation'
 import { setRequestLocale, getTranslations } from 'next-intl/server'
 import { getSession } from '@/lib/auth/session'
+
+export const metadata: Metadata = {
+  title: 'Track Matrix',
+  description: 'Full track ownership matrix — see which tracks you own, need, or get free across all your iRacing series.',
+}
 import { fetchSelectedSeriesNames, fetchOwnedTrackKeys } from '@/lib/db/actions'
 import { getAllSeries, CURRENT_SEASON } from '@/lib/iracing/season-data'
 import { getCurrentWeekIndex } from '@/lib/iracing/current-week'

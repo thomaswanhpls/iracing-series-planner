@@ -1,7 +1,17 @@
+import type { Metadata } from 'next'
 import Link from 'next/link'
 import { Trophy, BarChart3, MapPin, Zap } from 'lucide-react'
 import { getTranslations, setRequestLocale } from 'next-intl/server'
 import { LocaleSwitcher } from '@/components/locale-switcher'
+
+export const metadata: Metadata = {
+  title: 'iRacing Season Planner — Plan Your Season, Save Money, Race More',
+  description: 'Free tool to plan your iRacing season. Compare series schedules, optimize track purchases with volume discounts, and maximize participation credits.',
+  openGraph: {
+    title: 'iRacing Season Planner',
+    description: 'Plan your iRacing season. Optimize track purchases and maximize your participation credits.',
+  },
+}
 
 export default async function Home({
   params,

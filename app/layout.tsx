@@ -20,6 +20,7 @@ const jetbrainsMono = JetBrains_Mono({
 })
 
 export const metadata: Metadata = {
+  metadataBase: new URL('https://irsp.app'),
   title: {
     default: 'iRacing Season Planner',
     template: '%s | iRacing Season Planner',
@@ -30,6 +31,19 @@ export const metadata: Metadata = {
     description: 'Plan your iRacing season. Optimize track purchases and maximize your participation.',
     type: 'website',
     siteName: 'iRacing Season Planner',
+    locale: 'en',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'iRacing Season Planner',
+    description: 'Plan your iRacing season. Optimize track purchases and maximize your participation.',
+  },
+  alternates: {
+    canonical: '/',
+    languages: {
+      en: '/',
+      sv: '/sv',
+    },
   },
   robots: {
     index: true,

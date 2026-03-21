@@ -1,7 +1,13 @@
+import type { Metadata } from 'next'
 import Link from 'next/link'
 import { redirect } from 'next/navigation'
 import { setRequestLocale, getTranslations } from 'next-intl/server'
 import { Car, MapPin, TrendingDown } from 'lucide-react'
+
+export const metadata: Metadata = {
+  title: 'Cost Analysis',
+  description: 'Analyze track and car purchase costs for your iRacing season — volume discounts, recommendations, and savings.',
+}
 import { getSession } from '@/lib/auth/session'
 import { fetchSelectedSeriesNames, fetchOwnedTrackKeys, fetchOwnedCarNames } from '@/lib/db/actions'
 import { getAllSeries, CURRENT_SEASON } from '@/lib/iracing/season-data'

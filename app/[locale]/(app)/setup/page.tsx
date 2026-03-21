@@ -1,4 +1,10 @@
+import type { Metadata } from 'next'
 import { setRequestLocale } from 'next-intl/server'
+
+export const metadata: Metadata = {
+  title: 'Season Setup',
+  description: 'Set up your iRacing season — select series, mark owned tracks and cars, configure your profile.',
+}
 import { WizardShell } from '@/components/wizard/wizard-shell'
 import { getAllSeries, getUniqueTracks, getAllCars, toSeasonScheduleData, CURRENT_SEASON } from '@/lib/iracing/season-data'
 import { getSession } from '@/lib/auth/session'

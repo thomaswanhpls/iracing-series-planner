@@ -1,5 +1,11 @@
+import type { Metadata } from 'next'
 import { redirect } from 'next/navigation'
 import { setRequestLocale } from 'next-intl/server'
+
+export const metadata: Metadata = {
+  title: 'Dashboard',
+  description: 'Your iRacing season dashboard — track ownership matrix, cost analysis, and race conditions at a glance.',
+}
 import { getSession } from '@/lib/auth/session'
 import {
   fetchSelectedSeriesNames,
