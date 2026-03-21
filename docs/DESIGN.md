@@ -21,22 +21,22 @@ Mörkt, cyberpunk-inspirerat och data-intensivt. Atmosfären är "racing-telemet
 
 ## 2. Color Palette & Roles
 
-| Namn | Hex / Värde | Roll |
-|------|-------------|------|
-| **Void Svart** | `#050614` | Global canvas — djupaste bakgrundsfärg, kosmiskt mörk |
-| **Cyber Indigo** | `#121332` | Yt-bakgrund — kort, paneler, sidebar |
-| **Natt Indigo** | `#1a1b3b` | Förhöjd yta — modaler, hover-ytor, `rgba(26,27,59,0.8)` |
-| **Cyber Kant** | `#2d2e5a` | Kantlinjer och separatorer |
-| **Elektrisk Cyan** | `#00ffff` | Primär accent — aktiva tillstånd, positivt status, datahöjdpunkter |
-| **Neon Magenta** | `#ff00ff` | Sekundär accent — fokus, alert, interaktiv kontrast |
-| **Bärnstensorange** | `#ff8c00` | Tertiär accent — varningar, kostnader, att-uppmärksamma |
-| **Cyber Blå** | `#0db9f2` | Informationsfärg — länktext, sekundär data, statusindikator |
-| **Cyan glöd** | `rgba(0,255,255,0.3)` | Kantglöd på aktiva element — `box-shadow` neon-effekt |
-| **Magenta glöd** | `rgba(255,0,255,0.3)` | Kantglöd på fokuserade element |
-| **Glas-yta** | `rgba(24,45,52,0.6)` | Frostat glasskort — primär ytklass `.glass-card` |
-| **Cyan tonat glas** | `rgba(0,255,255,0.05)` | Subtil cyan tint på aktiva ytor |
-| **Magenta tonat glas** | `rgba(255,0,255,0.05)` | Subtil magenta tint på fokusytor |
-| **Neutral yta** | `rgba(255,255,255,0.02)` | Absolut minimal separation, knappt synlig |
+| Namn | Hex / Värde | Token | Roll |
+|------|-------------|-------|------|
+| **Djup Svart** | `#040816` | `bg-base` | Global canvas — djupaste bakgrundsfärg |
+| **Nattblå** | `#0e1230` | `bg-surface` | Yt-bakgrund — kort, paneler, sidebar |
+| **Förhöjd yta** | `rgba(18,22,52,0.85)` | `bg-elevated` | Modaler, hover-ytor |
+| **Glas-yta** | `rgba(12,25,50,0.65)` | `bg-glass` | Frostat glasskort — `backdrop-blur` |
+| **Hover-yta** | `rgba(0,232,224,0.05)` | `bg-hover` | Subtil cyan tint vid hover |
+| **Varm Teal** | `#00e8e0` | `accent-cyan` | Primär accent — ägd, positiv, länkar |
+| **Hot Rose** | `#ff2d8a` | `accent-magenta` | Saknad, alert, kontrast |
+| **Bärnsten** | `#ff8c00` | `accent-orange` | Kostnad, varning, köp |
+| **Himmelsblå** | `#0db9f2` | `accent-blue` | Informationsfärg, sekundär data |
+| **Mint** | `#2dd9a8` | `accent-green` | Inkluderat gratis, bästa val |
+| **Varm Röd** | `#ff3d5a` | `accent-red` | Fara, svåra förhållanden |
+| **Kantlinje** | `#1e2260` | `border` | Standardkant |
+| **Subtil kant** | `#0d2448` | `border-subtle` | Diskret separation |
+| **Fokuskant** | `#00e8e0` | `border-focus` | Fokusring |
 
 ---
 
@@ -98,10 +98,10 @@ text-shadow: 0 0 10px rgba(13, 185, 242, 0.6);
 - Kant-bottom: cyan linje
 
 **Statusindikator (ägandeskap):**
-- Ägd bana: cyan (`#00ffff`) med glöd
-- Saknad bana: neutral grå / `rgba(255,255,255,0.2)`
-- Gratis (inkluderad): bärnstensorange (`#ff8c00`)
-- Alert / dyr: magenta (`#ff00ff`)
+- Ägd bana: warm teal (`#00e8e0`, `status-owned`)
+- Saknad bana: subtil vit (`status-missing`)
+- Gratis (inkluderad): mint (`#2dd9a8`, `status-free`)
+- Alert / saknas: hot rose (`#ff2d8a`, `status-alert`)
 
 **Scrollbar:**
 - Bredd: 6px
@@ -114,27 +114,23 @@ text-shadow: 0 0 10px rgba(13, 185, 242, 0.6);
 
 ### Sidstruktur — global shell
 
-Alla vyer delar samma skal: **sticky toppmeny + scrollbart innehållsområde**. Ingen persistent sidebar.
+Alla vyer delar samma skal: **kollapsbar sidebar + sticky topbar + scrollbart innehållsområde**.
 
 ```
-┌─────────────────────────────────────────────────────────────┐
-│  STICKY  │ Logo/titel  │ Nav-tabs (4–5 st)  │ Ikoner höger │
-├──────────┴─────────────────────────────────────────────────┤
-│  [sticky filter-/veckorad om relevant för vyn]             │
-├────────────────────────────────────────────────────────────┤
-│                                                            │
-│   Scrollbart huvudinnehåll                                 │
-│   (varierar per vy — se nedan)                             │
-│                                                            │
-├────────────────────────────────────────────────────────────┤
-│  Footer: session-info / build-metadata / utility-länkar    │
-└────────────────────────────────────────────────────────────┘
+┌──────────┬──────────────────────────────────────────────────┐
+│ SIDEBAR  │  TOPBAR: säsongslabel + locale-switch + avatar   │
+│ 240px    ├──────────────────────────────────────────────────┤
+│ (56px    │                                                   │
+│  collapsed)│  Scrollbart huvudinnehåll                        │
+│          │  (varierar per vy — se nedan)                     │
+│ Nav-ikoner│                                                  │
+│ (lucide)  │                                                  │
+└──────────┴──────────────────────────────────────────────────┘
 ```
 
-- **Toppmeny:** Horisontell flex, full bredd. Logo/titel vänster, utility-ikoner (varukorg, notis, konto) höger, nav-tabs centrerat eller vänsterjusterat.
-- **Nav-tabs:** 4–5 primära destinationer (Dashboard, Series/Optimizer/Garage/Analytics). Aktiv tab markeras med accentfärg.
-- **Sekundära tabs:** Vissa vyer har en extra tab-rad direkt under primärnavigationen (t.ex. "Nuvarande säsong | Nästa säsong | Arkiv" i Series Explorer).
-- **Footer:** Minimal — bygg-info, serverplats, dokumentationslänkar. Låg visuell tyngd.
+- **Sidebar:** Vänsterjusterad, 240px expanderad / 56px kollapsad. Lucide-ikoner + labels. Glassmorfism-bakgrund med radial gradient. Kan kollapsa/expandera med chevron-knapp.
+- **Topbar:** Sticky, visar säsongslabel (t.ex. "2025 S2 · Week 5"), locale-switcher (EN/SV), avatar/profilområde.
+- **Mobil:** Sidebar blir ett fixed overlay-drawer med backdrop. Hamburger-meny i topbar. Widgets stackas vertikalt.
 
 ---
 
@@ -339,7 +335,7 @@ Alla vyer delar samma skal: **sticky toppmeny + scrollbart innehållsområde**. 
 
 **Neonliv som tillstånd:** Glödeffekter kommunicerar — inte dekorerar. Cyan = aktiv/positiv, Magenta = fokus/alert, Orange = kostnad/åtgärd.
 
-**Desktop-first:** Minimum 1280px bredd. Horisontell scroll i matrixvyer. Ingen mobilanpassning i MVP.
+**Responsiv:** Desktop-first design med mobil-responsivitet. `md` (768px) breakpoint separerar mobil/desktop-layout. Dashboard-widgets stackas vertikalt på mobil, sidebar blir drawer.
 
 ---
 
@@ -387,42 +383,38 @@ Definiera i `app/globals.css` med `@theme`:
 
 ```css
 @theme {
-  /* Bakgrund */
-  --color-bg-base: #050614;
-  --color-bg-surface: #121332;
-  --color-bg-elevated: rgba(26, 27, 59, 0.8);
-  --color-bg-glass: rgba(24, 45, 52, 0.6);
-  --color-bg-hover: rgba(0, 255, 255, 0.05);
+  /* Backgrounds */
+  --color-bg-base: #040816;
+  --color-bg-surface: #0e1230;
+  --color-bg-elevated: rgba(18, 22, 52, 0.85);
+  --color-bg-glass: rgba(12, 25, 50, 0.65);
+  --color-bg-hover: rgba(0, 232, 224, 0.05);
 
-  /* Accenter */
-  --color-accent-cyan: #00ffff;       /* Elektrisk Cyan — primär aktiv */
-  --color-accent-magenta: #ff00ff;    /* Neon Magenta — fokus/alert */
-  --color-accent-orange: #ff8c00;     /* Bärnstensorange — kostnad/varning */
-  --color-accent-blue: #0db9f2;       /* Cyber Blå — info/sekundär */
+  /* Accents — solid hex so Tailwind /opacity modifiers work */
+  --color-accent-cyan:    #00e8e0;  /* warm teal — owned / positive / links */
+  --color-accent-magenta: #ff2d8a;  /* hot rose  — missing / alert / the spice */
+  --color-accent-orange:  #ff8c00;  /* amber     — costs money / purchase needed */
+  --color-accent-blue:    #0db9f2;  /* sky blue  — informational */
+  --color-accent-green:   #2dd9a8;  /* mint      — included free / best option */
+  --color-accent-red:     #ff3d5a;  /* warm red  — danger / severe conditions */
 
-  /* Status */
-  --color-status-owned: #00ffff;
-  --color-status-missing: rgba(255, 255, 255, 0.20);
-  --color-status-free: #ff8c00;
-  --color-status-alert: #ff00ff;
+  /* Status backgrounds */
+  --color-status-owned:   rgba(0, 232, 224, 0.15);
+  --color-status-missing: rgba(255, 255, 255, 0.06);
+  --color-status-free:    rgba(45, 217, 168, 0.12);
+  --color-status-alert:   rgba(255, 45, 138, 0.15);
 
   /* Text */
-  --color-text-primary: #ffffff;
+  --color-text-primary:   #ffffff;
   --color-text-secondary: rgba(255, 255, 255, 0.70);
-  --color-text-muted: rgba(255, 255, 255, 0.40);
-  --color-text-cyan: #00ffff;
+  --color-text-muted:     rgba(255, 255, 255, 0.50);
 
-  /* Kanter */
-  --color-border: #2d2e5a;
-  --color-border-cyan: rgba(13, 185, 242, 0.2);
-  --color-border-focus: #00ffff;
+  /* Borders */
+  --color-border:        #1e2260;
+  --color-border-subtle: #0d2448;
+  --color-border-focus:  #00e8e0;
 
-  /* Glöd */
-  --glow-cyan: 0 0 15px rgba(0, 255, 255, 0.4);
-  --glow-magenta: 0 0 15px rgba(255, 0, 255, 0.4);
-}
-
-@theme {
+  /* Fonts */
   --font-display: 'Space Grotesk', sans-serif;   /* rubriker, UI, labels */
   --font-mono: 'JetBrains Mono', monospace;      /* all data, siffror, tider */
 }
