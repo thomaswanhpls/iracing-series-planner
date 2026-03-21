@@ -2,6 +2,8 @@ import './globals.css'
 import type { Metadata } from 'next'
 import { ReactNode } from 'react'
 import { Space_Grotesk, JetBrains_Mono } from 'next/font/google'
+import { Analytics } from '@vercel/analytics/next'
+import { SpeedInsights } from '@vercel/speed-insights/next'
 
 const spaceGrotesk = Space_Grotesk({
   subsets: ['latin'],
@@ -40,6 +42,8 @@ export default function RootLayout({ children }: { children: ReactNode }) {
     <html className={`${spaceGrotesk.variable} ${jetbrainsMono.variable}`}>
       <body className="min-h-screen bg-bg-base font-display text-text-primary antialiased">
         {children}
+        <Analytics />
+        <SpeedInsights />
       </body>
     </html>
   )
