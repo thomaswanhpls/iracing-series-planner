@@ -1,5 +1,7 @@
 # Plan: Bygg om iRacing Season Planner
 
+> **Status (mars 2026):** Denna plan är historisk. Steg 1–9 är genomförda. Steg 10–12 delvis genomförda (Drizzle + Turso aktiv, auth skeleton finns, polish pågår). Se `CLAUDE.md` för aktuell arkitektur.
+
 ## Kontext
 
 Projektet har en minimal skeleton (Next.js 16 + React 19 + Tailwind 4) med en enkel dashboard-komponent och hårdkodad data för 2 serier. Målet är att bygga den fullständiga appen enligt docs/DESIGN.md, docs/DOMAIN.md, docs/IRACING_API.md och docs/PLAN.md — med mörkt tema, sidebar-layout, wizard, matris-dashboard, kostnadsanalys och persistence.
